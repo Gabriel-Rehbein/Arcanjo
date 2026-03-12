@@ -1,0 +1,37 @@
+login.html: página de login e cadastro dos usuários
+
+dashboard.html: interface principal com lista de projetos, comentários, navegação para diário/calendário e acesso ao painel admin
+
+profile.html: formulário para o usuário editar seu perfil (bio, localização, profissão, links) e compartilhar o perfil
+
+settings.html: configurações do usuário (notificações, tema, cores, privacidade, download de dados, armazenamento)
+
+diary.html: caderno pessoal/diário com entrada de textos, edições, exclusão e busca
+
+calendar.html: calendário semanal com tarefas diárias que podem ser adicionadas, concluídas ou excluídas
+
+admin.html: painel administrativo oculto com estatísticas do sistema, gerenciamento de usuários, exportações e ferramentas de manutenção
+
+index.html: página inicial/landing (geralmente redireciona para login)
+
+test-features.html: página interna para testes e recursos específicos durante o desenvolvimento
+
+js/auth-login.js: lógica de autenticação na página de login (validações, comunicação com Supabase, salvar sessão)
+
+js/auth.js: classe de serviço de autenticação e gerenciamento de sessão (verificação de rota protegida, logout)
+
+js/dashboard.js: controla comportamentos da dashboard (renderiza projetos, adiciona comentários, navegação para outras páginas, exibe botão admin)
+
+js/profile.js: manipula carregamento e salvamento do perfil do usuário e função de compartilhamento de perfil
+
+js/settings.js: gerencia todas as configurações do usuário, incluindo armazenamento e exportação de dados
+
+js/diary.js: lógica do diário pessoal (CRUD de entradas, pesquisa e compartilhamento)
+
+js/calendar.js: funcionalidade do calendário semanal e gerenciamento de tarefas
+
+js/admin.js: lógica do painel admin (carregar usuários, estatísticas, exclusão, exportação, uso de armazenamento)
+
+js/supabase-config.js: configuração do cliente Supabase e funções REST para inserir, selecionar, atualizar e deletar
+
+js/data.js: lista padrão de aplicações/links usados no dashboard e salvamento no localStorage

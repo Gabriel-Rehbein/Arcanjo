@@ -24,6 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('shareProfileBtn').addEventListener('click', () => {
     shareProfile(currentUser);
   });
+
+  // botão de direct para abrir chat
+  const directBtn = document.getElementById('directBtn');
+  if (directBtn) {
+    directBtn.addEventListener('click', () => {
+      const params = new URLSearchParams();
+      params.set('to', currentUserId);
+      window.location.href = 'messages.html?' + params.toString();
+    });
+  }
 });
 
 function loadProfileData(username, userId) {

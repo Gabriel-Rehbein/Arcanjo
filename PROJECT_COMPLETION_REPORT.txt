@@ -90,6 +90,7 @@ Arcanjo/
 ├── 📜 7 Arquivos JavaScript
 │   ├── auth.js (Sessão)
 │   ├── auth-login.js (Login)
+│   ├── messages.html & js/messages.js (Sistema de mensagens entre usuários)
 │   ├── dashboard.js (Dashboard)
 │   ├── profile.js ⭐ NOVO
 │   ├── settings.js ⭐ NOVO

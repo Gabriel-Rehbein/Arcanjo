@@ -124,6 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Chat button
+  const chatBtn = document.getElementById('chatBtn');
+  if (chatBtn) {
+    chatBtn.addEventListener('click', () => {
+      window.location.href = 'messages.html';
+    });
+  }
+
   // Modal de Projeto
   if (addProjectBtn) {
     console.log('Botão adicionar projeto encontrado');
