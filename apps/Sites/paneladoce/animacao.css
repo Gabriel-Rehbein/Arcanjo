@@ -1,0 +1,36 @@
+/* Transição suave em tudo que for possível */
+* {
+    transition: all 0.3s ease;
+  }
+  
+  /* Efeito hover nos cards dos doces */
+  .grid-doces .item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Imagens dos doces com leve escala no hover */
+  .grid-doces .item img:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Botão com animação ao passar o mouse */
+  .btn:hover {
+    background-color: #ff3e5e;
+    transform: scale(1.05);
+  }
+  
+  /* Ícones das redes sociais com zoom e sombra */
+  .icone:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Animação suave ao clicar (efeito “pressionar”) */
+  .menu a:active,
+  .btn:active,
+  .icone:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  

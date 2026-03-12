@@ -1,0 +1,44 @@
+.contato {
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: var(--branco);
+}
+
+.contato h2 {
+  font-family: var(--font-titulo);
+  font-size: 2.5rem;
+  color: var(--preto);
+  margin-bottom: 1rem;
+}
+
+.contato p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.contato-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.contato-icon {
+  background-color: var(--preto);
+  color: var(--dourado);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: transform 0.3s, background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.contato-icon:hover {
+  transform: translateY(-5px);
+  background-color: var(--dourado);
+  color: var(--preto);
+}

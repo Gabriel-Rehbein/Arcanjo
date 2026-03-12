@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GabNet — Perfis</title>
+  <link rel="stylesheet" href="css/profiles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">GabNet</div>
+    <div class="actions">
+      <button id="manageBtn" class="btn-secondary">Gerenciar perfis</button>
+      <a href="account_settings.html" class="btn-secondary">Configurações da conta</a>
+      <button id="logout" class="btn-danger">Sair</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1 class="title">Quem está assistindo?</h1>
+
+    <section id="profiles" class="grid" aria-live="polite"></section>
+
+    <template id="tpl">
+      <article class="profile" tabindex="0">
+        <div class="avatar-wrap">
+          <img class="avatar" alt="">
+          <span class="badge kids-badge" hidden>Kids</span>
+          <span class="pin-lock" hidden>🔒</span>
+          <button class="edit-btn" type="button" title="Editar" hidden>✎</button>
+          <button class="del-btn" type="button" title="Excluir" hidden>🗑</button>
+        </div>
+        <div class="pname"></div>
+      </article>
+    </template>
+  </main>
+
+  <!-- Modal Criar/Editar Perfil -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content" role="document">
+      <button id="modalClose" class="modal-close" aria-label="Fechar">✕</button>
+
+      <h2 id="modalTitle">Novo perfil</h2>
+
+      <form id="profileForm" class="form">
+        <div class="field">
+          <label for="name">Nome</label>
+          <input id="name" name="name" type="text" maxlength="24" required>
+        </div>
+
+        <div class="field">
+          <label>Avatar</label>
+          <div class="avatars" id="presetAvatars">
+            <!-- gerado via JS -->
+          </div>
+          <div class="field-row">
+            <input id="avatarUrl" name="avatarUrl" type="url" placeholder="URL do avatar (opcional)">
+            <button type="button" id="genAvatar" class="btn-secondary">Gerar avatar</button>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="checkbox"><input type="checkbox" id="isKids"> Perfil para crianças</label>
+          <label class="checkbox"><input type="checkbox" id="hasPin"> Bloquear com PIN</label>
+        </div>
+
+        <div class="field pin-field" id="pinField" hidden>
+          <label for="pin">PIN (4 dígitos)</label>
+          <input id="pin" name="pin" type="password" inputmode="numeric" pattern="\\d{4}" maxlength="4" placeholder="0000">
+          <p class="help">O PIN será solicitado ao entrar neste perfil.</p>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">Salvar</button>
+          <button type="button" id="cancelBtn" class="btn-secondary">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/profiles.js"></script>
+</body>
+</html>

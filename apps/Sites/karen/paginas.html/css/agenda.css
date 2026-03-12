@@ -1,0 +1,403 @@
+/* agenda.css */
+
+.agenda2025 {
+  max-width: 1000px;
+  margin: auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.agenda-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.hora-brasilia {
+  font-size: 1rem;
+  color: #777;
+}
+
+.controles {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-view {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid var(--dourado);
+  color: var(--dourado);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-view.active,
+.btn-view:hover {
+  background-color: var(--dourado);
+  color: #fff;
+}
+
+#tituloMes {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.calendario div {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.dia:hover {
+  background-color: var(--dourado);
+  color: white;
+  cursor: pointer;
+}
+
+.hoje {
+  background-color: #fff3cd;
+  border: 2px solid var(--dourado);
+  font-weight: bold;
+}
+
+.eventos {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.eventos ul {
+  padding-left: 1.2rem;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.ativo {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.modal-box button {
+  margin-top: 1rem;
+  background-color: var(--dourado);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Semana */
+.semana {
+  display: none;
+  margin-top: 2rem;
+}
+
+.semana-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dia-semana {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+/* Anual */
+.anual {
+  display: none;
+  margin-top: 2rem;
+}
+
+.grade-anual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.bloco-mes-anual {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.5rem;
+  background: #fefefe;
+}
+
+.bloco-mes-anual h4 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--dourado);
+}
+
+.mini-dia {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.hoje-mini {
+  background-color: #ffeeba;
+  border: 1px solid var(--dourado);
+  font-weight: bold;
+}
+
+.evento-espetaculo {
+  background-color: #ffc9c9;
+  border: 1px solid red;
+  color: #900;
+}
+
+.evento-royal {
+  background-color: #c9e4ff;
+  border: 1px solid #007bff;
+  color: #004085;
+}
+
+.evento-espetaculo:hover,
+.evento-royal:hover,
+.mini-dia:hover {
+  transform: scale(1.1);
+  background-color: var(--dourado);
+  color: #fff;
+}
+
+/* agenda.css */
+
+.agenda2025 {
+  max-width: 1000px;
+  margin: auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.agenda-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.hora-brasilia {
+  font-size: 1rem;
+  color: #777;
+}
+
+.controles {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-view {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid var(--dourado);
+  color: var(--dourado);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-view.active,
+.btn-view:hover {
+  background-color: var(--dourado);
+  color: #fff;
+}
+
+#tituloMes {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.calendario div {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.dia:hover {
+  background-color: var(--dourado);
+  color: white;
+  cursor: pointer;
+}
+
+.hoje {
+  background-color: #fff3cd;
+  border: 2px solid var(--dourado);
+  font-weight: bold;
+}
+
+.eventos {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.eventos ul {
+  padding-left: 1.2rem;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.ativo {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.modal-box button {
+  margin-top: 1rem;
+  background-color: var(--dourado);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Semana */
+.semana {
+  display: none;
+  margin-top: 2rem;
+}
+
+.semana-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dia-semana {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+/* Anual */
+.anual {
+  display: none;
+  margin-top: 2rem;
+}
+
+.grade-anual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.bloco-mes-anual {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.5rem;
+  background: #fefefe;
+}
+
+.bloco-mes-anual h4 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--dourado);
+}
+
+.mini-dia {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.hoje-mini {
+  background-color: #ffeeba;
+  border: 1px solid var(--dourado);
+  font-weight: bold;
+}
+
+.evento-espetaculo {
+  background-color: #ffc9c9;
+  border: 1px solid red;
+  color: #900;
+}
+
+.evento-royal {
+  background-color: #c9e4ff;
+  border: 1px solid #007bff;
+  color: #004085;
+}
+
+.evento-espetaculo:hover,
+.evento-royal:hover,
+.mini-dia:hover {
+  transform: scale(1.1);
+  background-color: var(--dourado);
+  color: #fff;
+}

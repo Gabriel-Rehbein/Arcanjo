@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./img/logoaba.png" type="image/png" />
+  <title>Arcanjo • Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/resposive.css" />
+</head>
+
+<body class="bg">
+  <main class="center">
+    <section class="card auth">
+      <h1 class="logo">
+        <img src="./img/logo.png" alt="Logo Arcanjo" class="logo-img">
+        AR<span>CANJO</span>
+      </h1>
+      <p class="muted">Digite a senha para acessar seus sistemas </p>
+
+      <form id="loginForm" class="form">
+        <label class="label">Senha</label>
+        <input id="password" class="input" type="password" placeholder="(1234)" required />
+        <button class="btn" type="submit">Entrar</button>
+        <p id="msg" class="msg" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+</body>
+
+</html>

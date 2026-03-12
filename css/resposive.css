@@ -1,0 +1,79 @@
+/* 1. GRID ULTRA RESPONSIVO */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+  padding: clamp(12px, 2vw, 24px) 0;
+  width: 100%;
+}
+
+/* 2. TOPBAR FLEXÍVEL */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 3. BUSCA RESPONSIVA */
+.search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 420px;
+  width: 100%;
+}
+
+/* 4. AÇÕES (BOTÕES) FLEXÍVEIS */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 5. FORMULÁRIO RESPONSIVO */
+.auth {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: clamp(14px, 3vw, 28px);
+}
+
+/* 6. TELAS PEQUENAS (CELULAR) */
+@media (max-width: 600px) {
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .search {
+    width: 100%;
+    max-width: none;
+  }
+
+}
+
+/* 7. TABLETS */
+@media (max-width: 900px) {
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+}
+
+/* 8. TELAS MUITO GRANDES */
+@media (min-width: 1600px) {
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+}

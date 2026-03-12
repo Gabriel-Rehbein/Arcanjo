@@ -1,0 +1,73 @@
+/* Seção Royal Academy */
+.royal {
+  background-color: var(--branco);
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.royal h2 {
+  font-family: var(--font-titulo);
+  font-size: 2.5rem;
+  color: var(--preto);
+  margin-bottom: 1.5rem;
+}
+
+.royal p {
+  font-size: 1.1rem;
+  color: var(--cinza-escuro);
+  margin-bottom: 2rem;
+}
+
+.royal-info {
+  background-color: var(--preto);
+  color: var(--dourado);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.royal-info h3 {
+  font-size: 1.6rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: var(--dourado);
+}
+
+.royal-info ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.royal-info ul li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.royal-info p {
+  color: var(--branco);
+  font-size: 1rem;
+}
+
+/* Galeria de fotos */
+.royal-fotos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.royal-fotos img {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.royal-fotos img:hover {
+  transform: scale(1.03);
+}

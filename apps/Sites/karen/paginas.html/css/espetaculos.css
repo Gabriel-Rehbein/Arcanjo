@@ -1,0 +1,83 @@
+.espetaculos {
+  padding: 4rem 2rem;
+  background: linear-gradient(to bottom, var(--branco), #fff8ee);
+  text-align: center;
+}
+
+.espetaculos h2 {
+  font-family: var(--font-titulo);
+  font-size: 2.5rem;
+  color: var(--preto);
+  margin-bottom: 1rem;
+}
+
+.espetaculos p {
+  font-size: 1.1rem;
+  color: var(--cinza-escuro);
+  margin-bottom: 3rem;
+}
+
+.linha-do-tempo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.ano {
+  background-color: var(--branco);
+  border: 2px solid var(--dourado);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.ano:hover {
+  transform: translateY(-6px);
+}
+
+.ano h3 {
+  font-size: 1.3rem;
+  color: var(--preto);
+  margin-bottom: 1rem;
+}
+
+.ano img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* DEPOIMENTOS */
+.depoimentos {
+  background-color: var(--preto);
+  color: var(--dourado);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.depoimentos h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.depoimentos blockquote {
+  font-style: italic;
+  margin: 1rem auto;
+  max-width: 600px;
+  color: var(--branco);
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.depoimentos blockquote::before {
+  content: "“";
+  font-size: 2.5rem;
+  position: absolute;
+  left: 0;
+  top: -10px;
+  color: var(--dourado);
+}

@@ -1,0 +1,96 @@
+/* SOBRE A ESCOLA */
+.sobre-escola {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(to bottom, var(--branco), #fff8e9);
+  color: var(--cinza-escuro);
+}
+
+.sobre-escola h2 {
+  font-family: var(--font-titulo);
+  font-size: 2.2rem;
+  color: var(--preto);
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--dourado);
+  display: inline-block;
+  padding-bottom: 0.3rem;
+  margin-top: 3rem;
+}
+
+.sobre-escola p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+/* Missão, Visão e Valores */
+.sobre-escola ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 3rem;
+}
+
+.sobre-escola ul li {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.sobre-escola ul li::before {
+  content: "✔";
+  color: var(--dourado);
+  position: absolute;
+  left: 0;
+  font-size: 1rem;
+}
+
+/* PROFESSORES */
+.professores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.professor {
+  text-align: center;
+  background-color: var(--branco);
+  border: 2px solid var(--dourado);
+  padding: 1rem;
+  border-radius: 12px;
+  width: 220px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.professor:hover {
+  transform: translateY(-8px);
+}
+
+.professor img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 0.8rem;
+}
+
+/* HISTÓRIA - FOTOS */
+.historia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.historia img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,55 @@
+/* horarios.css */
+
+.grade-horarios {
+  max-width: 1000px;
+  margin: 4rem auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.grade-horarios h2 {
+  text-align: center;
+  color: var(--dourado, #d4af37);
+  font-size: 2.4rem;
+  margin-bottom: 3rem;
+}
+
+.linha-horario {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background-color: #fdfdfd;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.linha-horario:hover {
+  transform: scale(1.01);
+}
+
+.linha-horario img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--dourado, #d4af37);
+}
+
+.linha-horario .nome {
+  flex: 1;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.linha-horario .local,
+.linha-horario .hora {
+  font-size: 1rem;
+  color: #555;
+  min-width: 120px;
+  text-align: right;
+}
+

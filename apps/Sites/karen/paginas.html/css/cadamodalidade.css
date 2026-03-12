@@ -1,0 +1,83 @@
+/* cadamodalidade.css */
+
+.conteudo-modalidade {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+.conteudo-modalidade h2 {
+  font-size: 2.4rem;
+  color: var(--dourado, #d4af37);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.img-modalidade {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.conteudo-modalidade p {
+  font-size: 1.1rem;
+  text-align: justify;
+  margin-bottom: 2rem;
+}
+
+.btn-voltar {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--dourado, #d4af37);
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-voltar:hover {
+  background-color: #b5912b;
+}
+
+@media (max-width: 768px) {
+  .conteudo-modalidade {
+    padding: 2rem 1rem;
+  }
+
+  .conteudo-modalidade h2 {
+    font-size: 2rem;
+  }
+
+  .conteudo-modalidade p {
+    font-size: 1rem;
+  }
+
+  .btn-voltar {
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+  }
+}
+
+.btn-ver-horario {
+  display: inline-block;
+  margin-top: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  background-color: var(--dourado, #d4af37);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ver-horario:hover {
+  background-color: #b5912b;
+}

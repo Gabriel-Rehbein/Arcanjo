@@ -1,0 +1,63 @@
+/* menu.css */
+
+/* Botão hambúrguer */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  cursor: pointer;
+  color: var(--dourado);
+  position: absolute;
+  right: 1rem;
+  top: 1.2rem;
+  z-index: 3001;
+  transition: transform 0.3s ease;
+}
+
+/* Estilo do menu responsivo */
+@media screen and (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .menu-list {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95); /* fundo escuro */
+    z-index: 3000;
+    gap: 2.5rem;
+    font-size: 1.4rem;
+    font-family: var(--font-texto);
+    transition: opacity 0.3s ease;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .menu-list.ativo {
+    display: flex;
+  }
+
+  .menu-list li {
+    list-style: none;
+  }
+
+  .menu-list li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.3rem;
+    transition: color 0.3s ease;
+  }
+
+  .menu-list li a:hover {
+    color: var(--dourado);
+  }
+}

@@ -1,0 +1,110 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GMR — Calculadora</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap topbar">
+      <div class="brand">
+        <div class="logo">GMR</div>
+        <div class="txt">
+          <strong>Calculadora</strong>
+          <span id="welcome" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="actions">
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <!-- CALCULADORA -->
+    <section class="calc" aria-label="Calculadora">
+      <div class="screen">
+        <div id="mini" class="mini" aria-live="polite"></div>
+        <div id="display" class="display" aria-live="polite">0</div>
+      </div>
+
+      <div class="keys" role="group" aria-label="Teclado">
+        <button class="key op" data-k="AC">AC</button>
+        <button class="key op" data-k="DEL">DEL</button>
+        <button class="key op" data-k="%">%</button>
+        <button class="key op" data-k="/">÷</button>
+
+        <button class="key" data-k="7">7</button>
+        <button class="key" data-k="8">8</button>
+        <button class="key" data-k="9">9</button>
+        <button class="key op" data-k="*">×</button>
+
+        <button class="key" data-k="4">4</button>
+        <button class="key" data-k="5">5</button>
+        <button class="key" data-k="6">6</button>
+        <button class="key op" data-k="-">−</button>
+
+        <button class="key" data-k="1">1</button>
+        <button class="key" data-k="2">2</button>
+        <button class="key" data-k="3">3</button>
+        <button class="key op" data-k="+">+</button>
+
+        <button class="key op" data-k="SQRT">√</button>
+        <button class="key" data-k="0">0</button>
+        <button class="key" data-k=".">.</button>
+        <button class="key eq" data-k="=">=</button>
+      </div>
+
+      <div class="hint muted">
+        Teclado: números, + - * /, Enter (=), Backspace (DEL), Esc (AC)
+      </div>
+
+      <!-- PAINEL DE APPS -->
+      <div id="appPanel" class="appPanel" style="display:none;">
+        <div class="appContent">
+          <button id="closeApp" class="closeApp" title="Fechar">✕</button>
+          <div id="appBody"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPS -->
+    <aside id="appsPanel" class="apps" aria-label="Apps extras">
+      <div class="appsHead">
+        <h2>Apps</h2>
+      </div>
+
+      <div class="appsGrid">
+        <button class="appCard temp" data-app="temp">
+          <h3>Temperatura</h3><p class="muted">C / F / K</p>
+        </button>
+        <button class="appCard geo" data-app="geo">
+          <h3>Geometria</h3><p class="muted">Área e perímetro</p>
+        </button>
+        <button class="appCard disc" data-app="disc">
+          <h3>Desconto</h3><p class="muted">Preço final</p>
+        </button>
+        <button class="appCard money" data-app="money">
+          <h3>Moedas</h3><p class="muted">Taxa manual</p>
+        </button>
+        <button class="appCard pass" data-app="pass">
+          <h3>Senha</h3><p class="muted">Gerador seguro</p>
+        </button>
+      </div>
+
+      <section class="logBox">
+        <div class="logHead">
+          <h3>Saída</h3>
+          <button id="clearLog" class="ghost">Limpar</button>
+        </div>
+        <pre id="log" class="log" aria-live="polite"></pre>
+      </section>
+    </aside>
+  </main>
+
+  <script src="scrpt.js"></script>
+</body>
+</html>

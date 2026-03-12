@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato - Gabriel Rehbein Advocacia</title>
+  <link rel="icon" type="image/png" href="../Image/Firma/logo.png">
+  <link rel="stylesheet" href="../css/contato.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="stylesheet" href="../css/animation.css">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="../Image/Firma/logo.png" alt="Logo Gabriel Rehbein">
+    </div>
+    <div class="menu-toggle" id="menu-toggle">
+      ☰
+    </div>
+    <nav id="navbar">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../Paginas/escritorio.html">O Escritório</a></li>
+        <li><a href="../Paginas/servicos.html">Serviços</a></li>
+        <li><a href="../Paginas/profissionais.html">Profissionais</a></li>
+        <li><a href="../Paginas/contato.html">Contato</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="pagina-contato">
+    <section class="intro">
+      <h1>Fale Conosco</h1>
+      <p>Entre em contato com nosso escritório para agendar uma consulta ou tirar dúvidas.</p>
+    </section>
+
+    <section class="formulario-contato">
+      <form action="#" method="post">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" rows="5" required></textarea>
+
+        <button type="submit">Enviar Mensagem</button>
+      </form>
+    </section>
+  </main>
+
+  <section class="mapa-localizacao">
+    <h2>Localização</h2>
+    <div class="mapa-embed">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.213927667196!2d-46.65109928460777!3d-23.55583366684702!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c78c63e091%3A0xf5c9dcad4f6497f6!2sPra%C3%A7a%20da%20S%C3%A9%20-%20S%C3%A3o%20Paulo%2C%20SP!5e0!3m2!1spt-BR!2sbr!4v1717786500000!5m2!1spt-BR!2sbr"
+        width="100%"
+        height="450"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </section>
+  
+
+  <footer>
+    <div class="contato">
+      <p><strong>Endereço:</strong> Rua Exemplo, 123 - Centro, Cidade</p>
+      <p><strong>Contato:</strong> (00) 1234-5678 | contato@advocacia.com.br</p>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

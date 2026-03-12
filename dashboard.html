@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./img/logoaba.png" type="image/png" />
+  <title>Arcanjo • Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/resposive.css" />
+</head>
+<body class="bg">
+  <header class="top">
+    <div class="wrap topbar">
+      <div>
+        <h2 class="title">AR<span>CANJO</span></h2>
+        <p class="muted small">Meu hub de projetos</p>
+      </div>
+
+      <div class="actions">
+        <input id="q" class="input search" placeholder="Buscar..." />
+        <select id="tagFilter" class="input">
+          <option value="">Todas as Tags</option>
+        </select>
+        <button id="addProject" class="btn">Adicionar Projeto</button>
+        <button id="logout" class="btn ghost">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="grid"></section>
+    <div class="storage-section">
+      <h3>Armazenamento do Projeto</h3>
+      <div class="storage-container">
+        <canvas id="storageChart"></canvas>
+        <div id="storageInfo" class="storage-info"></div>
+      </div>
+    </div>
+    <p class="muted small footer">Feito Por Gabriel - Rehbein</p>
+  </main>
+
+  <!-- Modal para adicionar/editar projeto -->
+  <div id="projectModal" class="modal" style="display: none;">
+    <div class="modal-content card">
+      <h3 id="modalTitle">Adicionar Projeto</h3>
+      <form id="projectForm">
+        <label class="label">Título</label>
+        <input type="text" id="titulo" class="input" required>
+        
+        <label class="label">Descrição</label>
+        <textarea id="desc" class="input" rows="3" required></textarea>
+        
+        <label class="label">Tag</label>
+        <input type="text" id="tag" class="input" required>
+        
+        <label class="label">URL</label>
+        <input type="text" id="url" class="input" required>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="submit" class="btn">Salvar</button>
+          <button type="button" id="cancelBtn" class="btn ghost">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
