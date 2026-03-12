@@ -19,6 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Usuário:', currentUser);
   console.log('ID:', currentUserId);
 
+  // Verificar se é admin
+  const isAdmin = localStorage.getItem(`is_admin_${currentUserId}`) === 'true';
+  if (isAdmin) {
+    // Adicionar botão de admin oculto no menu
+    setTimeout(() => {
+      const userMenu = document.getElementById('userMenu');
+      if (userMenu) {
+        const adminBtn = document.createElement('button');
+        adminBtn.innerHTML = '🛡️ Admin Panel';
+        adminBtn.style.cssText = 'background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; width: 100%; text-align: left; padding: 0.75rem;';
+        adminBtn.onclick = () => {
+          window.location.href = 'admin.html';
+        };
+        userMenu.insertBefore(adminBtn, userMenu.firstChild);
+      }
+    }, 100);
+  }
+
   // Capturar elementos agora que o DOM está pronto
   userDisplay = document.getElementById('userDisplay');
   userMenuBtn = document.getElementById('userMenuBtn');
@@ -87,6 +105,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (profileBtn) {
     profileBtn.addEventListener('click', () => {
       window.location.href = 'profile.html';
+    });
+  }
+
+  // Diário e Calendário
+  const diaryBtn = document.getElementById('diaryBtn');
+  const calendarBtn = document.getElementById('calendarBtn');
+
+  if (diaryBtn) {
+    diaryBtn.addEventListener('click', () => {
+      window.location.href = 'diary.html';
+    });
+  }
+
+  if (calendarBtn) {
+    calendarBtn.addEventListener('click', () => {
+      window.location.href = 'calendar.html';
     });
   }
 
@@ -192,7 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    grid.innerHTML = filtered.map((p, i) => `
+    grid.innerHTML = filtered.map((p, i) => {
+      const comments = JSON.parse(localStorage.getItem(`project_comments_${i}`) || '[]');
+      return `
       <div class="card project-card">
         <div class="card-header">
           <h3>${p.titulo}</h3>
@@ -201,12 +237,27 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="muted small">${p.descricao || 'Sem descrição'}</p>
         ${p.url ? `<p class="muted small">🔗 <a href="${p.url}" target="_blank">${p.url}</a></p>` : ''}
         <p class="muted tiny">Por ${p.usuario}</p>
-        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(99, 102, 241, 0.2);">
+          <div style="font-size: 0.85rem; color: #8ab4ff; margin-bottom: 0.5rem;">💬 Atividades (${comments.length})</div>
+          <div style="max-height: 120px; overflow-y: auto; margin-bottom: 0.75rem;">
+            ${comments.length > 0 ? comments.slice().reverse().map(c => `
+              <div style="background: rgba(99, 102, 241, 0.1); padding: 0.5rem; border-radius: 0.3rem; margin-bottom: 0.3rem; font-size: 0.8rem;">
+                <div style="color: #a5b4fc; font-weight: 600;">${c.date}</div>
+                <div style="color: #e8eef7;">${c.text.substring(0, 100)}${c.text.length > 100 ? '...' : ''}</div>
+              </div>
+            `).join('') : '<div style="color: #6b7280; font-size: 0.8rem;">Sem atividades ainda</div>'}
+          </div>
+          <input type="text" class="comment-input" placeholder="Adicionar atividade..." id="comment-${i}" onkeypress="if(event.key==='Enter') addProjectComment(${i}, this.value, '${p.titulo}')" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 0.3rem; background: rgba(11, 15, 20, 0.5); color: #e8eef7; font-size: 0.85rem; margin-bottom: 0.75rem;" />
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
           <button class="btn btn-sm" onclick="editProject(${i})">✏️ Editar</button>
           <button class="btn btn-sm ghost" onclick="deleteProject(${i})">🗑️ Deletar</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   function updateTags() {
@@ -312,4 +363,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   `;
   document.head.appendChild(style);
+
+  // Adicionar comentário ao projeto
+  window.addProjectComment = function(projectIndex, commentText, projectTitle) {
+    if (commentText.trim().length === 0) return;
+
+    const commentsKey = `project_comments_${projectIndex}`;
+    let comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    comments.push({
+      text: commentText.trim(),
+      date: dateStr,
+      addedAt: new Date().toISOString()
+    });
+
+    localStorage.setItem(commentsKey, JSON.stringify(comments));
+
+    // Limpar input
+    const inputEl = document.getElementById(`comment-${projectIndex}`);
+    if (inputEl) inputEl.value = '';
+
+    // Recarregar
+    renderProjects();
+  };
 });

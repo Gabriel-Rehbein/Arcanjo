@@ -62,7 +62,7 @@ loginForm.addEventListener('submit', async (e) => {
     }
 
     // Salvar sessão
-    saveSession(user);
+    saveSession(user, password);
 
     // Redirecionar
     window.location.href = 'dashboard.html';
@@ -150,13 +150,24 @@ function showSuccess(element, message) {
   element.classList.add('show');
 }
 
-function saveSession(user) {
+function saveSession(user, password) {
   const session = {
     id: user.id,
     username: user.username,
     createdAt: new Date().toISOString(),
   };
   localStorage.setItem(LS_USER_SESSION, JSON.stringify(session));
+
+  // Verificar se é admin (usuário especial)
+  const isAdmin = (user.username === 'admin' && password === 'Admin@2024');
+  if (isAdmin) {
+    localStorage.setItem(`is_admin_${user.id}`, 'true');
+  }
+
+  // Guardar data de criação para novos usuários
+  if (!localStorage.getItem(`user_created_${user.id}`)) {
+    localStorage.setItem(`user_created_${user.id}`, new Date().toISOString());
+  }
 }
 
 // Verificar se já está logado

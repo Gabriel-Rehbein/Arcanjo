@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     saveProfileData(currentUserId);
   });
+
+  // Listener para compartilhar perfil
+  document.getElementById('shareProfileBtn').addEventListener('click', () => {
+    shareProfile(currentUser);
+  });
 });
 
 function loadProfileData(username, userId) {
@@ -74,4 +79,42 @@ function saveProfileData(userId) {
   }, 3000);
 
   console.log('Perfil salvo com sucesso!', profileData);
+}
+
+function shareProfile(username) {
+  const shareText = `Confira o perfil de ${username} no Arcanjo!`;
+
+  // Verificar se o navegador suporta Web Share API
+  if (navigator.share) {
+    navigator.share({
+      title: 'Perfil no Arcanjo',
+      text: shareText,
+      url: window.location.href
+    }).catch(err => console.log('Erro ao compartilhar:', err));
+  } else {
+    // Fallback: copiar para clipboard
+    const textToCopy = `${shareText} ${window.location.href}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showShareSuccess();
+    }).catch(err => {
+      // Fallback para navegadores mais antigos
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showShareSuccess();
+    });
+  }
+}
+
+function showShareSuccess() {
+  const successMsg = document.getElementById('successMessage');
+  successMsg.textContent = '📤 Link do perfil copiado para a área de transferência!';
+  successMsg.classList.add('show');
+  setTimeout(() => {
+    successMsg.classList.remove('show');
+    successMsg.textContent = '✅ Perfil atualizado com sucesso!';
+  }, 3000);
 }

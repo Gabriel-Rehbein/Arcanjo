@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./img/logoaba.png" type="image/png" />
+  <title>Arcanjo • Calendário</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/resposive.css" />
+  <style>
+    .calendar-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .calendar-header {
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border-radius: 1rem;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .calendar-header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+    }
+
+    .calendar-header p {
+      margin: 0;
+      color: #a5b4fc;
+    }
+
+    .month-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .month-navigation button {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .month-navigation button:hover {
+      background: rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }
+
+    .current-month {
+      font-weight: 600;
+      color: #e8eef7;
+    }
+
+    .week-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .day-card {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .day-card:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .day-card.today {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+      border-color: #6366f1;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .day-name {
+      font-size: 0.85rem;
+      color: #8ab4ff;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .day-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #e8eef7;
+      margin-bottom: 0.5rem;
+    }
+
+    .day-tasks {
+      font-size: 0.8rem;
+      color: #a5b4fc;
+    }
+
+    .task-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.2);
+      color: #86efac;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .tasks-section {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .tasks-section h3 {
+      margin-top: 0;
+      color: #e8eef7;
+    }
+
+    .task-form {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .task-form input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.75rem;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 0.5rem;
+      background: rgba(11, 15, 20, 0.5);
+      color: #e8eef7;
+    }
+
+    .task-form input:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .task-form button {
+      padding: 0.75rem 1.5rem;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .task-form button:hover {
+      background: #4f46e5;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .task-item {
+      background: rgba(11, 15, 20, 0.5);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-item.completed {
+      opacity: 0.6;
+    }
+
+    .task-item.completed span {
+      text-decoration: line-through;
+    }
+
+    .task-text {
+      flex: 1;
+      color: #e8eef7;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .task-actions button {
+      padding: 0.5rem 0.75rem;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
+
+    .task-actions button:hover {
+      background: rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }
+
+    .task-actions .delete {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .task-actions .delete:hover {
+      background: rgba(239, 68, 68, 0.4);
+      color: #fecaca;
+    }
+
+    .no-tasks {
+      text-align: center;
+      color: #8ab4ff;
+      padding: 2rem;
+    }
+
+    .success-message {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #86efac;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .week-view {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .day-card {
+        min-height: 100px;
+      }
+
+      .day-number {
+        font-size: 1.5rem;
+      }
+
+      .task-form {
+        flex-direction: column;
+      }
+
+      .task-form input,
+      .task-form button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg">
+  <header class="top">
+    <div class="wrap topbar">
+      <div>
+        <h2 class="title">AR<span>CANJO</span></h2>
+        <p class="muted small">Calendário da Semana</p>
+      </div>
+      <div class="actions">
+        <a href="dashboard.html" class="btn ghost">← Voltar</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap calendar-container">
+    <div class="calendar-header">
+      <h1>📅 Sua Semana</h1>
+      <p>Organize suas atividades e acompanhe a semana</p>
+      <div class="month-navigation">
+        <button id="prevWeekBtn">← Semana Anterior</button>
+        <span class="current-month" id="currentWeekDisplay"></span>
+        <button id="nextWeekBtn">Próxima Semana →</button>
+      </div>
+    </div>
+
+    <div id="successMessage" class="success-message">✅ Tarefa salva com sucesso!</div>
+
+    <div class="week-view" id="weekView"></div>
+
+    <div class="tasks-section">
+      <h3>📝 Tarefas para Hoje</h3>
+      
+      <div class="task-form">
+        <input type="text" id="taskInput" placeholder="Adicione uma nova tarefa..." />
+        <button onclick="addTask()">➕ Adicionar</button>
+      </div>
+
+      <div id="tasksList" class="task-list">
+        <div class="no-tasks">
+          <p>✨ Sem tarefas por enquanto. Comece a adicionar!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/calendar.js"></script>
+</body>
+
+</html>
