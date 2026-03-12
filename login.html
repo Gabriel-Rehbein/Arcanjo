@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./img/logoaba.png" type="image/png" />
+  <title>Arcanjo • Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/resposive.css" />
+  <style>
+    .auth-container {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .auth-panel {
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .auth-panel.active {
+      display: block;
+    }
+
+    .auth-panel {
+      display: none;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-size: 1rem;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .tab-btn.active {
+      color: #fff;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #6366f1;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+    }
+
+    .error {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .success {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .success.show {
+      display: block;
+    }
+
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .auth-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        width: 100%;
+        text-align: left;
+      }
+
+      .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: auto;
+        left: -1rem;
+        right: auto;
+        width: 2px;
+        height: 100%;
+        background: #6366f1;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg">
+  <main class="center">
+    <section class="card auth">
+      <h1 class="logo">
+        <img src="./img/logo.png" alt="Logo Arcanjo" class="logo-img">
+        AR<span>CANJO</span>
+      </h1>
+      <p class="muted">Rede Social de Projetos</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Entrar</button>
+        <button class="tab-btn" data-tab="signup">Criar Conta</button>
+      </div>
+
+      <!-- Painel Login -->
+      <div id="login" class="auth-panel active">
+        <div id="loginError" class="error"></div>
+        <form id="loginForm" class="form">
+          <label class="label">Usuário (ex: Gabriel)</label>
+          <input id="loginUsername" class="input" type="text" placeholder="seu usuário" required />
+
+          <label class="label">Senha</label>
+          <input id="loginPassword" class="input" type="password" placeholder="••••••••" required />
+
+          <button class="btn" type="submit">Entrar</button>
+        </form>
+      </div>
+
+      <!-- Painel Signup -->
+      <div id="signup" class="auth-panel">
+        <div id="signupError" class="error"></div>
+        <div id="signupSuccess" class="success"></div>
+        <form id="signupForm" class="form">
+          <label class="label">Novo Usuário</label>
+          <input id="signupUsername" class="input" type="text" placeholder="escolha um usuário" required />
+
+          <label class="label">Senha</label>
+          <input id="signupPassword" class="input" type="password" placeholder="••••••••" required />
+
+          <label class="label">Confirmar Senha</label>
+          <input id="signupPasswordConfirm" class="input" type="password" placeholder="••••••••" required />
+
+          <button class="btn" type="submit">Criar Conta</button>
+        </form>
+      </div>
+
+      <p class="muted small" style="margin-top: 2rem; text-align: center;">
+        🔐 Autenticado com Supabase
+      </p>
+    </section>
+  </main>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth-login.js"></script>
+</body>
+
+</html>

@@ -1,45 +1,42 @@
-// Troque a senha aqui:
-const ARCANJO_PASSWORD = "1234";
+// Gerenciamento de Sessão do Usuário
 
-// Páginas protegidas
-const PROTECTED_PAGES = ["dashboard.html"];
+const LS_USER_SESSION = 'arcanjo_user_session';
 
-function isLogged() {
-  return localStorage.getItem("arcanjo_auth") === "ok";
-}
+class Auth {
+  static getSession() {
+    const session = localStorage.getItem(LS_USER_SESSION);
+    return session ? JSON.parse(session) : null;
+  }
 
-function requireAuth() {
-  const page = location.pathname.split("/").pop();
-  if (PROTECTED_PAGES.includes(page) && !isLogged()) {
-    location.href = "index.html";
+  static isAuthenticated() {
+    return !!this.getSession();
+  }
+
+  static getCurrentUser() {
+    const session = this.getSession();
+    return session ? session.username : null;
+  }
+
+  static getCurrentUserId() {
+    const session = this.getSession();
+    return session ? session.id : null;
+  }
+
+  static logout() {
+    localStorage.removeItem(LS_USER_SESSION);
+    window.location.href = 'login.html';
+  }
+
+  static requireAuth() {
+    if (!this.isAuthenticated()) {
+      window.location.href = 'login.html';
+    }
   }
 }
 
-function logout() {
-  localStorage.removeItem("arcanjo_auth");
-  location.href = "index.html";
+// Verificar autenticação em páginas protegidas
+function protectRoute() {
+  if (!Auth.isAuthenticated()) {
+    window.location.href = 'login.html';
+  }
 }
-
-// Se estiver em página protegida, força login
-requireAuth();
-
-// Login form (só roda se existir)
-const form = document.getElementById("loginForm");
-if (form) {
-  const msg = document.getElementById("msg");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const pass = document.getElementById("password").value;
-
-    if (pass === ARCANJO_PASSWORD) {
-      localStorage.setItem("arcanjo_auth", "ok");
-      location.href = "dashboard.html";
-    } else {
-      msg.textContent = "Senha incorreta.";
-    }
-  });
-}
-
-// Logout button (só roda se existir)
-const logoutBtn = document.getElementById("logout");
-if (logoutBtn) logoutBtn.addEventListener("click", logout);

@@ -1,19 +1,119 @@
 <!doctype html>
 <html lang="pt-br">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="icon" href="./img/logoaba.png" type="image/png" />
-  <title>Arcanjo • Login</title>
+  <title>Arcanjo • Dashboard</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/resposive.css" />
+  <style>
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 0.5rem;
+    }
+
+    .user-name {
+      font-weight: 600;
+    }
+
+    .menu-dropdown {
+      position: relative;
+    }
+
+    .dropdown-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #1a1a2e;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      min-width: 150px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .dropdown-menu button:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    .dropdown-menu button.logout {
+      color: #ef4444;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none !important;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal.show {
+      display: flex !important;
+    }
+
+    .modal-content {
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
+
 <body class="bg">
   <header class="top">
     <div class="wrap topbar">
       <div>
         <h2 class="title">AR<span>CANJO</span></h2>
-        <p class="muted small">Meu hub de projetos</p>
+        <p class="muted small">Rede Social de Projetos</p>
       </div>
 
       <div class="actions">
@@ -22,12 +122,30 @@
           <option value="">Todas as Tags</option>
         </select>
         <button id="addProject" class="btn">Adicionar Projeto</button>
-        <button id="logout" class="btn ghost">Sair</button>
+        <button id="logoutBtnTop" class="btn ghost">🚪 Sair</button>
+
+        <div class="menu-dropdown">
+          <button class="dropdown-btn" id="userMenuBtn">👤</button>
+          <div class="dropdown-menu" id="userMenu">
+            <div class="user-info" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+              <span class="user-name" id="userDisplay"></span>
+            </div>
+            <button id="settingsBtn">⚙️ Configurações</button>
+            <button id="profileBtn">👥 Perfil</button>
+            <button class="logout" id="logoutBtn">🚪 Sair</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
   <main class="wrap">
+    <!-- Seção de Boas-vindas -->
+    <section class="welcome-section" id="welcomeSection" style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border-radius: 1rem; border: 1px solid rgba(99, 102, 241, 0.2);">
+      <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">👋 Bem-vindo ao Arcanjo, <span id="userWelcome" style="color: #a5b4fc;">!</span></h2>
+      <p class="muted">Compartilhe seus projetos e descubra o trabalho de outros desenvolvedores</p>
+    </section>
+
     <section class="stats" id="stats"></section>
     <section class="grid" id="grid"></section>
     <div class="storage-section">
@@ -49,25 +167,32 @@
         <input type="text" id="titulo" class="input" required>
         
         <label class="label">Descrição</label>
-        <textarea id="desc" class="input" rows="3" required></textarea>
+        <textarea id="descricao" class="input" rows="3"></textarea>
         
         <label class="label">Tag</label>
-        <input type="text" id="tag" class="input" required>
+        <select id="tag" class="input">
+          <option value="">Selecione uma tag</option>
+          <option value="web">Web</option>
+          <option value="mobile">Mobile</option>
+          <option value="desktop">Desktop</option>
+          <option value="game">Game</option>
+          <option value="ml">Machine Learning</option>
+        </select>
         
-        <label class="label">URL</label>
-        <input type="text" id="url" class="input" required>
+        <label class="label">URL (opcional)</label>
+        <input type="url" id="url" class="input">
         
         <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button type="submit" class="btn">Salvar</button>
-          <button type="button" id="cancelBtn" class="btn ghost">Cancelar</button>
+          <button type="button" id="closeModal" class="btn ghost">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/data.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>
