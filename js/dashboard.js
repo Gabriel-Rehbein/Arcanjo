@@ -80,13 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Configurações e Perfil
   if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
-      alert('Página de Configurações em desenvolvimento');
+      window.location.href = 'settings.html';
     });
   }
 
   if (profileBtn) {
     profileBtn.addEventListener('click', () => {
-      alert('Página de Perfil em desenvolvimento');
+      window.location.href = 'profile.html';
     });
   }
 

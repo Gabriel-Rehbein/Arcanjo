@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./img/logoaba.png" type="image/png" />
+  <title>Arcanjo • Configurações</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/resposive.css" />
+  <style>
+    .settings-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .settings-header {
+      margin-bottom: 2rem;
+    }
+
+    .settings-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .settings-section {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .settings-section h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      background: rgba(11, 15, 20, 0.3);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .setting-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .setting-label {
+      flex: 1;
+    }
+
+    .setting-label h3 {
+      margin: 0 0 0.3rem 0;
+      color: #e8eef7;
+      font-size: 1rem;
+    }
+
+    .setting-label p {
+      margin: 0;
+      color: #8ab4ff;
+      font-size: 0.85rem;
+    }
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      border: none;
+      padding: 0;
+    }
+
+    .toggle.active {
+      background: #10b981;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: left 0.3s;
+    }
+
+    .toggle.active::after {
+      left: 24px;
+    }
+
+    .color-picker-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 1rem;
+    }
+
+    .color-option {
+      width: 60px;
+      height: 60px;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.active {
+      border-color: #fff;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 0.5rem;
+      background: rgba(11, 15, 20, 0.5);
+      color: #e8eef7;
+      font-size: 0.95rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .input-group button {
+      padding: 0.75rem 1.5rem;
+    }
+
+    .select-custom {
+      padding: 0.75rem;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 0.5rem;
+      background: rgba(11, 15, 20, 0.5);
+      color: #e8eef7;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .select-custom:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .success-message {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #86efac;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .btn-section {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-section button {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    @media (max-width: 768px) {
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .setting-control {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 1rem;
+      }
+
+      .color-picker-group {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg">
+  <header class="top">
+    <div class="wrap topbar">
+      <div>
+        <h2 class="title">AR<span>CANJO</span></h2>
+        <p class="muted small">Configurações</p>
+      </div>
+      <div class="actions">
+        <a href="dashboard.html" class="btn ghost">← Voltar</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap settings-container">
+    <div class="settings-header">
+      <h1>⚙️ Configurações</h1>
+      <p class="muted">Customize sua experiência no Arcanjo</p>
+    </div>
+
+    <div id="successMessage" class="success-message">✅ Configurações salvas com sucesso!</div>
+
+    <!-- Seção de Notificações -->
+    <div class="settings-section">
+      <h2>🔔 Notificações</h2>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Notificações por Email</h3>
+          <p>Receba notificações de atividades importantes</p>
+        </div>
+        <div class="setting-control">
+          <button class="toggle" id="emailNotifications" type="button"></button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Notificações Diárias</h3>
+          <p>Resumo diário de atividades (apenas se emails ativados)</p>
+        </div>
+        <div class="setting-control">
+          <button class="toggle" id="dailyNotifications" type="button"></button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Email para Notificações</h3>
+          <p>Seu email para receber notificações</p>
+        </div>
+        <div class="setting-control">
+          <div class="input-group">
+            <input type="email" id="notificationEmail" placeholder="seu@email.com">
+            <button class="btn" id="saveEmailBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Horário de Notificações Diárias</h3>
+          <p>Defina a hora para receber o resumo diário</p>
+        </div>
+        <div class="setting-control">
+          <select class="select-custom" id="notificationTime">
+            <option value="08:00">08:00 da manhã</option>
+            <option value="12:00">12:00 meio-dia</option>
+            <option value="18:00">18:00 à noite</option>
+            <option value="20:00">20:00 noite</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção de Tema -->
+    <div class="settings-section">
+      <h2>🎨 Aparência</h2>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Cor de Fundo</h3>
+          <p>Escolha a cor predominante da página</p>
+        </div>
+      </div>
+
+      <div style="padding: 1rem; margin-bottom: 1rem; background: rgba(11, 15, 20, 0.3); border-radius: 0.5rem;">
+        <div class="color-picker-group">
+          <div class="color-option active" data-color="#0b0f14" title="Preto" style="background: #0b0f14; border: 3px solid #fff;"></div>
+          <div class="color-option" data-color="#1a1a2e" title="Azul Escuro" style="background: #1a1a2e;"></div>
+          <div class="color-option" data-color="#16213e" title="Azul Marinho" style="background: #16213e;"></div>
+          <div class="color-option" data-color="#0f3460" title="Azul Royal" style="background: #0f3460;"></div>
+          <div class="color-option" data-color="#533483" title="Roxo" style="background: #533483;"></div>
+          <div class="color-option" data-color="#2d3142" title="Cinza Escuro" style="background: #2d3142;"></div>
+          <div class="color-option" data-color="#1a1f36" title="Índigo" style="background: #1a1f36;"></div>
+          <div class="color-option" data-color="#0d0221" title="Preto Profundo" style="background: #0d0221;"></div>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Tema</h3>
+          <p>Escolha entre luz ou escuro (escuro recomendado)</p>
+        </div>
+        <div class="setting-control">
+          <select class="select-custom" id="themeSelect">
+            <option value="dark">🌙 Escuro</option>
+            <option value="light">☀️ Claro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção de Privacidade -->
+    <div class="settings-section">
+      <h2>🔒 Privacidade e Segurança</h2>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Perfil Público</h3>
+          <p>Permite que outros usuários vejam seu perfil</p>
+        </div>
+        <div class="setting-control">
+          <button class="toggle" id="publicProfile" type="button"></button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Mostrar Email</h3>
+          <p>Exibir seu email no perfil público</p>
+        </div>
+        <div class="setting-control">
+          <button class="toggle" id="showEmail" type="button"></button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Dois Fatores (2FA)</h3>
+          <p>Ativar autenticação de dois fatores (em breve)</p>
+        </div>
+        <div class="setting-control">
+          <button class="toggle" id="twoFactor" type="button" disabled></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção de Dados -->
+    <div class="settings-section">
+      <h2>📊 Dados</h2>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Baixar Meus Dados</h3>
+          <p>Exporte todos os seus dados em formato JSON</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn ghost" id="downloadDataBtn">📥 Baixar</button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Limpar Cache Local</h3>
+          <p>Limpe dados armazenados localmente no navegador</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn ghost" id="clearCacheBtn">🗑️ Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção de Conta -->
+    <div class="settings-section">
+      <h2>👤 Conta</h2>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Alterar Senha</h3>
+          <p>Atualize sua senha com segurança</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn" id="changePasswordBtn">🔐 Alterar</button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h3>Deletar Conta</h3>
+          <p style="color: #fca5a5;"><strong>Atenção:</strong> Esta ação é irreversível</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn ghost" id="deleteAccountBtn" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">🗑️ Deletar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-section">
+      <button class="btn" id="saveAllBtn">💾 Salvar Todas as Configurações</button>
+      <button class="btn ghost" onclick="location.href='dashboard.html'">← Voltar</button>
+    </div>
+  </main>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+
+</html>

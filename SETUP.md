@@ -4,6 +4,11 @@
 
 Seu aplicativo agora é uma **rede social real** integrada com **Supabase**!
 
+### ✨ Novas Páginas Adicionadas:
+- ✅ **profile.html** - Página de edição de perfil do usuário
+- ✅ **settings.html** - Página completa de configurações
+- ✅ Links de navegação no dashboard para profile e settings
+
 ### 📋 O que foi configurado:
 
 1. **Autenticação com Supabase**
@@ -56,8 +61,6 @@ index.html              # Página de boas-vindas
 
 ### 🔐 Informações do Supabase
 
-- **URL:** `https://ufadmcuylkplkyjmqypx.supabase.co`
-- **ANON KEY:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmYWRtY3V5bGtwbGt5am1xeXB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDExOTQsImV4cCI6MjA4ODkxNzE5NH0.csadEk-Ka8eEJibVUbiA_Bbeh5EwmlwVYjPO29SuCbg`
 
 ### ⚠️ Notas Importantes
 
