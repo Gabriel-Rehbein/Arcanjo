@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Carregar dados
   loadUsers();
   loadStatistics();
+  loadStorageChart();
 
   // Listener para busca
   document.getElementById('searchUsers').addEventListener('input', filterUsers);
@@ -396,4 +397,105 @@ function showSuccessMessage(message) {
   setTimeout(() => {
     msg.classList.remove('show');
   }, 3000);
+}
+// Calcular armazenamento de um usuário
+function calculateUserStorage(userId) {
+  const MAX_STORAGE = 15 * 1024 * 1024; // 15GB em bytes
+  let totalSize = 0;
+
+  const keys = Object.keys(localStorage);
+  const userKeys = keys.filter(key => key.includes(userId));
+
+  userKeys.forEach(key => {
+    const value = localStorage.getItem(key);
+    totalSize += new Blob([value]).size;
+  });
+
+  return {
+    used: totalSize,
+    max: MAX_STORAGE,
+    percentage: (totalSize / MAX_STORAGE) * 100,
+    usedMB: (totalSize / 1024 / 1024).toFixed(2),
+    maxGB: 15
+  };
+}
+
+// Carregar gráfico de armazenamento
+function loadStorageChart() {
+  const container = document.getElementById('storageChartContainer');
+  if (!container) return;
+
+  const keys = Object.keys(localStorage);
+  const userIds = new Set();
+
+  // Encontrar todos os usuários
+  keys.forEach(key => {
+    if (key.includes('user_created_')) {
+      const userId = key.replace('user_created_', '');
+      userIds.add(userId);
+    }
+  });
+
+  let html = `
+    <div style="margin-top: 1.5rem;">
+      <h3 style="color: #e8eef7; margin-bottom: 1rem;">📊 Armazenamento por Usuário</h3>
+      <div style="display: grid; gap: 1.5rem;">
+  `;
+
+  userIds.forEach(userId => {
+    const storage = calculateUserStorage(userId);
+    const userName = getUsernameById(userId) || `Usuário ${userId.substring(0, 8)}`;
+    const percentage = Math.min(storage.percentage, 100);
+    const statusColor = percentage > 90 ? '#ef4444' : percentage > 75 ? '#f97316' : '#10b981';
+    const statusText = percentage > 100 ? '🚨 LIMITE EXCEDIDO' : percentage > 90 ? '⚠️ AVISO' : '✅ OK';
+
+    html += `
+      <div style="background: rgba(99, 102, 241, 0.05); padding: 1rem; border-radius: 0.75rem; border: 1px solid rgba(99, 102, 241, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong style="color: #e8eef7;">${userName}</strong>
+          <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #a5b4fc; margin-bottom: 0.5rem;">
+          <span>${storage.usedMB} MB / ${storage.maxGB} GB</span>
+          <span style="color: ${statusColor};">${percentage.toFixed(1)}%</span>
+        </div>
+        <div style="width: 100%; height: 8px; background: rgba(99, 102, 241, 0.2); border-radius: 4px; overflow: hidden;">
+          <div style="width: ${Math.min(percentage, 100)}%; height: 100%; background: linear-gradient(90deg, #10b981 0%, #f97316 75%, #ef4444 100%); transition: width 0.3s;"></div>
+        </div>
+        ${percentage > 100 ? `<p style="color: #ef4444; margin-top: 0.5rem; font-size: 0.85rem;">⚠️ Usuário precisa assinar um plano premium</p>` : ''}
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+// Obter username pelo ID
+function getUsernameById(userId) {
+  const keys = Object.keys(localStorage);
+  
+  // Procurar na sessão
+  const sessionKey = keys.find(k => k.includes(userId) && k.includes('session'));
+  if (sessionKey) {
+    try {
+      const session = JSON.parse(localStorage.getItem(sessionKey));
+      return session.username;
+    } catch (e) {}
+  }
+
+  // Procurar no perfil
+  const profileKey = `profile_${userId}`;
+  if (localStorage.getItem(profileKey)) {
+    try {
+      const profile = JSON.parse(localStorage.getItem(profileKey));
+      return profile.username;
+    } catch (e) {}
+  }
+
+  return null;
 }
