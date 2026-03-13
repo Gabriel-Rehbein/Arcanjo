@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Carregar configurações salvas
   loadSettings();
-  loadStorageIndicator();
 
   // Listeners para toggles
   document.getElementById('emailNotifications').addEventListener('click', toggleNotifications);
@@ -234,40 +233,4 @@ function showSuccessMessage(message = 'Configurações salvas com sucesso!') {
   }
 }
 
-function loadStorageIndicator() {
-  const MAX_STORAGE = 15 * 1024 * 1024; // 15GB em bytes
-  let totalSize = 0;
 
-  const keys = Object.keys(localStorage);
-  const userKeys = keys.filter(key => key.includes(currentUserId));
-
-  userKeys.forEach(key => {
-    const value = localStorage.getItem(key);
-    totalSize += new Blob([value]).size;
-  });
-
-  const percentage = (totalSize / MAX_STORAGE) * 100;
-  const usedMB = (totalSize / 1024 / 1024).toFixed(2);
-  const usedGB = (totalSize / 1024 / 1024 / 1024).toFixed(2);
-
-  const storageText = document.getElementById('storageText');
-  const storageBar = document.getElementById('storageBar');
-  const storageWarning = document.getElementById('storageWarning');
-
-  storageText.textContent = `${usedGB} GB / 15 GB utilizado (${percentage.toFixed(1)}%)`;
-  storageBar.style.width = Math.min(percentage, 100) + '%';
-
-  if (percentage > 90) {
-    storageWarning.style.display = 'block';
-  } else {
-    storageWarning.style.display = 'none';
-  }
-
-  // Atualizar cor baseado no percentual
-  if (percentage > 100) {
-    storageBar.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
-    storageText.style.color = '#fca5a5';
-  } else if (percentage > 90) {
-    storageBar.style.background = 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)';
-  }
-}

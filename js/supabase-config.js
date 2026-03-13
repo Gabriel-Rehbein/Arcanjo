@@ -77,6 +77,77 @@ class SupabaseClient {
     const response = await fetch(endpoint, options);
     return response.ok;
   }
+
+  async deleteByFilter(table, filters = {}) {
+    let endpoint = `${this.url}/rest/v1/${table}`;
+    
+    // Adicionar filtros à query
+    const filterEntries = Object.entries(filters);
+    if (filterEntries.length > 0) {
+      const filterStr = filterEntries.map(([k, v]) => `${k}=eq.${v}`).join('&');
+      endpoint += `?${filterStr}`;
+    }
+
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'apikey': this.key,
+        'Authorization': `Bearer ${this.key}`,
+      },
+    };
+    const response = await fetch(endpoint, options);
+    return response.ok;
+  }
+
+  // Métodos para Storage
+  async uploadFile(bucket, path, file) {
+    const endpoint = `${this.url}/storage/v1/object/${bucket}/${path}`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.key}`,
+      },
+      body: formData,
+    };
+
+    const response = await fetch(endpoint, options);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro no upload');
+    }
+    return response.json();
+  }
+
+  async deleteFile(bucket, path) {
+    const endpoint = `${this.url}/storage/v1/object/${bucket}/${path}`;
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.key}`,
+      },
+    };
+    const response = await fetch(endpoint, options);
+    return response.ok;
+  }
+
+  async listFiles(bucket, path = '') {
+    const endpoint = `${this.url}/storage/v1/object/list/${bucket}?prefix=${path}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.key}`,
+      },
+    };
+    const response = await fetch(endpoint, options);
+    return response.json();
+  }
+
+  getFileUrl(bucket, path) {
+    return `${this.url}/storage/v1/object/public/${bucket}/${path}`;
+  }
 }
 
 // Instância global do Supabase

@@ -4,21 +4,20 @@ protectRoute();
 
 let currentUserId = null;
 let currentUsername = null;
-let selectedUserId = null;
 let selectedUsername = null;
 
-// chave de armazenamento: messages_{user1}_{user2} (ordenados lexicograficamente)
+// chave de armazenamento: messages_{user1}_{user2} (ordenados lexicograficamente por username)
 
-function makeKey(id1, id2) {
-  return [id1, id2].sort().join('_');
+function makeKey(username1, username2) {
+  return [username1, username2].sort().join('_');
 }
 
-function saveMessage(toId, fromId, text) {
-  const key = `messages_${makeKey(toId, fromId)}`;
+function saveMessage(toUsername, fromUsername, text) {
+  const key = `messages_${makeKey(toUsername, fromUsername)}`;
   const msgs = JSON.parse(localStorage.getItem(key) || '[]');
   msgs.push({
-    from: fromId,
-    to: toId,
+    from: fromUsername,
+    to: toUsername,
     text,
     timestamp: new Date().toISOString(),
   });
@@ -26,18 +25,18 @@ function saveMessage(toId, fromId, text) {
 }
 
 function loadMessages() {
-  if (!selectedUserId) return;
-  const key = `messages_${makeKey(currentUserId, selectedUserId)}`;
+  if (!selectedUsername) return;
+  const key = `messages_${makeKey(currentUsername, selectedUsername)}`;
   const msgs = JSON.parse(localStorage.getItem(key) || '[]');
   const box = document.getElementById('chatBox');
   box.innerHTML = '';
   msgs.forEach(m => {
     const div = document.createElement('div');
     div.classList.add('message');
-    div.classList.add(m.from === currentUserId ? 'self' : 'other');
+    div.classList.add(m.from === currentUsername ? 'self' : 'other');
     const meta = document.createElement('div');
     meta.classList.add('meta');
-    meta.textContent = `${m.from === currentUserId ? 'Você' : selectedUsername} • ${new Date(m.timestamp).toLocaleString('pt-BR')}`;
+    meta.textContent = `${m.from === currentUsername ? 'Você' : m.from} • ${new Date(m.timestamp).toLocaleString('pt-BR')}`;
     const text = document.createElement('div');
     text.textContent = m.text;
     div.appendChild(meta);
@@ -47,37 +46,46 @@ function loadMessages() {
   box.scrollTop = box.scrollHeight;
 }
 
+function isProfilePublic(userId) {
+  const settings = JSON.parse(localStorage.getItem(`settings_${userId}`) || '{}');
+  return settings.publicProfile !== false; // padrão true se não definido
+}
+
 function populateUserList() {
   const select = document.getElementById('userSelect');
   select.innerHTML = '<option value="">-- escolha um usuário --</option>';
   const keys = Object.keys(localStorage);
-  const userIds = new Set();
+  const usernames = new Set();
   keys.forEach(key => {
     if (key.startsWith('user_created_')) {
-      userIds.add(key.replace('user_created_', ''));
+      const userId = key.replace('user_created_', '');
+      if (userId !== currentUserId && isProfilePublic(userId)) {
+        const username = getUsernameById(userId);
+        if (username) {
+          usernames.add(username);
+        }
+      }
     }
   });
-  userIds.forEach(id => {
-    if (id === currentUserId) return;
+  usernames.forEach(username => {
+    if (username === currentUsername) return;
     const opt = document.createElement('option');
-    opt.value = id;
-    opt.textContent = getUsernameById(id) || id;
+    opt.value = username;
+    opt.textContent = username;
     select.appendChild(opt);
   });
 
   // verificar se foi passado usuário via query param
   const urlParams = new URLSearchParams(window.location.search);
   const paramTo = urlParams.get('to');
-  if (paramTo && userIds.has(paramTo) && paramTo !== currentUserId) {
+  if (paramTo && usernames.has(paramTo) && paramTo !== currentUsername) {
     select.value = paramTo;
-    selectedUserId = paramTo;
-    selectedUsername = getUsernameById(paramTo) || '';
+    selectedUsername = paramTo;
     loadMessages();
   }
 
   select.addEventListener('change', () => {
-    selectedUserId = select.value;
-    selectedUsername = getUsernameById(selectedUserId) || '';
+    selectedUsername = select.value;
     loadMessages();
   });
 }
@@ -96,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sendBtn').addEventListener('click', () => {
     const input = document.getElementById('messageInput');
     const text = input.value.trim();
-    if (!text || !selectedUserId) return;
-    saveMessage(selectedUserId, currentUserId, text);
+    if (!text || !selectedUsername) return;
+    saveMessage(selectedUsername, currentUsername, text);
     input.value = '';
     loadMessages();
   });

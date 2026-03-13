@@ -4,17 +4,19 @@
 protectRoute();
 
 let projects = [];
+let currentUserId = null;
 
 // Elementos (null no início)
 let userDisplay, userMenuBtn, userMenu, logoutBtn, settingsBtn, profileBtn;
 let addProjectBtn, projectModal, closeModalBtn, projectForm, grid, searchInput, tagFilter;
 let logoutBtnTop;
+let currentProjectFiles = []; // Arquivos do projeto atual
 
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
   // Pegar usuário AGORA que a página já carregou
   const currentUser = Auth.getCurrentUser();
-  const currentUserId = Auth.getCurrentUserId();
+  currentUserId = Auth.getCurrentUserId();
 
   console.log('Usuário:', currentUser);
   console.log('ID:', currentUserId);
@@ -52,6 +54,49 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput = document.getElementById('q');
   tagFilter = document.getElementById('tagFilter');
   logoutBtnTop = document.getElementById('logoutBtnTop');
+
+  // Upload de arquivos
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileList = document.getElementById('fileList');
+
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', async () => {
+      const files = fileInput.files;
+      if (files.length === 0) {
+        alert('Selecione um arquivo primeiro!');
+        return;
+      }
+
+      for (let file of files) {
+        // Verificar limite de armazenamento
+        const currentUsage = await getCurrentStorageUsage();
+        if (currentUsage + file.size > 15 * 1024 * 1024 * 1024) { // 15GB
+          alert('Limite de armazenamento excedido! Máximo 15GB.');
+          return;
+        }
+
+        try {
+          const filePath = `${currentUserId}/${Date.now()}_${file.name}`;
+          await supabase.uploadFile('project-files', filePath, file);
+          
+          currentProjectFiles.push({
+            name: file.name,
+            size: file.size,
+            path: filePath,
+            uploaded_at: new Date().toISOString()
+          });
+          
+          updateFileList();
+        } catch (error) {
+          console.error('Erro no upload:', error);
+          alert('Erro ao fazer upload do arquivo.');
+        }
+      }
+      
+      fileInput.value = ''; // Limpar input
+    });
+  }
 
   // Mostrar informações do usuário
   if (userDisplay) {
@@ -194,7 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Carregar projetos
-  loadProjects();
+  (async () => {
+    await loadProjects();
+  })();
 
   // Busca e Filtro
   if (searchInput) {
@@ -205,15 +252,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Funções que precisam de currentUser e currentUserId
-  function loadProjects() {
-    const saved = localStorage.getItem(`arcanjo_projects_${currentUserId}`);
-    projects = saved ? JSON.parse(saved) : [];
-    renderProjects();
-    updateTags();
+  async function loadProjects() {
+    try {
+      const result = await supabase.select('projects', { user_id: currentUserId });
+      // Mapear campos do banco para o formato usado no código
+      projects = (result || []).map(p => ({
+        titulo: p.title,
+        descricao: p.description,
+        tag: p.tag,
+        createdAt: p.created_at,
+        files: p.files || []
+      }));
+      renderProjects();
+      updateTags();
+    } catch (error) {
+      console.error('Erro ao carregar projetos:', error);
+      // Fallback para localStorage se der erro
+      const saved = localStorage.getItem(`arcanjo_projects_${currentUserId}`);
+      projects = saved ? JSON.parse(saved) : [];
+      renderProjects();
+      updateTags();
+    }
   }
 
-  function saveProjects() {
-    localStorage.setItem(`arcanjo_projects_${currentUserId}`, JSON.stringify(projects));
+  async function saveProjects() {
+    // Salvar no Supabase
+    try {
+      // Primeiro, deletar projetos existentes do usuário
+      await supabase.deleteByFilter('projects', { user_id: currentUserId });
+      
+      // Inserir projetos atualizados
+      for (const project of projects) {
+        await supabase.insert('projects', {
+          user_id: currentUserId,
+          title: project.titulo,
+          description: project.descricao || '',
+          tag: project.tag || '',
+          files: project.files || [],
+          created_at: project.createdAt || new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao salvar no Supabase:', error);
+      // Fallback para localStorage
+      localStorage.setItem(`arcanjo_projects_${currentUserId}`, JSON.stringify(projects));
+    }
   }
 
   function renderProjects() {
@@ -397,4 +480,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // Recarregar
     renderProjects();
   };
+
+  // Carregar indicador de armazenamento
+  loadStorageIndicator();
 });
+
+function loadStorageIndicator() {
+  const MAX_STORAGE = 15 * 1024 * 1024; // 15GB em bytes
+  let totalSize = 0;
+
+  const keys = Object.keys(localStorage);
+  const userKeys = keys.filter(key => key.includes(currentUserId));
+
+  userKeys.forEach(key => {
+    const value = localStorage.getItem(key);
+    totalSize += new Blob([value]).size;
+  });
+
+  const percentage = (totalSize / MAX_STORAGE) * 100;
+  const usedMB = (totalSize / 1024 / 1024).toFixed(2);
+  const usedGB = (totalSize / 1024 / 1024 / 1024).toFixed(2);
+
+  const storageText = document.getElementById('storageText');
+  const storageBar = document.getElementById('storageBar');
+  const storageWarning = document.getElementById('storageWarning');
+
+  storageText.textContent = `${usedGB} GB / 15 GB utilizado (${percentage.toFixed(1)}%)`;
+  storageBar.style.width = Math.min(percentage, 100) + '%';
+
+  if (percentage > 90) {
+    storageWarning.style.display = 'block';
+  } else {
+    storageWarning.style.display = 'none';
+  }
+
+  // Atualizar cor baseado no percentual
+  if (percentage > 100) {
+    storageBar.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+    storageText.style.color = '#fca5a5';
+  } else if (percentage > 90) {
+    storageBar.style.background = 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)';
+  }
+}
