@@ -65,7 +65,7 @@ loginForm.addEventListener('submit', async (e) => {
     saveSession(user, password);
 
     // Redirecionar
-    window.location.href = 'dashboard.html';
+    window.location.href = 'feed.html';
   } catch (err) {
     showError(loginError, err.message);
   } finally {
@@ -174,7 +174,7 @@ function saveSession(user, password) {
 function checkSession() {
   const session = localStorage.getItem(LS_USER_SESSION);
   if (session) {
-    window.location.href = 'dashboard.html';
+    window.location.href = 'feed.html';
   }
 }
 

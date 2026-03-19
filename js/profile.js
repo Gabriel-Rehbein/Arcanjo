@@ -5,7 +5,11 @@ protectRoute();
 document.addEventListener('DOMContentLoaded', () => {
   const currentUser = Auth.getCurrentUser();
   const currentUserId = Auth.getCurrentUserId();
+  const DEFAULT_AVATAR = "img/logoaba.png";
 
+  function getAvatar(user) {
+    return user?.avatar && user.avatar.trim() ? user.avatar : DEFAULT_AVATAR;
+  }
   if (!currentUser) {
     window.location.href = 'login.html';
     return;
@@ -39,14 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadProfileData(username, userId) {
   // Mostrar informações básicas
   document.getElementById('profileUsername').textContent = `👤 ${username}`;
-  
+
   const createdDate = localStorage.getItem(`user_created_${userId}`);
   if (createdDate) {
     const date = new Date(createdDate);
-    const formatted = date.toLocaleDateString('pt-BR', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const formatted = date.toLocaleDateString('pt-BR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
     document.getElementById('profileMemberSince').textContent = `Membro desde ${formatted}`;
   }
@@ -128,3 +132,4 @@ function showShareSuccess() {
     successMsg.textContent = '✅ Perfil atualizado com sucesso!';
   }, 3000);
 }
+

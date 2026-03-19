@@ -172,7 +172,7 @@
 
   <main class="wrap profile-container">
     <div class="profile-header">
-      <div class="profile-avatar" id="avatar">👤</div>
+      <img id="profileAvatar" class="profile-avatar-img" src="img/logoaba.png" alt="Avatar do usuário">
       <h1 id="profileUsername">Usuário</h1>
       <p id="profileMemberSince">Membro desde -</p>
     </div>
@@ -180,7 +180,8 @@
     <div id="successMessage" class="success-message">✅ Perfil atualizado com sucesso!</div>
 
     <div class="info-box">
-      ℹ️ <strong>Nota:</strong> Seu nome de usuário não pode ser alterado. Para editar outras informações, use o formulário abaixo.
+      ℹ️ <strong>Nota:</strong> Seu nome de usuário não pode ser alterado. Para editar outras informações, use o
+      formulário abaixo.
     </div>
 
     <form id="profileForm" class="profile-form">
@@ -244,9 +245,10 @@
       color: #fff;
       font-size: 1.5rem;
       text-decoration: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       z-index: 1000;
     }
+
     .direct-btn:hover {
       background: #f59e0b;
     }

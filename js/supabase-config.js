@@ -11,7 +11,7 @@ class SupabaseClient {
 
   async query(table, method = 'GET', data = null, filters = {}) {
     let endpoint = `${this.url}/rest/v1/${table}`;
-    
+
     // Adicionar filtros à query
     const filterEntries = Object.entries(filters);
     if (filterEntries.length > 0) {
@@ -33,7 +33,7 @@ class SupabaseClient {
     }
 
     const response = await fetch(endpoint, options);
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erro na requisição');
@@ -80,7 +80,7 @@ class SupabaseClient {
 
   async deleteByFilter(table, filters = {}) {
     let endpoint = `${this.url}/rest/v1/${table}`;
-    
+
     // Adicionar filtros à query
     const filterEntries = Object.entries(filters);
     if (filterEntries.length > 0) {
@@ -152,3 +152,91 @@ class SupabaseClient {
 
 // Instância global do Supabase
 const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function getPublicProjects() {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/projects?select=*&is_public=eq.true&order=created_at.desc`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar projetos públicos.");
+  }
+
+  return await response.json();
+}
+
+async function createProject(project) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify([project])
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erro ao criar projeto: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data[0];
+}
+
+async function updateProject(projectId, updates) {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erro ao atualizar projeto: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data[0];
+}
+
+async function deleteProjectFromDb(projectId) {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erro ao deletar projeto: ${errorText}`);
+  }
+
+  return true;
+}

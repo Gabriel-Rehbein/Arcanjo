@@ -275,6 +275,9 @@
       <div class="admin-tools">
         <button onclick="exportData()">📥 Exportar Dados</button>
         <button onclick="clearAllCache()">🗑️ Limpar Cache</button>
+        <button onclick="resetDatabaseFull()" class="btn danger">
+          🔥 Resetar Banco Completo
+        </button>
       </div>
     </div>
 
@@ -309,7 +312,7 @@
 
     <div class="admin-section">
       <h2>�👥 Gerenciar Usuários</h2>
-      
+
       <div class="warning-message">
         ⚠️ Tenha cuidado! Deletar um usuário apagará TODOS os seus dados de forma permanente.
       </div>
@@ -329,10 +332,12 @@
     <div class="admin-section">
       <h2>🔧 Ferramentas do Sistema</h2>
       <div style="display: grid; gap: 1rem;">
-        <button class="btn" onclick="rebuildDatabase()" style="padding: 1rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc;">
+        <button class="btn" onclick="rebuildDatabase()"
+          style="padding: 1rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc;">
           🔨 Reconstruir Banco de Dados
         </button>
-        <button class="btn" onclick="viewSystemLogs()" style="padding: 1rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc;">
+        <button class="btn" onclick="viewSystemLogs()"
+          style="padding: 1rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc;">
           📋 Ver Logs do Sistema
         </button>
       </div>
@@ -342,6 +347,7 @@
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/reset-db.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,39 @@
+@media (max-width: 960px) {
+  .feed-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-post {
+    grid-template-columns: 1fr;
+  }
+
+  .post-media img,
+  .post-media {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 600px) {
+  .feed-hero {
+    padding: 1.35rem;
+    border-radius: 1rem;
+  }
+
+  .post-body {
+    padding: 1rem;
+  }
+
+  .post-actions,
+  .post-links {
+    flex-direction: column;
+  }
+
+  .post-actions .btn,
+  .post-links .btn {
+    width: 100%;
+  }
+
+  .comment-form {
+    flex-direction: column;
+  }
+}
