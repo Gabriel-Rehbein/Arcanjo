@@ -2,7 +2,7 @@
 // CONFIGURAÇÃO SUPABASE
 // ===============================
 const SUPABASE_URL = 'https://ufadmcuylkplkyjmqypx.supabase.co';
-const SUPABASE_ANON_KEY = 'SUA_CHAVE_AQUI';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmYWRtY3V5bGtwbGt5am1xeXB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDExOTQsImV4cCI6MjA4ODkxNzE5NH0.csadEk-Ka8eEJibVUbiA_Bbeh5EwmlwVYjPO29SuCbg';
 
 // ===============================
 // CLIENTE SUPABASE REST

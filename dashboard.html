@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -8,101 +7,596 @@
   <title>Arcanjo • Dashboard</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/resposive.css" />
+
   <style>
-    .user-info {
+    :root{
+      --bg: #08111d;
+      --bg-2: #0b1220;
+      --card: rgba(15, 23, 36, 0.88);
+      --card-2: rgba(99,102,241,.08);
+      --line: rgba(255,255,255,.08);
+      --line-2: rgba(99,102,241,.18);
+      --text: #e9eef7;
+      --muted: #99a8bb;
+      --primary: #818cf8;
+      --primary-2: #a855f7;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0,0,0,.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body.bg{
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(99,102,241,.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(168,85,247,.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      min-height: 100vh;
+    }
+
+    .wrap{
+      width: min(1280px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .top{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(14px);
+      background: rgba(8, 13, 22, .78);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .topbar{
+      min-height: 84px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 1rem;
-      padding: 0.5rem 1rem;
-      background: rgba(99, 102, 241, 0.1);
-      border-radius: 0.5rem;
+      padding: 14px 0;
     }
 
-    .user-name {
-      font-weight: 600;
+    .title{
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: .04em;
+      line-height: 1;
     }
 
-    .menu-dropdown {
-      position: relative;
+    .title span{ color: #a5b4fc; }
+
+    .muted{ color: var(--muted); }
+    .small{ font-size: .92rem; }
+    .tiny{ font-size: .8rem; }
+
+    .actions{
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: .75rem;
     }
 
-    .dropdown-btn {
-      background: none;
-      border: none;
+    .input,
+    .textarea,
+    select{
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 12px;
+      padding: .9rem 1rem;
+      outline: none;
+      transition: .25s ease;
+    }
+
+    .input:focus,
+    .textarea:focus,
+    select:focus{
+      border-color: rgba(129,140,248,.45);
+      box-shadow: 0 0 0 4px rgba(99,102,241,.12);
+    }
+
+    .search{ min-width: 250px; }
+
+    .btn{
+      border: 0;
+      border-radius: 12px;
+      padding: .88rem 1rem;
+      cursor: pointer;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+      transition: .25s ease;
+      box-shadow: 0 10px 22px rgba(99,102,241,.18);
+    }
+
+    .btn:hover{ transform: translateY(-1px); }
+
+    .btn.ghost{
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.danger{
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .btn-sm{
+      padding: .62rem .85rem;
+      font-size: .88rem;
+      border-radius: 10px;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .hero{
+      display: grid;
+      grid-template-columns: 1.2fr .9fr;
+      gap: 1rem;
+      margin: 1.25rem 0 1rem;
+    }
+
+    .hero-main{
+      padding: 1.4rem;
+      background:
+        linear-gradient(135deg, rgba(99,102,241,.16) 0%, rgba(168,85,247,.10) 100%),
+        rgba(15, 23, 36, 0.9);
+    }
+
+    .hero-main h2{
+      margin: 0 0 .5rem;
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+
+    .hero-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      margin-top: 1rem;
+    }
+
+    .hero-side{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .mini-stat h3{
+      margin: .3rem 0 0;
+      font-size: 1.7rem;
+    }
+
+    .stats-grid{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .controls{
+      display: grid;
+      grid-template-columns: 1.1fr .8fr .8fr .8fr auto;
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 1rem 0 .8rem;
+    }
+
+    .section-head h3{
+      margin: 0;
+      font-size: 1.18rem;
+    }
+
+    .featured-grid,
+    .grid{
+      display: grid;
+      gap: 1rem;
+    }
+
+    .featured-grid{
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      margin-bottom: 1rem;
+    }
+
+    .grid{
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    }
+
+    .project-card{
+      transition: .28s ease;
+      overflow: hidden;
+    }
+
+    .project-card:hover{
+      transform: translateY(-6px);
+      border-color: rgba(129,140,248,.35);
+      box-shadow: 0 18px 38px rgba(0,0,0,.32);
+    }
+
+    .project-cover{
+      width: 100%;
+      height: 185px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: .95rem;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.03);
+    }
+
+    .project-top{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: .8rem;
+      margin-bottom: .55rem;
+    }
+
+    .project-title{
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.28;
+    }
+
+    .tag{
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .32rem .75rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      background: rgba(99,102,241,.14);
+      color: #c7d2fe;
+      border: 1px solid rgba(99,102,241,.2);
+    }
+
+    .project-desc{
+      min-height: 60px;
+      line-height: 1.55;
+      color: #dde5f1;
+    }
+
+    .project-techs,
+    .project-links,
+    .project-actions,
+    .project-stats-line{
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+    }
+
+    .project-techs{
+      margin: .8rem 0;
+    }
+
+    .tech-pill{
+      padding: .3rem .65rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+      font-size: .78rem;
+      color: #d7e0ed;
+    }
+
+    .project-links{
+      margin: .5rem 0 .8rem;
+    }
+
+    .project-links a{
+      color: #a5b4fc;
+      text-decoration: none;
+      word-break: break-all;
+      font-size: .92rem;
+    }
+
+    .project-links a:hover{ text-decoration: underline; }
+
+    .project-stats-line{
+      padding: .75rem 0;
+      color: var(--muted);
+      font-size: .84rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      margin: .8rem 0;
+    }
+
+    .project-actions{
+      margin-top: .9rem;
+    }
+
+    .project-activity-box{
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line-2);
+    }
+
+    .project-activity-title{
+      font-size: .88rem;
+      color: #a5b4fc;
+      font-weight: 700;
+      margin-bottom: .55rem;
+    }
+
+    .project-activity-list{
+      max-height: 145px;
+      overflow-y: auto;
+      margin-bottom: .7rem;
+      padding-right: .2rem;
+    }
+
+    .project-activity-item{
+      background: rgba(99,102,241,.08);
+      border: 1px solid rgba(99,102,241,.13);
+      padding: .62rem;
+      border-radius: 12px;
+      margin-bottom: .45rem;
+      font-size: .84rem;
+    }
+
+    .project-activity-date{
+      color: #c7d2fe;
+      font-size: .75rem;
+      font-weight: 700;
+      margin-bottom: .15rem;
+    }
+
+    .project-activity-empty{
+      color: #6b7280;
+      font-size: .82rem;
+    }
+
+    .comment-input{
+      width: 100%;
+      padding: .82rem .9rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      outline: none;
+    }
+
+    .activity-grid{
+      display: grid;
+      grid-template-columns: 1fr .85fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .recent-list{
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+
+    .recent-item{
+      display: flex;
+      justify-content: space-between;
+      gap: .8rem;
+      padding: .8rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .storage-box{
+      margin-top: .9rem;
+      padding: 1rem;
+      border-radius: 16px;
+      background: rgba(99,102,241,.05);
+      border: 1px solid rgba(99,102,241,.18);
+    }
+
+    .bar{
+      width: 100%;
+      height: 12px;
+      background: rgba(99,102,241,.16);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: .65rem;
+    }
+
+    .bar > div{
+      width: 0%;
+      height: 100%;
+      transition: width .35s ease;
+      background: linear-gradient(90deg, #10b981 0%, #f59e0b 75%, #ef4444 100%);
+    }
+
+    .empty-state{
+      padding: 2rem;
+      text-align: center;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.1);
+      background: rgba(255,255,255,.02);
+    }
+
+    .footer{
+      text-align: center;
+      margin: 2rem 0 1rem;
+    }
+
+    .menu-dropdown{ position: relative; }
+
+    .dropdown-btn{
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
       color: #fff;
       cursor: pointer;
       font-size: 1rem;
-      padding: 0.5rem;
+      padding: .75rem .9rem;
+      border-radius: 12px;
     }
 
-    .dropdown-menu {
+    .dropdown-menu{
       position: absolute;
-      top: 100%;
+      top: calc(100% + 10px);
       right: 0;
-      background: #1a1a2e;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0.5rem;
-      min-width: 150px;
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      min-width: 230px;
       display: none;
       z-index: 1000;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
 
-    .dropdown-menu.show {
-      display: block;
-    }
+    .dropdown-menu.show{ display: block; }
 
-    .dropdown-menu button {
+    .dropdown-menu button{
       width: 100%;
       text-align: left;
-      padding: 0.75rem 1rem;
+      padding: .9rem 1rem;
       background: none;
       border: none;
       color: #fff;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background .2s;
     }
 
-    .dropdown-menu button:hover {
-      background: rgba(99, 102, 241, 0.2);
+    .dropdown-menu button:hover{
+      background: rgba(99,102,241,.15);
     }
 
-    .dropdown-menu button.logout {
-      color: #ef4444;
+    .dropdown-menu button.logout{ color: #fca5a5; }
+
+    .user-info{
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .8rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
     }
 
-    .modal {
+    .user-name{ font-weight: 700; }
+
+    .modal{
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
+      inset: 0;
+      background: rgba(0,0,0,.75);
       display: none !important;
       align-items: center;
       justify-content: center;
       z-index: 2000;
+      padding: 16px;
     }
 
-    .modal.show {
-      display: flex !important;
-    }
+    .modal.show{ display: flex !important; }
 
-    .modal-content {
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
+    .modal-content{
+      width: min(780px, 100%);
+      max-height: 92vh;
       overflow-y: auto;
-      animation: slideIn 0.3s ease;
+      padding: 1.2rem;
+      animation: slideIn .28s ease;
     }
 
-    @keyframes slideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
+    .modal-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .9rem;
+    }
+
+    .label{
+      display: block;
+      margin: .25rem 0 .45rem;
+      font-size: .9rem;
+      color: #d6dfec;
+      font-weight: 600;
+    }
+
+    .textarea{
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .check-line{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: .7rem;
+    }
+
+    .check{
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: #dbe4f2;
+      font-size: .92rem;
+    }
+
+    .uploaded-file-item{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem;
+      padding: .7rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    @keyframes slideIn{
+      from{ transform: translateY(-30px); opacity: 0; }
+      to{ transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 1024px){
+      .hero,
+      .activity-grid,
+      .controls,
+      .stats-grid,
+      .modal-grid{
+        grid-template-columns: 1fr;
       }
-      to {
-        transform: translateY(0);
-        opacity: 1;
+
+      .hero-side{
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px){
+      .topbar{
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions{
+        justify-content: stretch;
+      }
+
+      .actions > *{
+        width: 100%;
+      }
+
+      .hero-side{
+        grid-template-columns: 1fr;
+      }
+
+      .project-actions{
+        flex-direction: column;
       }
     }
   </style>
@@ -113,22 +607,28 @@
     <div class="wrap topbar">
       <div>
         <h2 class="title">AR<span>CANJO</span></h2>
-        <p class="muted small">Rede Social de Projetos</p>
+        <p class="muted small">Rede Social de Portfólios e Projetos</p>
       </div>
 
       <div class="actions">
-        <input id="q" class="input search" placeholder="Buscar..." />
+        <input id="q" class="input search" placeholder="Buscar projetos..." />
         <select id="tagFilter" class="input">
-          <option value="">Todas as Tags</option>
+          <option value="">Todas as tags</option>
         </select>
-        <button id="addProject" class="btn">Adicionar Projeto</button>
-        <button id="chatBtn" class="btn">✈️ Chat</button>
+        <select id="sortFilter" class="input">
+          <option value="recent">Mais recentes</option>
+          <option value="likes">Mais curtidos</option>
+          <option value="views">Mais vistos</option>
+          <option value="title">A-Z</option>
+        </select>
+        <button id="addProject" class="btn">+ Novo Projeto</button>
+        <button id="chatBtn" class="btn ghost">✈️ Chat</button>
         <button id="logoutBtnTop" class="btn ghost">🚪 Sair</button>
 
         <div class="menu-dropdown">
           <button class="dropdown-btn" id="userMenuBtn">👤</button>
           <div class="dropdown-menu" id="userMenu">
-            <div class="user-info" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="user-info">
               <span class="user-name" id="userDisplay"></span>
             </div>
             <button id="settingsBtn">⚙️ Configurações</button>
@@ -143,68 +643,178 @@
   </header>
 
   <main class="wrap">
-    <!-- Seção de Boas-vindas -->
-    <section class="welcome-section" id="welcomeSection" style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border-radius: 1rem; border: 1px solid rgba(99, 102, 241, 0.2);">
-      <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">👋 Bem-vindo ao Arcanjo, <span id="userWelcome" style="color: #a5b4fc;">!</span></h2>
-      <p class="muted">Compartilhe seus projetos e descubra o trabalho de outros desenvolvedores</p>
-    </section>
-
-    <section class="stats" id="stats"></section>
-    <section class="grid" id="grid"></section>
-    <div class="storage-section">
-      <h3>Uso de Armazenamento</h3>
-      <p>Veja quanto espaço você está usando (limite: 15 GB)</p>
-      <div id="storageIndicator" style="margin-top: 1rem; padding: 1rem; background: rgba(99, 102, 241, 0.05); border-radius: 0.5rem; border: 1px solid rgba(99, 102, 241, 0.2);">
-        <div style="margin-bottom: 0.5rem; color: #e8eef7; font-weight: 600;" id="storageText">Carregando...</div>
-        <div style="width: 100%; height: 12px; background: rgba(99, 102, 241, 0.2); border-radius: 6px; overflow: hidden;">
-          <div id="storageBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981 0%, #f97316 75%, #ef4444 100%); transition: width 0.3s;"></div>
-        </div>
-        <div id="storageWarning" style="margin-top: 0.5rem; color: #fca5a5; font-size: 0.9rem; display: none;">
-          ⚠️ Você está usando mais de 90% do seu armazenamento. Considere assinar um plano premium.
+    <section class="hero">
+      <div class="card hero-main">
+        <p class="muted small">Seu espaço criativo</p>
+        <h2>Bem-vindo, <span id="userWelcome" style="color:#a5b4fc;"></span> 👋</h2>
+        <p class="muted">
+          Organize seus portfólios, destaque projetos, acompanhe atividade e construa sua presença profissional.
+        </p>
+        <div class="hero-actions">
+          <button id="heroCreateBtn" class="btn">Publicar projeto</button>
+          <button id="heroFeaturedBtn" class="btn ghost">Ver destaques</button>
         </div>
       </div>
-    </div>
-    <p class="muted small footer">Feito Por Gabriel - Rehbein</p>
+
+      <div class="hero-side">
+        <div class="card mini-stat">
+          <p class="muted small">Projetos</p>
+          <h3 id="heroProjectsCount">0</h3>
+        </div>
+        <div class="card mini-stat">
+          <p class="muted small">Curtidas totais</p>
+          <h3 id="heroLikesCount">0</h3>
+        </div>
+        <div class="card mini-stat">
+          <p class="muted small">Favoritos</p>
+          <h3 id="heroFavoritesCount">0</h3>
+        </div>
+        <div class="card mini-stat">
+          <p class="muted small">Visualizações</p>
+          <h3 id="heroViewsCount">0</h3>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid" id="stats"></section>
+
+    <section class="controls">
+      <input id="quickSearch" class="input" placeholder="Busca rápida..." />
+      <select id="visibilityFilter" class="input">
+        <option value="">Todos</option>
+        <option value="public">Somente públicos</option>
+        <option value="private">Somente privados</option>
+        <option value="featured">Somente destaque</option>
+      </select>
+      <select id="ownershipFilter" class="input">
+        <option value="all">Todos</option>
+        <option value="withFiles">Com arquivos</option>
+        <option value="withoutFiles">Sem arquivos</option>
+      </select>
+      <button id="clearFiltersBtn" class="btn ghost">Limpar filtros</button>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>🌟 Projetos em destaque</h3>
+        <span class="muted small">Seus melhores trabalhos</span>
+      </div>
+      <div class="featured-grid" id="featuredGrid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>📁 Todos os projetos</h3>
+        <span class="muted small" id="projectsCountLabel">0 projetos</span>
+      </div>
+      <section class="grid" id="grid"></section>
+    </section>
+
+    <section class="activity-grid">
+      <div class="card">
+        <div class="section-head" style="margin-top:0;">
+          <h3>🕒 Atividade recente</h3>
+          <span class="muted small">Últimas movimentações</span>
+        </div>
+        <div id="recentActivity" class="recent-list"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">💾 Uso de armazenamento</h3>
+        <p class="muted">Acompanhe seus arquivos enviados</p>
+
+        <div class="storage-box">
+          <div id="storageText" style="font-weight:700;">Carregando...</div>
+          <div class="bar"><div id="storageBar"></div></div>
+          <div id="storageWarning" style="margin-top:.6rem; color:#fca5a5; display:none;">
+            ⚠️ Você está usando mais de 90% do armazenamento.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="muted small footer">Feito por Gabriel Rehbein</p>
   </main>
 
-  <!-- Modal para adicionar/editar projeto -->
-  <div id="projectModal" class="modal" style="display: none;">
+  <div id="projectModal" class="modal">
     <div class="modal-content card">
       <h3 id="modalTitle">Adicionar Projeto</h3>
+
       <form id="projectForm">
-        <label class="label">Título</label>
-        <input type="text" id="titulo" class="input" required>
-        
-        <label class="label">Descrição</label>
-        <textarea id="descricao" class="input" rows="3"></textarea>
-        
-        <label class="label">Tag</label>
-        <select id="tag" class="input">
-          <option value="">Selecione uma tag</option>
-          <option value="web">Web</option>
-          <option value="mobile">Mobile</option>
-          <option value="desktop">Desktop</option>
-          <option value="game">Game</option>
-          <option value="ml">Machine Learning</option>
-        </select>
-        
-        <label class="label">Arquivos (máx. 15GB total)</label>
-        <input type="file" id="fileInput" class="input" multiple style="margin-bottom: 10px;">
-        <div id="fileList" style="margin-bottom: 10px;"></div>
-        <button type="button" id="uploadBtn" class="btn ghost" style="margin-bottom: 10px;">📤 Upload Arquivo</button>
-        
-        <label class="label">URL (opcional)</label>
-        <input type="url" id="url" class="input">
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button type="submit" class="btn">Salvar</button>
+        <div class="modal-grid">
+          <div>
+            <label class="label" for="titulo">Título</label>
+            <input type="text" id="titulo" class="input" required />
+          </div>
+
+          <div>
+            <label class="label" for="tag">Categoria</label>
+            <select id="tag" class="input">
+              <option value="">Selecione</option>
+              <option value="web">Web</option>
+              <option value="mobile">Mobile</option>
+              <option value="desktop">Desktop</option>
+              <option value="game">Game</option>
+              <option value="ml">Machine Learning</option>
+              <option value="api">API</option>
+              <option value="uiux">UI/UX</option>
+              <option value="automation">Automação</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="label" for="descricao">Descrição</label>
+        <textarea id="descricao" class="textarea input" rows="4" placeholder="Explique seu projeto, objetivo, stack e diferencial..."></textarea>
+
+        <div class="modal-grid">
+          <div>
+            <label class="label" for="url">Demo / URL</label>
+            <input type="url" id="url" class="input" placeholder="https://..." />
+          </div>
+
+          <div>
+            <label class="label" for="github">GitHub</label>
+            <input type="url" id="github" class="input" placeholder="https://github.com/..." />
+          </div>
+        </div>
+
+        <div class="modal-grid">
+          <div>
+            <label class="label" for="image">Imagem de capa</label>
+            <input type="url" id="image" class="input" placeholder="https://..." />
+          </div>
+
+          <div>
+            <label class="label" for="techs">Tecnologias</label>
+            <input type="text" id="techs" class="input" placeholder="HTML, CSS, JavaScript, PHP..." />
+          </div>
+        </div>
+
+        <div class="check-line">
+          <label class="check">
+            <input type="checkbox" id="isPublic" checked />
+            Projeto público
+          </label>
+
+          <label class="check">
+            <input type="checkbox" id="isFeatured" />
+            Destacar projeto
+          </label>
+        </div>
+
+        <label class="label" for="fileInput" style="margin-top:1rem;">Arquivos</label>
+        <input type="file" id="fileInput" class="input" multiple />
+        <div id="fileList" style="margin:.8rem 0;"></div>
+        <button type="button" id="uploadBtn" class="btn ghost" style="margin-bottom:1rem;">📤 Upload arquivo</button>
+
+        <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
+          <button type="submit" class="btn">Salvar projeto</button>
           <button type="button" id="closeModal" class="btn ghost">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/dashboard.js"></script>

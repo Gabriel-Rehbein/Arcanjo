@@ -6,6 +6,7 @@ const feedList = document.getElementById("feedList");
 const searchInput = document.getElementById("searchInput");
 const typeFilter = document.getElementById("typeFilter");
 const orderFilter = document.getElementById("orderFilter");
+const feedStats = document.getElementById("feedStats");
 
 const currentUser = {
   id: localStorage.getItem("arcanjo_current_user_id") || "user_logado",
@@ -80,14 +81,18 @@ function normalizeComment(comment = {}) {
 
 function normalizePost(post = {}) {
   return {
-    id: post.id ?? Date.now(),
+    id: Number(post.id ?? Date.now()),
     title: post.title ?? "Projeto sem título",
     author: post.author ?? "Usuário",
     authorId: post.authorId ?? `user_${post.id ?? Date.now()}`,
     authorAvatar: post.authorAvatar ?? "",
     type: post.type ?? "Projeto",
     description: post.description ?? "",
-    technologies: Array.isArray(post.technologies) ? post.technologies : [],
+    technologies: Array.isArray(post.technologies)
+      ? post.technologies
+      : Array.isArray(post.techs)
+      ? post.techs
+      : [],
     image: post.image ?? "",
     likes: Number(post.likes ?? 0),
     likedBy: Array.isArray(post.likedBy) ? post.likedBy : [],
@@ -110,21 +115,25 @@ function mapDbPostToFeed(post = {}) {
     author: post.author,
     authorId: post.user_id,
     authorAvatar: post.author_avatar || DEFAULT_AVATAR,
-    type: post.type,
+    type: post.type || post.tag || "Projeto",
     description: post.description,
-    technologies: Array.isArray(post.technologies) ? post.technologies : [],
+    technologies: Array.isArray(post.techs)
+      ? post.techs
+      : Array.isArray(post.technologies)
+      ? post.technologies
+      : [],
     image: post.image || DEFAULT_POST_IMAGE,
-    likes: post.likes_count || 0,
+    likes: post.likes || post.likes_count || 0,
     likedBy: [],
     comments: [],
-    shares: post.shares_count || 0,
-    saves: post.saves_count || 0,
+    shares: post.shares || post.shares_count || 0,
+    saves: post.saves || post.saves_count || 0,
     savedBy: [],
     blockedBy: [],
-    reports: post.reports_count || 0,
+    reports: post.reports || post.reports_count || 0,
     github: post.github || "#",
     demo: post.demo || "#",
-    createdAt: post.created_at
+    createdAt: post.created_at || new Date().toISOString()
   });
 }
 
@@ -182,6 +191,34 @@ function getAuthorAvatar(post) {
   return post.authorAvatar?.trim() ? post.authorAvatar : DEFAULT_AVATAR;
 }
 
+function renderStats(posts) {
+  if (!feedStats) return;
+
+  const totalPosts = posts.length;
+  const totalLikes = posts.reduce((acc, post) => acc + Number(post.likes || 0), 0);
+  const totalComments = posts.reduce((acc, post) => acc + post.comments.length, 0);
+  const totalSaves = posts.reduce((acc, post) => acc + Number(post.saves || 0), 0);
+
+  feedStats.innerHTML = `
+    <div class="card">
+      <p class="muted small">Projetos no feed</p>
+      <h3>${totalPosts}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Curtidas</p>
+      <h3>${totalLikes}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Comentários</p>
+      <h3>${totalComments}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Salvos</p>
+      <h3>${totalSaves}</h3>
+    </div>
+  `;
+}
+
 function renderEmptyState(title, description) {
   if (!feedList) return;
 
@@ -200,6 +237,7 @@ function buildPostHtml(post) {
   const image = getPostImage(post);
   const commentsCount = post.comments.length;
   const savesCount = post.saves || 0;
+  const relativeDate = formatRelativeDate(post.createdAt);
 
   return `
     <article class="portfolio-post">
@@ -213,7 +251,7 @@ function buildPostHtml(post) {
             <img class="author-avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(post.author)}">
             <div>
               <strong>${escapeHtml(post.author)}</strong>
-              <div class="post-type-line">${escapeHtml(post.type)}</div>
+              <div class="post-type-line">${escapeHtml(post.type)} • ${escapeHtml(relativeDate)}</div>
             </div>
           </div>
 
@@ -303,6 +341,8 @@ function renderPosts(posts) {
 
   const blockedUsers = getBlockedUsers();
   const visiblePosts = posts.filter(post => !blockedUsers.includes(post.authorId));
+
+  renderStats(visiblePosts);
 
   if (!visiblePosts.length) {
     renderEmptyState(
@@ -401,7 +441,7 @@ async function sharePost(postId) {
 
     prompt("Copie o link do projeto:", postUrl);
   } catch {
-    // sem quebrar se o usuário cancelar
+    //
   }
 }
 
@@ -501,6 +541,8 @@ function applyFilters() {
     filtered.sort((a, b) => b.likes - a.likes);
   } else if (order === "comments") {
     filtered.sort((a, b) => b.comments.length - a.comments.length);
+  } else if (order === "saved") {
+    filtered.sort((a, b) => b.saves - a.saves);
   } else {
     filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
@@ -515,6 +557,7 @@ async function loadFeedFromDatabase() {
     }
 
     const posts = await getPublicProjects();
+
     allFeedPosts = Array.isArray(posts)
       ? posts.map(mapDbPostToFeed)
       : [];
@@ -532,6 +575,22 @@ async function loadFeedFromDatabase() {
     savePostsToLocalStorage(allFeedPosts);
     applyFilters();
   }
+}
+
+function formatRelativeDate(date) {
+  const now = new Date();
+  const target = new Date(date);
+  const diffMs = now - target;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMinutes < 1) return "agora";
+  if (diffMinutes < 60) return `${diffMinutes} min atrás`;
+  if (diffHours < 24) return `${diffHours} h atrás`;
+  if (diffDays < 7) return `${diffDays} d atrás`;
+
+  return target.toLocaleDateString("pt-BR");
 }
 
 function initializeFeed() {

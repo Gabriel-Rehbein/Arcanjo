@@ -1,10 +1,9 @@
-// Dashboard - Painel Principal
-
 protectRoute();
 
 const DASHBOARD_STORAGE_KEY_PREFIX = "arcanjo_projects_";
 const COMMENTS_STORAGE_KEY_PREFIX = "project_comments_";
-const MAX_STORAGE_BYTES = 15 * 1024 * 1024 * 1024; // 15 GB
+const FAVORITES_STORAGE_KEY_PREFIX = "arcanjo_favorites_";
+const MAX_STORAGE_BYTES = 15 * 1024 * 1024 * 1024;
 
 let projects = [];
 let currentUser = null;
@@ -12,7 +11,6 @@ let currentUserId = null;
 let editingProjectId = null;
 let currentProjectFiles = [];
 
-// Elementos
 let userDisplay;
 let userMenuBtn;
 let userMenu;
@@ -25,32 +23,42 @@ let projectModal;
 let closeModalBtn;
 let projectForm;
 let grid;
+let featuredGrid;
 let searchInput;
+let quickSearch;
 let tagFilter;
+let sortFilter;
+let visibilityFilter;
+let ownershipFilter;
+let clearFiltersBtn;
 let userWelcome;
 let fileInput;
 let uploadBtn;
 let fileList;
+let statsContainer;
+let recentActivityContainer;
+let heroProjectsCount;
+let heroLikesCount;
+let heroFavoritesCount;
+let heroViewsCount;
+let projectsCountLabel;
+let heroCreateBtn;
+let heroFeaturedBtn;
 
 document.addEventListener("DOMContentLoaded", async () => {
   initializeUser();
-  injectAdminButtonIfNeeded();
   cacheElements();
   bindStaticEvents();
-  injectProjectStyles();
+  injectAdminButtonIfNeeded();
 
   await loadProjects();
-  renderProjects();
-  updateTags();
-  loadStorageIndicator();
+  renderAll();
+  await loadStorageIndicator();
 });
 
 function initializeUser() {
-  currentUser = Auth.getCurrentUser();
-  currentUserId = Auth.getCurrentUserId();
-
-  console.log("Usuário:", currentUser);
-  console.log("ID:", currentUserId);
+  currentUser = Auth.getCurrentUser() || "Usuário";
+  currentUserId = Auth.getCurrentUserId() || "anon";
 }
 
 function cacheElements() {
@@ -66,20 +74,30 @@ function cacheElements() {
   closeModalBtn = document.getElementById("closeModal");
   projectForm = document.getElementById("projectForm");
   grid = document.getElementById("grid");
+  featuredGrid = document.getElementById("featuredGrid");
   searchInput = document.getElementById("q");
+  quickSearch = document.getElementById("quickSearch");
   tagFilter = document.getElementById("tagFilter");
+  sortFilter = document.getElementById("sortFilter");
+  visibilityFilter = document.getElementById("visibilityFilter");
+  ownershipFilter = document.getElementById("ownershipFilter");
+  clearFiltersBtn = document.getElementById("clearFiltersBtn");
   userWelcome = document.getElementById("userWelcome");
   fileInput = document.getElementById("fileInput");
   uploadBtn = document.getElementById("uploadBtn");
   fileList = document.getElementById("fileList");
+  statsContainer = document.getElementById("stats");
+  recentActivityContainer = document.getElementById("recentActivity");
+  heroProjectsCount = document.getElementById("heroProjectsCount");
+  heroLikesCount = document.getElementById("heroLikesCount");
+  heroFavoritesCount = document.getElementById("heroFavoritesCount");
+  heroViewsCount = document.getElementById("heroViewsCount");
+  projectsCountLabel = document.getElementById("projectsCountLabel");
+  heroCreateBtn = document.getElementById("heroCreateBtn");
+  heroFeaturedBtn = document.getElementById("heroFeaturedBtn");
 
-  if (userDisplay) {
-    userDisplay.textContent = `👤 ${currentUser}`;
-  }
-
-  if (userWelcome) {
-    userWelcome.textContent = currentUser;
-  }
+  if (userDisplay) userDisplay.textContent = `👤 ${currentUser}`;
+  if (userWelcome) userWelcome.textContent = currentUser;
 }
 
 function bindStaticEvents() {
@@ -95,13 +113,8 @@ function bindStaticEvents() {
     }
   });
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", handleLogout);
-  }
-
-  if (logoutBtnTop) {
-    logoutBtnTop.addEventListener("click", handleLogout);
-  }
+  if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+  if (logoutBtnTop) logoutBtnTop.addEventListener("click", handleLogout);
 
   if (settingsBtn) {
     settingsBtn.addEventListener("click", () => {
@@ -144,6 +157,17 @@ function bindStaticEvents() {
     });
   }
 
+  if (heroCreateBtn) {
+    heroCreateBtn.addEventListener("click", openProjectModal);
+  }
+
+  if (heroFeaturedBtn) {
+    heroFeaturedBtn.addEventListener("click", () => {
+      const target = document.getElementById("featuredGrid");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   if (closeModalBtn) {
     closeModalBtn.addEventListener("click", closeProjectModal);
   }
@@ -160,12 +184,16 @@ function bindStaticEvents() {
     projectForm.addEventListener("submit", handleProjectSubmit);
   }
 
-  if (searchInput) {
-    searchInput.addEventListener("input", renderProjects);
-  }
+  [searchInput, quickSearch].forEach((input) => {
+    if (input) input.addEventListener("input", renderAll);
+  });
 
-  if (tagFilter) {
-    tagFilter.addEventListener("change", renderProjects);
+  [tagFilter, sortFilter, visibilityFilter, ownershipFilter].forEach((input) => {
+    if (input) input.addEventListener("change", renderAll);
+  });
+
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener("click", clearFilters);
   }
 
   if (uploadBtn) {
@@ -175,7 +203,6 @@ function bindStaticEvents() {
 
 function injectAdminButtonIfNeeded() {
   const isAdmin = localStorage.getItem(`is_admin_${currentUserId}`) === "true";
-
   if (!isAdmin) return;
 
   setTimeout(() => {
@@ -185,14 +212,6 @@ function injectAdminButtonIfNeeded() {
     const adminBtn = document.createElement("button");
     adminBtn.className = "admin-panel-btn";
     adminBtn.innerHTML = "🛡️ Admin Panel";
-    adminBtn.style.cssText = `
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      width: 100%;
-      text-align: left;
-      padding: 0.75rem;
-    `;
     adminBtn.addEventListener("click", () => {
       window.location.href = "admin.html";
     });
@@ -215,6 +234,23 @@ function getCommentsStorageKey(projectId) {
   return `${COMMENTS_STORAGE_KEY_PREFIX}${projectId}`;
 }
 
+function getFavoritesStorageKey() {
+  return `${FAVORITES_STORAGE_KEY_PREFIX}${currentUserId}`;
+}
+
+function getFavoriteIds() {
+  try {
+    const data = JSON.parse(localStorage.getItem(getFavoritesStorageKey()) || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFavoriteIds(ids) {
+  localStorage.setItem(getFavoritesStorageKey(), JSON.stringify(ids));
+}
+
 function normalizeProject(project = {}) {
   return {
     id: project.id ?? crypto.randomUUID(),
@@ -222,29 +258,61 @@ function normalizeProject(project = {}) {
     descricao: project.descricao ?? project.description ?? "",
     tag: project.tag ?? project.type ?? "",
     url: project.url ?? project.demo ?? "",
-    github: project.github ?? "#",
+    github: project.github ?? "",
     image: project.image ?? "img/logoaba.png",
     usuario: project.usuario ?? project.author ?? currentUser ?? "Usuário",
     usuarioId: project.usuarioId ?? project.user_id ?? currentUserId,
     files: Array.isArray(project.files) ? project.files : [],
+    techs: Array.isArray(project.techs)
+      ? project.techs
+      : String(project.techs || "")
+          .split(",")
+          .map(item => item.trim())
+          .filter(Boolean),
     criado: project.criado ?? project.created_at ?? new Date().toISOString(),
     atualizado: project.atualizado ?? project.updated_at ?? new Date().toISOString(),
-    isPublic: project.isPublic ?? project.is_public ?? true
+    isPublic: project.isPublic ?? project.is_public ?? true,
+    isFeatured: project.isFeatured ?? false,
+    likes: Number(project.likes ?? 0),
+    views: Number(project.views ?? 0)
+  };
+}
+
+function makeProjectPayload(project) {
+  return {
+    id: project.id,
+    user_id: project.usuarioId,
+    author: project.usuario,
+    title: project.titulo,
+    description: project.descricao,
+    type: project.tag || "Projeto",
+    tag: project.tag || "Projeto",
+    demo: project.url || "",
+    github: project.github || "",
+    image: project.image || "img/logoaba.png",
+    files: Array.isArray(project.files) ? project.files : [],
+    is_public: !!project.isPublic,
+    created_at: project.criado,
+    updated_at: project.atualizado
   };
 }
 
 async function loadProjects() {
+  loadProjectsFromLocalStorage();
+
   try {
     const result = await supabase.select("projects", { user_id: currentUserId });
 
-    projects = Array.isArray(result)
-      ? result.map(project => normalizeProject(project))
-      : [];
+    if (Array.isArray(result) && result.length > 0) {
+      projects = result.map(normalizeProject);
+      saveProjectsToLocalStorage();
+      return;
+    }
 
-    saveProjectsToLocalStorage();
+    console.warn("Banco retornou vazio. Mantendo projetos do localStorage.");
   } catch (error) {
-    console.error("Erro ao carregar projetos do Supabase:", error);
-    loadProjectsFromLocalStorage();
+    console.error("Erro ao carregar projetos do banco:", error);
+    console.warn("Usando localStorage como fallback.");
   }
 }
 
@@ -263,58 +331,58 @@ function saveProjectsToLocalStorage() {
   localStorage.setItem(getProjectsStorageKey(), JSON.stringify(projects));
 }
 
-async function syncProjectsToDatabase() {
-  try {
-    await supabase.deleteByFilter("projects", { user_id: currentUserId });
+async function persistProjectsLocalOnly() {
+  saveProjectsToLocalStorage();
+  await loadStorageIndicator();
+}
 
-    for (const project of projects) {
-      await supabase.insert("projects", {
-        id: project.id,
-        user_id: project.usuarioId,
-        author: project.usuario,
-        title: project.titulo,
-        description: project.descricao,
-        type: project.tag || "Projeto",
-        tag: project.tag || "Projeto",
-        demo: project.url || "#",
-        github: project.github || "#",
-        image: project.image || "img/logoaba.png",
-        files: project.files || [],
-        is_public: project.isPublic,
-        created_at: project.criado,
-        updated_at: project.atualizado
-      });
+async function saveProjectToDatabase(project) {
+  try {
+    const payload = makeProjectPayload(project);
+    const existing = await supabase.select("projects", { id: project.id });
+
+    if (Array.isArray(existing) && existing.length > 0) {
+      await supabase.update("projects", project.id, payload);
+    } else {
+      await supabase.insert("projects", payload);
     }
+
+    return true;
   } catch (error) {
-    console.error("Erro ao sincronizar projetos no Supabase:", error);
+    console.error("Erro detalhado ao salvar no banco:", error);
+    alert("Erro ao sincronizar no banco: " + error.message);
     throw error;
   }
 }
 
-async function persistProjects() {
-  saveProjectsToLocalStorage();
-
+async function deleteProjectFromDatabase(projectId) {
   try {
-    await syncProjectsToDatabase();
+    await supabase.delete("projects", projectId);
   } catch (error) {
-    console.warn("Fallback localStorage mantido por falha no banco.");
+    console.error("Erro ao deletar projeto no banco:", error);
+    throw error;
   }
-
-  loadStorageIndicator();
 }
 
 function openProjectModal(project = null) {
   editingProjectId = project ? project.id : null;
   currentProjectFiles = project?.files ? [...project.files] : [];
 
-  if (projectForm) {
-    projectForm.reset();
-  }
+  if (projectForm) projectForm.reset();
 
   setInputValue("titulo", project?.titulo ?? "");
   setInputValue("descricao", project?.descricao ?? "");
   setInputValue("tag", project?.tag ?? "");
   setInputValue("url", project?.url ?? "");
+  setInputValue("github", project?.github ?? "");
+  setInputValue("image", project?.image && project.image !== "img/logoaba.png" ? project.image : "");
+  setInputValue("techs", Array.isArray(project?.techs) ? project.techs.join(", ") : "");
+
+  const isPublic = document.getElementById("isPublic");
+  const isFeatured = document.getElementById("isFeatured");
+
+  if (isPublic) isPublic.checked = project ? !!project.isPublic : true;
+  if (isFeatured) isFeatured.checked = project ? !!project.isFeatured : false;
 
   const modalTitle = document.getElementById("modalTitle");
   if (modalTitle) {
@@ -332,13 +400,8 @@ function closeProjectModal() {
   editingProjectId = null;
   currentProjectFiles = [];
 
-  if (projectModal) {
-    projectModal.classList.remove("show");
-  }
-
-  if (projectForm) {
-    projectForm.reset();
-  }
+  if (projectModal) projectModal.classList.remove("show");
+  if (projectForm) projectForm.reset();
 
   updateFileList();
 }
@@ -356,22 +419,26 @@ function getInputValue(id) {
 async function handleProjectSubmit(e) {
   e.preventDefault();
 
+  const oldProject = editingProjectId ? findProjectById(editingProjectId) : null;
+
   const projectData = normalizeProject({
     id: editingProjectId || crypto.randomUUID(),
     titulo: getInputValue("titulo"),
     descricao: getInputValue("descricao"),
     tag: getInputValue("tag"),
     url: getInputValue("url"),
-    github: "#",
-    image: "img/logoaba.png",
+    github: getInputValue("github"),
+    image: getInputValue("image") || "img/logoaba.png",
     usuario: currentUser,
     usuarioId: currentUserId,
     files: [...currentProjectFiles],
-    criado: editingProjectId
-      ? findProjectById(editingProjectId)?.criado || new Date().toISOString()
-      : new Date().toISOString(),
+    techs: getInputValue("techs"),
+    criado: oldProject?.criado || new Date().toISOString(),
     atualizado: new Date().toISOString(),
-    isPublic: true
+    isPublic: document.getElementById("isPublic")?.checked ?? true,
+    isFeatured: document.getElementById("isFeatured")?.checked ?? false,
+    likes: oldProject?.likes || 0,
+    views: oldProject?.views || 0
   });
 
   if (!projectData.titulo) {
@@ -380,19 +447,26 @@ async function handleProjectSubmit(e) {
   }
 
   if (editingProjectId) {
-    projects = projects.map(project =>
-      project.id === editingProjectId ? projectData : project
-    );
-    alert("Projeto atualizado com sucesso!");
+    const index = projects.findIndex(project => project.id === editingProjectId);
+    if (index !== -1) {
+      projects[index] = projectData;
+    }
   } else {
-    projects.push(projectData);
-    alert("Projeto adicionado com sucesso!");
+    projects.unshift(projectData);
   }
 
-  await persistProjects();
-  renderProjects();
-  updateTags();
+  await persistProjectsLocalOnly();
+
+  try {
+    await saveProjectToDatabase(projectData);
+    alert(editingProjectId ? "Projeto atualizado com sucesso!" : "Projeto adicionado com sucesso!");
+  } catch (error) {
+    console.error(error);
+    alert("Projeto salvo localmente, mas não sincronizou no banco.");
+  }
+
   closeProjectModal();
+  renderAll();
 }
 
 function findProjectById(projectId) {
@@ -400,19 +474,117 @@ function findProjectById(projectId) {
 }
 
 function filterProjects() {
-  const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
+  const textA = searchInput ? searchInput.value.toLowerCase().trim() : "";
+  const textB = quickSearch ? quickSearch.value.toLowerCase().trim() : "";
+  const searchTerms = [textA, textB].filter(Boolean);
+
   const selectedTag = tagFilter ? tagFilter.value : "";
+  const visibility = visibilityFilter ? visibilityFilter.value : "";
+  const ownership = ownershipFilter ? ownershipFilter.value : "all";
+  const order = sortFilter ? sortFilter.value : "recent";
 
-  return projects.filter(project => {
-    const titulo = (project.titulo || "").toLowerCase();
-    const descricao = (project.descricao || "").toLowerCase();
-    const tag = project.tag || "";
+  let filtered = projects.filter(project => {
+    const searchable = [
+      project.titulo || "",
+      project.descricao || "",
+      project.tag || "",
+      Array.isArray(project.techs) ? project.techs.join(" ") : ""
+    ].join(" ").toLowerCase();
 
-    const matchSearch = titulo.includes(searchTerm) || descricao.includes(searchTerm);
-    const matchTag = !selectedTag || tag === selectedTag;
+    const matchSearch = searchTerms.every(term => searchable.includes(term));
+    const matchTag = !selectedTag || project.tag === selectedTag;
 
-    return matchSearch && matchTag;
+    const matchVisibility =
+      !visibility ||
+      (visibility === "public" && project.isPublic) ||
+      (visibility === "private" && !project.isPublic) ||
+      (visibility === "featured" && project.isFeatured);
+
+    const matchOwnership =
+      ownership === "all" ||
+      (ownership === "withFiles" && project.files.length > 0) ||
+      (ownership === "withoutFiles" && project.files.length === 0);
+
+    return matchSearch && matchTag && matchVisibility && matchOwnership;
   });
+
+  filtered.sort((a, b) => {
+    if (order === "likes") return b.likes - a.likes;
+    if (order === "views") return b.views - a.views;
+    if (order === "title") return a.titulo.localeCompare(b.titulo, "pt-BR");
+    return new Date(b.atualizado) - new Date(a.atualizado);
+  });
+
+  return filtered;
+}
+
+function renderAll() {
+  renderStats();
+  renderHeroStats();
+  updateTags();
+  renderFeaturedProjects();
+  renderProjects();
+  renderRecentActivity();
+}
+
+function renderStats() {
+  if (!statsContainer) return;
+
+  const totalProjects = projects.length;
+  const publicProjects = projects.filter(project => project.isPublic).length;
+  const featuredProjects = projects.filter(project => project.isFeatured).length;
+  const totalFiles = projects.reduce((acc, project) => acc + project.files.length, 0);
+
+  statsContainer.innerHTML = `
+    <div class="card">
+      <p class="muted small">Projetos publicados</p>
+      <h3>${totalProjects}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Projetos públicos</p>
+      <h3>${publicProjects}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Projetos em destaque</p>
+      <h3>${featuredProjects}</h3>
+    </div>
+    <div class="card">
+      <p class="muted small">Arquivos enviados</p>
+      <h3>${totalFiles}</h3>
+    </div>
+  `;
+}
+
+function renderHeroStats() {
+  const favorites = getFavoriteIds();
+  const likes = projects.reduce((acc, project) => acc + Number(project.likes || 0), 0);
+  const views = projects.reduce((acc, project) => acc + Number(project.views || 0), 0);
+
+  if (heroProjectsCount) heroProjectsCount.textContent = String(projects.length);
+  if (heroLikesCount) heroLikesCount.textContent = String(likes);
+  if (heroFavoritesCount) heroFavoritesCount.textContent = String(favorites.length);
+  if (heroViewsCount) heroViewsCount.textContent = String(views);
+}
+
+function renderFeaturedProjects() {
+  if (!featuredGrid) return;
+
+  const featured = [...projects]
+    .filter(project => project.isFeatured)
+    .sort((a, b) => b.likes - a.likes || b.views - a.views)
+    .slice(0, 4);
+
+  if (!featured.length) {
+    featuredGrid.innerHTML = `
+      <div class="empty-state">
+        <h3>Sem destaques ainda</h3>
+        <p class="muted">Marque um projeto como destaque para ele aparecer aqui.</p>
+      </div>
+    `;
+    return;
+  }
+
+  featuredGrid.innerHTML = featured.map(project => createProjectCard(project, true)).join("");
 }
 
 function renderProjects() {
@@ -420,74 +592,149 @@ function renderProjects() {
 
   const filtered = filterProjects();
 
+  if (projectsCountLabel) {
+    projectsCountLabel.textContent = `${filtered.length} projeto${filtered.length !== 1 ? "s" : ""}`;
+  }
+
   if (!filtered.length) {
     grid.innerHTML = `
-      <p class="muted">
-        Nenhum projeto encontrado. Comece criando um novo!
-      </p>
+      <div class="empty-state">
+        <h3>Nenhum projeto encontrado</h3>
+        <p class="muted">Tente mudar os filtros ou publique um novo projeto.</p>
+      </div>
     `;
     return;
   }
 
-  grid.innerHTML = filtered.map(project => {
-    const comments = getProjectComments(project.id);
+  grid.innerHTML = filtered.map(project => createProjectCard(project)).join("");
+}
 
-    return `
-      <div class="card project-card">
-        <div class="card-header">
-          <h3>${escapeHtml(project.titulo)}</h3>
-          <span class="tag tag-${escapeHtml((project.tag || "projeto").toLowerCase())}">
-            ${escapeHtml(project.tag || "Projeto")}
-          </span>
+function createProjectCard(project, compact = false) {
+  const comments = getProjectComments(project.id);
+  const favorites = getFavoriteIds();
+  const isFavorite = favorites.includes(project.id);
+  const filesCount = project.files?.length || 0;
+  const techs = Array.isArray(project.techs) ? project.techs.slice(0, 5) : [];
+  const visibilityLabel = project.isPublic ? "🌍 Público" : "🔒 Privado";
+
+  return `
+    <article class="card project-card">
+      <img
+        class="project-cover"
+        src="${escapeHtml(project.image || "img/logoaba.png")}"
+        alt="${escapeHtml(project.titulo)}"
+        onerror="this.src='img/logoaba.png'"
+      />
+
+      <div class="project-top">
+        <div>
+          <h3 class="project-title">${escapeHtml(project.titulo)}</h3>
+          <p class="muted tiny">Por ${escapeHtml(project.usuario)}</p>
         </div>
-
-        <p class="muted small">${escapeHtml(project.descricao || "Sem descrição")}</p>
-
-        ${project.url ? `
-          <p class="muted small">
-            🔗 <a href="${escapeHtml(project.url)}" target="_blank" rel="noopener noreferrer">
-              ${escapeHtml(project.url)}
-            </a>
-          </p>
-        ` : ""}
-
-        <p class="muted tiny">Por ${escapeHtml(project.usuario)}</p>
-
-        <div class="project-activity-box">
-          <div class="project-activity-title">💬 Atividades (${comments.length})</div>
-
-          <div class="project-activity-list">
-            ${
-              comments.length
-                ? comments.slice().reverse().map(comment => `
-                  <div class="project-activity-item">
-                    <div class="project-activity-date">${escapeHtml(comment.date)}</div>
-                    <div class="project-activity-text">
-                      ${escapeHtml(comment.text.substring(0, 100))}
-                      ${comment.text.length > 100 ? "..." : ""}
-                    </div>
-                  </div>
-                `).join("")
-                : `<div class="project-activity-empty">Sem atividades ainda</div>`
-            }
-          </div>
-
-          <input
-            type="text"
-            class="comment-input"
-            placeholder="Adicionar atividade..."
-            id="comment-${escapeHtml(project.id)}"
-            onkeypress="if(event.key==='Enter') addProjectComment('${escapeHtml(project.id)}', this.value)"
-          />
-        </div>
-
-        <div class="project-actions">
-          <button class="btn btn-sm" onclick="editProject('${escapeHtml(project.id)}')">✏️ Editar</button>
-          <button class="btn btn-sm ghost" onclick="deleteProject('${escapeHtml(project.id)}')">🗑️ Deletar</button>
-        </div>
+        <span class="tag">${escapeHtml(project.tag || "Projeto")}</span>
       </div>
-    `;
-  }).join("");
+
+      <p class="project-desc">${escapeHtml(project.descricao || "Sem descrição")}</p>
+
+      ${
+        techs.length
+          ? `<div class="project-techs">${techs.map(tech => `<span class="tech-pill">${escapeHtml(tech)}</span>`).join("")}</div>`
+          : ""
+      }
+
+      <div class="project-links">
+        ${project.url ? `<a href="${escapeHtml(project.url)}" target="_blank" rel="noopener noreferrer">🔗 Demo</a>` : ""}
+        ${project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener noreferrer">💻 GitHub</a>` : ""}
+      </div>
+
+      <div class="project-stats-line">
+        <span>❤️ ${project.likes || 0}</span>
+        <span>👁️ ${project.views || 0}</span>
+        <span>📁 ${filesCount}</span>
+        <span>${visibilityLabel}</span>
+        ${project.isFeatured ? `<span>⭐ Destaque</span>` : ""}
+      </div>
+
+      ${
+        compact
+          ? `
+            <div class="project-actions">
+              <button class="btn btn-sm" onclick="viewProject('${escapeHtml(project.id)}')">Abrir</button>
+              <button class="btn btn-sm ghost" onclick="toggleLikeProject('${escapeHtml(project.id)}')">❤️ Curtir</button>
+            </div>
+          `
+          : `
+            <div class="project-activity-box">
+              <div class="project-activity-title">💬 Atividades (${comments.length})</div>
+              <div class="project-activity-list">
+                ${
+                  comments.length
+                    ? comments.slice().reverse().slice(0, 5).map(comment => `
+                      <div class="project-activity-item">
+                        <div class="project-activity-date">${escapeHtml(comment.date)}</div>
+                        <div>${escapeHtml(comment.text.substring(0, 100))}${comment.text.length > 100 ? "..." : ""}</div>
+                      </div>
+                    `).join("")
+                    : `<div class="project-activity-empty">Sem atividades ainda</div>`
+                }
+              </div>
+
+              <input
+                type="text"
+                class="comment-input"
+                placeholder="Adicionar atividade..."
+                id="comment-${escapeHtml(project.id)}"
+                onkeypress="if(event.key==='Enter') addProjectComment('${escapeHtml(project.id)}', this.value)"
+              />
+            </div>
+
+            <div class="project-actions">
+              <button class="btn btn-sm" onclick="viewProject('${escapeHtml(project.id)}')">👁️ Ver</button>
+              <button class="btn btn-sm ghost" onclick="toggleLikeProject('${escapeHtml(project.id)}')">❤️ Curtir</button>
+              <button class="btn btn-sm ghost" onclick="toggleFavoriteProject('${escapeHtml(project.id)}')">${isFavorite ? "★ Favorito" : "☆ Favoritar"}</button>
+              <button class="btn btn-sm ghost" onclick="shareProject('${escapeHtml(project.id)}')">🔗 Compartilhar</button>
+              <button class="btn btn-sm ghost" onclick="editProject('${escapeHtml(project.id)}')">✏️ Editar</button>
+              <button class="btn btn-sm danger" onclick="deleteProject('${escapeHtml(project.id)}')">🗑️ Excluir</button>
+            </div>
+          `
+      }
+    </article>
+  `;
+}
+
+function renderRecentActivity() {
+  if (!recentActivityContainer) return;
+
+  const recent = [];
+
+  projects.forEach(project => {
+    recent.push({
+      date: project.atualizado,
+      text: `Projeto "${project.titulo}" atualizado`
+    });
+
+    const comments = getProjectComments(project.id);
+    comments.forEach(comment => {
+      recent.push({
+        date: comment.addedAt,
+        text: `Nova atividade em "${project.titulo}": ${comment.text}`
+      });
+    });
+  });
+
+  recent.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (!recent.length) {
+    recentActivityContainer.innerHTML = `<p class="muted">Nenhuma atividade recente.</p>`;
+    return;
+  }
+
+  recentActivityContainer.innerHTML = recent.slice(0, 8).map(item => `
+    <div class="recent-item">
+      <div>${escapeHtml(item.text)}</div>
+      <div class="muted tiny">${formatDate(item.date)}</div>
+    </div>
+  `).join("");
 }
 
 function updateTags() {
@@ -496,8 +743,7 @@ function updateTags() {
   const tags = [...new Set(projects.map(project => project.tag).filter(Boolean))];
   const currentValue = tagFilter.value;
 
-  const oldOptions = tagFilter.querySelectorAll("option:not(:first-child)");
-  oldOptions.forEach(option => option.remove());
+  tagFilter.innerHTML = `<option value="">Todas as tags</option>`;
 
   tags.forEach(tag => {
     const option = document.createElement("option");
@@ -507,6 +753,16 @@ function updateTags() {
   });
 
   tagFilter.value = currentValue;
+}
+
+function clearFilters() {
+  if (searchInput) searchInput.value = "";
+  if (quickSearch) quickSearch.value = "";
+  if (tagFilter) tagFilter.value = "";
+  if (sortFilter) sortFilter.value = "recent";
+  if (visibilityFilter) visibilityFilter.value = "";
+  if (ownershipFilter) ownershipFilter.value = "all";
+  renderAll();
 }
 
 function getProjectComments(projectId) {
@@ -529,36 +785,94 @@ window.addProjectComment = function (projectId, commentText) {
   if (!text) return;
 
   const comments = getProjectComments(projectId);
-
   const now = new Date();
-  const dateStr =
-    now.toLocaleDateString("pt-BR") +
-    " " +
-    now.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
 
   comments.push({
     text,
-    date: dateStr,
+    date: now.toLocaleDateString("pt-BR") + " " + now.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    }),
     addedAt: now.toISOString()
   });
 
   saveProjectComments(projectId, comments);
 
-  const inputEl = document.getElementById(`comment-${projectId}`);
-  if (inputEl) {
-    inputEl.value = "";
+  const input = document.getElementById(`comment-${projectId}`);
+  if (input) input.value = "";
+
+  renderAll();
+};
+
+window.viewProject = async function (projectId) {
+  const project = findProjectById(projectId);
+  if (!project) return;
+
+  project.views = Number(project.views || 0) + 1;
+  project.atualizado = new Date().toISOString();
+
+  try {
+    await persistProjectsLocalOnly();
+    await saveProjectToDatabase(project);
+  } catch (error) {
+    console.error("Erro ao registrar visualização:", error);
   }
 
-  renderProjects();
+  renderAll();
+
+  let text = `Projeto: ${project.titulo}\n\n${project.descricao || "Sem descrição"}`;
+  if (project.url) text += `\n\nDemo: ${project.url}`;
+  if (project.github) text += `\nGitHub: ${project.github}`;
+
+  alert(text);
+};
+
+window.toggleLikeProject = async function (projectId) {
+  const project = findProjectById(projectId);
+  if (!project) return;
+
+  project.likes = Number(project.likes || 0) + 1;
+  project.atualizado = new Date().toISOString();
+
+  try {
+    await persistProjectsLocalOnly();
+    await saveProjectToDatabase(project);
+  } catch (error) {
+    console.error("Erro ao curtir projeto:", error);
+  }
+
+  renderAll();
+};
+
+window.toggleFavoriteProject = function (projectId) {
+  const favorites = getFavoriteIds();
+  const exists = favorites.includes(projectId);
+
+  const updated = exists
+    ? favorites.filter(id => id !== projectId)
+    : [...favorites, projectId];
+
+  saveFavoriteIds(updated);
+  renderAll();
+};
+
+window.shareProject = async function (projectId) {
+  const project = findProjectById(projectId);
+  if (!project) return;
+
+  const shareText = `${project.titulo} - ${project.url || project.github || "Projeto no Arcanjo"}`;
+
+  try {
+    await navigator.clipboard.writeText(shareText);
+    alert("Link copiado para a área de transferência!");
+  } catch {
+    alert(shareText);
+  }
 };
 
 window.editProject = function (projectId) {
   const project = findProjectById(projectId);
   if (!project) return;
-
   openProjectModal(project);
 };
 
@@ -566,21 +880,21 @@ window.deleteProject = async function (projectId) {
   const project = findProjectById(projectId);
   if (!project) return;
 
-  if (!confirm(`Tem certeza que quer deletar o projeto "${project.titulo}"?`)) {
-    return;
-  }
+  if (!confirm(`Tem certeza que quer excluir "${project.titulo}"?`)) return;
 
   projects = projects.filter(item => item.id !== projectId);
+  saveProjectsToLocalStorage();
+  localStorage.removeItem(getCommentsStorageKey(projectId));
 
   try {
-    await persistProjects();
-    localStorage.removeItem(getCommentsStorageKey(projectId));
-    renderProjects();
-    updateTags();
-    alert("Projeto deletado com sucesso!");
+    await deleteProjectFromDatabase(projectId);
+    renderAll();
+    await loadStorageIndicator();
+    alert("Projeto excluído com sucesso!");
   } catch (error) {
     console.error(error);
-    alert("Erro ao deletar projeto.");
+    renderAll();
+    alert("Projeto removido localmente, mas houve erro ao excluir no banco.");
   }
 };
 
@@ -648,18 +962,17 @@ function formatBytes(bytes = 0) {
 }
 
 async function getCurrentStorageUsageSafe() {
-  try {
-    if (typeof getCurrentStorageUsage === "function") {
-      const usage = await getCurrentStorageUsage();
-      return Number(usage || 0);
-    }
-  } catch (error) {
-    console.warn("Falha ao obter armazenamento do backend:", error);
-  }
-
   let totalSize = 0;
-  const keys = Object.keys(localStorage).filter(key => key.includes(currentUserId));
 
+  projects.forEach(project => {
+    if (Array.isArray(project.files)) {
+      project.files.forEach(file => {
+        totalSize += Number(file.size || 0);
+      });
+    }
+  });
+
+  const keys = Object.keys(localStorage).filter(key => key.includes(currentUserId));
   keys.forEach(key => {
     const value = localStorage.getItem(key) || "";
     totalSize += new Blob([value]).size;
@@ -668,166 +981,28 @@ async function getCurrentStorageUsageSafe() {
   return totalSize;
 }
 
-function loadStorageIndicator() {
+async function loadStorageIndicator() {
   const storageText = document.getElementById("storageText");
   const storageBar = document.getElementById("storageBar");
   const storageWarning = document.getElementById("storageWarning");
 
   if (!storageText || !storageBar || !storageWarning) return;
 
-  let totalSize = 0;
-  const keys = Object.keys(localStorage).filter(key => key.includes(currentUserId));
-
-  keys.forEach(key => {
-    const value = localStorage.getItem(key) || "";
-    totalSize += new Blob([value]).size;
-  });
-
+  const totalSize = await getCurrentStorageUsageSafe();
   const percentage = (totalSize / MAX_STORAGE_BYTES) * 100;
   const usedGB = (totalSize / 1024 / 1024 / 1024).toFixed(2);
 
-  storageText.textContent = `${usedGB} GB / 15 GB utilizado (${percentage.toFixed(1)}%)`;
+  storageText.textContent = `${usedGB} GB / 15 GB utilizado (${percentage.toFixed(2)}%)`;
   storageBar.style.width = `${Math.min(percentage, 100)}%`;
-
-  if (percentage > 90) {
-    storageWarning.style.display = "block";
-  } else {
-    storageWarning.style.display = "none";
-  }
-
-  if (percentage > 100) {
-    storageBar.style.background = "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)";
-    storageText.style.color = "#fca5a5";
-  } else if (percentage > 90) {
-    storageBar.style.background = "linear-gradient(90deg, #f97316 0%, #ea580c 100%)";
-    storageText.style.color = "";
-  } else {
-    storageBar.style.background = "";
-    storageText.style.color = "";
-  }
+  storageWarning.style.display = percentage > 90 ? "block" : "none";
 }
 
-function injectProjectStyles() {
-  if (document.getElementById("dashboard-project-styles")) return;
-
-  const style = document.createElement("style");
-  style.id = "dashboard-project-styles";
-  style.textContent = `
-    .project-card {
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .project-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .75rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .tag-web { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .tag-mobile { background: rgba(34, 197, 94, 0.2); color: #86efac; }
-    .tag-desktop { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
-    .tag-game { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-    .tag-ml { background: rgba(251, 146, 60, 0.2); color: #fdba74; }
-
-    .btn-sm {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-    }
-
-    .project-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .project-activity-box {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(99, 102, 241, 0.2);
-    }
-
-    .project-activity-title {
-      font-size: 0.85rem;
-      color: #8ab4ff;
-      margin-bottom: 0.5rem;
-    }
-
-    .project-activity-list {
-      max-height: 120px;
-      overflow-y: auto;
-      margin-bottom: 0.75rem;
-    }
-
-    .project-activity-item {
-      background: rgba(99, 102, 241, 0.1);
-      padding: 0.5rem;
-      border-radius: 0.3rem;
-      margin-bottom: 0.3rem;
-      font-size: 0.8rem;
-    }
-
-    .project-activity-date {
-      color: #a5b4fc;
-      font-weight: 600;
-    }
-
-    .project-activity-text {
-      color: #e8eef7;
-    }
-
-    .project-activity-empty {
-      color: #6b7280;
-      font-size: 0.8rem;
-    }
-
-    .comment-input {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      border-radius: 0.3rem;
-      background: rgba(11, 15, 20, 0.5);
-      color: #e8eef7;
-      font-size: 0.85rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .uploaded-file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .75rem;
-      padding: .6rem 0;
-      border-bottom: 1px solid rgba(99, 102, 241, 0.15);
-    }
-
-    a {
-      color: #60a5fa;
-      text-decoration: none;
-      word-break: break-all;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-  `;
-  document.head.appendChild(style);
+function formatDate(date) {
+  try {
+    return new Date(date).toLocaleString("pt-BR");
+  } catch {
+    return String(date);
+  }
 }
 
 function escapeHtml(value) {
