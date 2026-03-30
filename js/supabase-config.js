@@ -1,148 +1,245 @@
-// Configuração Supabase
+// ===============================
+// CONFIGURAÇÃO SUPABASE
+// ===============================
 const SUPABASE_URL = 'https://ufadmcuylkplkyjmqypx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmYWRtY3V5bGtwbGt5am1xeXB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDExOTQsImV4cCI6MjA4ODkxNzE5NH0.csadEk-Ka8eEJibVUbiA_Bbeh5EwmlwVYjPO29SuCbg';
+const SUPABASE_ANON_KEY = 'SUA_CHAVE_AQUI';
 
-// Cliente Supabase simples (REST API)
+// ===============================
+// CLIENTE SUPABASE REST
+// ===============================
 class SupabaseClient {
   constructor(url, key) {
     this.url = url;
     this.key = key;
   }
 
-  async query(table, method = 'GET', data = null, filters = {}) {
-    let endpoint = `${this.url}/rest/v1/${table}`;
-
-    // Adicionar filtros à query
-    const filterEntries = Object.entries(filters);
-    if (filterEntries.length > 0) {
-      const filterStr = filterEntries.map(([k, v]) => `${k}=eq.${v}`).join('&');
-      endpoint += `?${filterStr}`;
-    }
-
-    const options = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': this.key,
-        'Authorization': `Bearer ${this.key}`,
-      },
+  buildHeaders(extraHeaders = {}) {
+    return {
+      apikey: this.key,
+      Authorization: `Bearer ${this.key}`,
+      ...extraHeaders
     };
+  }
 
-    if (data) {
-      options.body = JSON.stringify(data);
+  buildFilterQuery(filters = {}) {
+    const params = new URLSearchParams();
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, `eq.${value}`);
+      }
     }
 
-    const response = await fetch(endpoint, options);
+    return params.toString();
+  }
+
+  async handleResponse(response) {
+    const contentType = response.headers.get('content-type') || '';
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro na requisição');
+      let errorMessage = `Erro HTTP ${response.status}`;
+
+      try {
+        if (contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message ||
+            errorData.error_description ||
+            errorData.details ||
+            JSON.stringify(errorData);
+        } else {
+          errorMessage = await response.text();
+        }
+      } catch {
+        errorMessage = `Erro HTTP ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    if (response.status === 204) {
+      return true;
+    }
+
+    if (contentType.includes('application/json')) {
+      return await response.json();
+    }
+
+    return await response.text();
+  }
+
+  async query(table, method = 'GET', data = null, filters = {}, options = {}) {
+    const filterQuery = this.buildFilterQuery(filters);
+    let endpoint = `${this.url}/rest/v1/${table}`;
+
+    if (filterQuery) {
+      endpoint += `?${filterQuery}`;
+    }
+
+    const headers = this.buildHeaders({
+      'Content-Type': 'application/json',
+      Prefer: options.prefer || 'return=representation'
+    });
+
+    const fetchOptions = {
+      method,
+      headers
+    };
+
+    if (data !== null && method !== 'GET' && method !== 'DELETE') {
+      fetchOptions.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(endpoint, fetchOptions);
+    return await this.handleResponse(response);
+  }
+
+  async select(table, filters = {}, select = '*', extraQuery = '') {
+    const params = new URLSearchParams();
+    params.set('select', select);
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, `eq.${value}`);
+      }
+    }
+
+    let endpoint = `${this.url}/rest/v1/${table}?${params.toString()}`;
+
+    if (extraQuery) {
+      endpoint += `&${extraQuery}`;
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: this.buildHeaders({
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      })
+    });
+
+    return await this.handleResponse(response);
   }
 
   async insert(table, data) {
-    return this.query(table, 'POST', data);
-  }
+    const payload = Array.isArray(data) ? data : [data];
 
-  async select(table, filters = {}) {
-    return this.query(table, 'GET', null, filters);
+    return await this.query(table, 'POST', payload, {}, {
+      prefer: 'return=representation'
+    });
   }
 
   async update(table, id, data) {
-    const endpoint = `${this.url}/rest/v1/${table}?id=eq.${id}`;
-    const options = {
+    const endpoint = `${this.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`;
+
+    const response = await fetch(endpoint, {
       method: 'PATCH',
-      headers: {
+      headers: this.buildHeaders({
         'Content-Type': 'application/json',
-        'apikey': this.key,
-        'Authorization': `Bearer ${this.key}`,
-      },
-      body: JSON.stringify(data),
-    };
-    const response = await fetch(endpoint, options);
-    return response.json();
+        Prefer: 'return=representation'
+      }),
+      body: JSON.stringify(data)
+    });
+
+    return await this.handleResponse(response);
+  }
+
+  async updateByFilter(table, filters = {}, data = {}) {
+    const filterQuery = this.buildFilterQuery(filters);
+    let endpoint = `${this.url}/rest/v1/${table}`;
+
+    if (filterQuery) {
+      endpoint += `?${filterQuery}`;
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'PATCH',
+      headers: this.buildHeaders({
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      }),
+      body: JSON.stringify(data)
+    });
+
+    return await this.handleResponse(response);
   }
 
   async delete(table, id) {
-    const endpoint = `${this.url}/rest/v1/${table}?id=eq.${id}`;
-    const options = {
+    const endpoint = `${this.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`;
+
+    const response = await fetch(endpoint, {
       method: 'DELETE',
-      headers: {
-        'apikey': this.key,
-        'Authorization': `Bearer ${this.key}`,
-      },
-    };
-    const response = await fetch(endpoint, options);
-    return response.ok;
+      headers: this.buildHeaders({
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      })
+    });
+
+    return await this.handleResponse(response);
   }
 
   async deleteByFilter(table, filters = {}) {
+    const filterQuery = this.buildFilterQuery(filters);
     let endpoint = `${this.url}/rest/v1/${table}`;
 
-    // Adicionar filtros à query
-    const filterEntries = Object.entries(filters);
-    if (filterEntries.length > 0) {
-      const filterStr = filterEntries.map(([k, v]) => `${k}=eq.${v}`).join('&');
-      endpoint += `?${filterStr}`;
+    if (filterQuery) {
+      endpoint += `?${filterQuery}`;
     }
 
-    const options = {
+    const response = await fetch(endpoint, {
       method: 'DELETE',
-      headers: {
-        'apikey': this.key,
-        'Authorization': `Bearer ${this.key}`,
-      },
-    };
-    const response = await fetch(endpoint, options);
-    return response.ok;
+      headers: this.buildHeaders({
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      })
+    });
+
+    return await this.handleResponse(response);
   }
 
-  // Métodos para Storage
+  // ===============================
+  // STORAGE
+  // ===============================
   async uploadFile(bucket, path, file) {
     const endpoint = `${this.url}/storage/v1/object/${bucket}/${path}`;
+
     const formData = new FormData();
     formData.append('file', file);
 
-    const options = {
+    const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.key}`,
-      },
-      body: formData,
-    };
+      headers: this.buildHeaders(),
+      body: formData
+    });
 
-    const response = await fetch(endpoint, options);
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro no upload');
-    }
-    return response.json();
+    return await this.handleResponse(response);
   }
 
   async deleteFile(bucket, path) {
     const endpoint = `${this.url}/storage/v1/object/${bucket}/${path}`;
-    const options = {
+
+    const response = await fetch(endpoint, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${this.key}`,
-      },
-    };
-    const response = await fetch(endpoint, options);
-    return response.ok;
+      headers: this.buildHeaders()
+    });
+
+    return await this.handleResponse(response);
   }
 
   async listFiles(bucket, path = '') {
-    const endpoint = `${this.url}/storage/v1/object/list/${bucket}?prefix=${path}`;
-    const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${this.key}`,
-      },
-    };
-    const response = await fetch(endpoint, options);
-    return response.json();
+    const endpoint = `${this.url}/storage/v1/object/list/${bucket}`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: this.buildHeaders({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({
+        prefix: path
+      })
+    });
+
+    return await this.handleResponse(response);
   }
 
   getFileUrl(bucket, path) {
@@ -150,59 +247,124 @@ class SupabaseClient {
   }
 }
 
-// Instância global do Supabase
+// ===============================
+// INSTÂNCIA GLOBAL
+// ===============================
 const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ===============================
+// PROJECTS
+// ===============================
 async function getPublicProjects() {
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/projects?select=*&is_public=eq.true&order=created_at.desc`,
-    {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json"
-      }
+  const endpoint =
+    `${SUPABASE_URL}/rest/v1/projects` +
+    `?select=*` +
+    `&is_public=eq.true` +
+    `&order=created_at.desc`;
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
     }
-  );
+  });
 
   if (!response.ok) {
-    throw new Error("Erro ao buscar projetos públicos.");
+    throw new Error(await response.text());
   }
 
   return await response.json();
 }
 
-async function createProject(project) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
-    method: "POST",
+async function getProjectsByUser(userId) {
+  const endpoint =
+    `${SUPABASE_URL}/rest/v1/projects` +
+    `?select=*` +
+    `&user_id=eq.${encodeURIComponent(userId)}` +
+    `&order=created_at.desc`;
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
     headers: {
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation"
-    },
-    body: JSON.stringify([project])
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    }
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erro ao criar projeto: ${errorText}`);
+    throw new Error(await response.text());
+  }
+
+  return await response.json();
+}
+
+async function getProjectById(projectId) {
+  const endpoint =
+    `${SUPABASE_URL}/rest/v1/projects` +
+    `?select=*` +
+    `&id=eq.${encodeURIComponent(projectId)}`;
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
   }
 
   const data = await response.json();
-  return data[0];
+  return data[0] || null;
+}
+
+async function createProject(project) {
+  const payload = [
+    {
+      ...project,
+      created_at: project.created_at || new Date().toISOString(),
+      updated_at: project.updated_at || new Date().toISOString()
+    }
+  ];
+
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const data = await response.json();
+  return data[0] || null;
 }
 
 async function updateProject(projectId, updates) {
   const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}`,
+    `${SUPABASE_URL}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}`,
     {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation"
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
       },
       body: JSON.stringify({
         ...updates,
@@ -212,30 +374,29 @@ async function updateProject(projectId, updates) {
   );
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erro ao atualizar projeto: ${errorText}`);
+    throw new Error(await response.text());
   }
 
   const data = await response.json();
-  return data[0];
+  return data[0] || null;
 }
 
 async function deleteProjectFromDb(projectId) {
   const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}`,
+    `${SUPABASE_URL}/rest/v1/projects?id=eq.${encodeURIComponent(projectId)}`,
     {
-      method: "DELETE",
+      method: 'DELETE',
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
       }
     }
   );
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erro ao deletar projeto: ${errorText}`);
+    throw new Error(await response.text());
   }
 
   return true;
