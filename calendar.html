@@ -7,6 +7,7 @@
   <link rel="icon" href="./img/logoaba.png" type="image/png" />
   <title>Arcanjo • Calendário</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/footer-nav.css" />
   <link rel="stylesheet" href="css/resposive.css" />
   <style>
     .calendar-container {
@@ -311,7 +312,7 @@
 
     <div class="tasks-section">
       <h3>📝 Tarefas para Hoje</h3>
-      
+
       <div class="task-form">
         <input type="text" id="taskInput" placeholder="Adicione uma nova tarefa..." />
         <button onclick="addTask()">➕ Adicionar</button>
@@ -327,6 +328,8 @@
 
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
+  <div id="globalFooter"></div>
+  <script src="js/footer-nav.js"></script>
   <script src="js/calendar.js"></script>
 </body>
 

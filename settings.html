@@ -7,7 +7,9 @@
   <link rel="icon" href="./img/logoaba.png" type="image/png" />
   <title>Arcanjo • Configurações</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/footer-nav.css" />
   <link rel="stylesheet" href="css/resposive.css" />
+
   <style>
     .settings-container {
       max-width: 900px;
@@ -51,6 +53,7 @@
       background: rgba(11, 15, 20, 0.3);
       border-radius: 0.5rem;
       border: 1px solid rgba(99, 102, 241, 0.1);
+      gap: 1rem;
     }
 
     .setting-item:last-child {
@@ -71,17 +74,19 @@
       margin: 0;
       color: #8ab4ff;
       font-size: 0.85rem;
+      line-height: 1.45;
     }
 
     .setting-control {
       display: flex;
       align-items: center;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .toggle {
       position: relative;
-      width: 50px;
+      width: 52px;
       height: 28px;
       background: rgba(99, 102, 241, 0.3);
       border-radius: 14px;
@@ -89,6 +94,7 @@
       transition: background 0.3s;
       border: none;
       padding: 0;
+      flex-shrink: 0;
     }
 
     .toggle.active {
@@ -108,7 +114,12 @@
     }
 
     .toggle.active::after {
-      left: 24px;
+      left: 26px;
+    }
+
+    .toggle:disabled {
+      opacity: .55;
+      cursor: not-allowed;
     }
 
     .color-picker-group {
@@ -127,7 +138,7 @@
     }
 
     .color-option:hover {
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
 
     .color-option.active {
@@ -138,6 +149,8 @@
     .input-group {
       display: flex;
       gap: 0.5rem;
+      width: 100%;
+      max-width: 420px;
     }
 
     .input-group input {
@@ -150,7 +163,8 @@
       font-size: 0.95rem;
     }
 
-    .input-group input:focus {
+    .input-group input:focus,
+    .password-box input:focus {
       outline: none;
       border-color: #6366f1;
     }
@@ -159,7 +173,8 @@
       padding: 0.75rem 1.5rem;
     }
 
-    .select-custom {
+    .select-custom,
+    .password-box input {
       padding: 0.75rem;
       border: 1px solid rgba(99, 102, 241, 0.3);
       border-radius: 0.5rem;
@@ -169,22 +184,37 @@
       cursor: pointer;
     }
 
+    .select-custom {
+      min-width: 220px;
+    }
+
     .select-custom:focus {
       outline: none;
       border-color: #6366f1;
     }
 
-    .success-message {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #86efac;
+    .success-message,
+    .error-message {
       padding: 1rem;
       border-radius: 0.5rem;
       margin-bottom: 1.5rem;
       display: none;
     }
 
-    .success-message.show {
+    .success-message {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #86efac;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .success-message.show,
+    .error-message.show {
       display: block;
     }
 
@@ -195,9 +225,29 @@
       flex-wrap: wrap;
     }
 
-    .btn-section button {
+    .btn-section button,
+    .btn-section a {
       flex: 1;
-      min-width: 150px;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .password-box {
+      width: 100%;
+      display: none;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: .5rem;
+      margin-top: .75rem;
+    }
+
+    .password-box.show {
+      display: grid;
+    }
+
+    .mini-status {
+      font-size: 0.82rem;
+      color: #c7d2fe;
+      margin-top: .4rem;
     }
 
     @media (max-width: 768px) {
@@ -214,6 +264,12 @@
 
       .color-picker-group {
         grid-template-columns: repeat(4, 1fr);
+      }
+
+      .password-box,
+      .input-group {
+        grid-template-columns: 1fr;
+        max-width: 100%;
       }
     }
   </style>
@@ -239,8 +295,8 @@
     </div>
 
     <div id="successMessage" class="success-message">✅ Configurações salvas com sucesso!</div>
+    <div id="errorMessage" class="error-message">❌ Ocorreu um erro.</div>
 
-    <!-- Seção de Notificações -->
     <div class="settings-section">
       <h2>🔔 Notificações</h2>
 
@@ -250,17 +306,19 @@
           <p>Receba notificações de atividades importantes</p>
         </div>
         <div class="setting-control">
-          <button class="toggle" id="emailNotifications" type="button"></button>
+          <button class="toggle" id="emailNotifications" type="button"
+            aria-label="Ativar notificações por email"></button>
         </div>
       </div>
 
       <div class="setting-item">
         <div class="setting-label">
           <h3>Notificações Diárias</h3>
-          <p>Resumo diário de atividades (apenas se emails ativados)</p>
+          <p>Resumo diário de atividades. Requer notificações por email ativadas.</p>
         </div>
         <div class="setting-control">
-          <button class="toggle" id="dailyNotifications" type="button"></button>
+          <button class="toggle" id="dailyNotifications" type="button"
+            aria-label="Ativar notificações diárias"></button>
         </div>
       </div>
 
@@ -269,9 +327,9 @@
           <h3>Email para Notificações</h3>
           <p>Seu email para receber notificações</p>
         </div>
-        <div class="setting-control">
+        <div class="setting-control" style="width:100%;">
           <div class="input-group">
-            <input type="email" id="notificationEmail" placeholder="seu@email.com">
+            <input type="email" id="notificationEmail" placeholder="seu@email.com" />
             <button class="btn" id="saveEmailBtn" type="button">Salvar</button>
           </div>
         </div>
@@ -293,7 +351,6 @@
       </div>
     </div>
 
-    <!-- Seção de Tema -->
     <div class="settings-section">
       <h2>🎨 Aparência</h2>
 
@@ -306,7 +363,7 @@
 
       <div style="padding: 1rem; margin-bottom: 1rem; background: rgba(11, 15, 20, 0.3); border-radius: 0.5rem;">
         <div class="color-picker-group">
-          <div class="color-option active" data-color="#0b0f14" title="Preto" style="background: #0b0f14; border: 3px solid #fff;"></div>
+          <div class="color-option" data-color="#0b0f14" title="Preto" style="background: #0b0f14;"></div>
           <div class="color-option" data-color="#1a1a2e" title="Azul Escuro" style="background: #1a1a2e;"></div>
           <div class="color-option" data-color="#16213e" title="Azul Marinho" style="background: #16213e;"></div>
           <div class="color-option" data-color="#0f3460" title="Azul Royal" style="background: #0f3460;"></div>
@@ -320,7 +377,7 @@
       <div class="setting-item">
         <div class="setting-label">
           <h3>Tema</h3>
-          <p>Escolha entre luz ou escuro (escuro recomendado)</p>
+          <p>Escolha entre tema escuro e claro</p>
         </div>
         <div class="setting-control">
           <select class="select-custom" id="themeSelect">
@@ -331,7 +388,6 @@
       </div>
     </div>
 
-    <!-- Seção de Privacidade -->
     <div class="settings-section">
       <h2>🔒 Privacidade e Segurança</h2>
 
@@ -358,50 +414,56 @@
       <div class="setting-item">
         <div class="setting-label">
           <h3>Dois Fatores (2FA)</h3>
-          <p>Ativar autenticação de dois fatores (em breve)</p>
+          <p>Ativa uma confirmação extra local para ações sensíveis</p>
+          <div class="mini-status" id="twoFactorStatus">2FA desativado</div>
         </div>
         <div class="setting-control">
-          <button class="toggle" id="twoFactor" type="button" disabled></button>
+          <button class="toggle" id="twoFactor" type="button"></button>
         </div>
       </div>
     </div>
 
-    <!-- Seção de Dados -->
     <div class="settings-section">
-      <h2>�📊 Dados</h2>
+      <h2>📊 Dados</h2>
 
       <div class="setting-item">
         <div class="setting-label">
           <h3>Baixar Meus Dados</h3>
-          <p>Exporte todos os seus dados em formato JSON</p>
+          <p>Exporte seus dados em formato JSON</p>
         </div>
         <div class="setting-control">
-          <button class="btn ghost" id="downloadDataBtn">📥 Baixar</button>
+          <button class="btn ghost" id="downloadDataBtn" type="button">📥 Baixar</button>
         </div>
       </div>
 
       <div class="setting-item">
         <div class="setting-label">
           <h3>Limpar Cache Local</h3>
-          <p>Limpe dados armazenados localmente no navegador</p>
+          <p>Limpa apenas os dados locais do seu usuário no navegador</p>
         </div>
         <div class="setting-control">
-          <button class="btn ghost" id="clearCacheBtn">🗑️ Limpar</button>
+          <button class="btn ghost" id="clearCacheBtn" type="button">🗑️ Limpar</button>
         </div>
       </div>
     </div>
 
-    <!-- Seção de Conta -->
     <div class="settings-section">
       <h2>👤 Conta</h2>
 
-      <div class="setting-item">
+      <div class="setting-item" style="align-items:flex-start;">
         <div class="setting-label">
           <h3>Alterar Senha</h3>
-          <p>Atualize sua senha com segurança</p>
+          <p>Atualize sua senha com validação da senha atual</p>
         </div>
-        <div class="setting-control">
-          <button class="btn" id="changePasswordBtn">🔐 Alterar</button>
+        <div class="setting-control" style="width:100%; flex-direction:column; align-items:stretch;">
+          <button class="btn" id="changePasswordBtn" type="button">🔐 Alterar</button>
+
+          <div class="password-box" id="passwordBox">
+            <input type="password" id="currentPassword" placeholder="Senha atual" />
+            <input type="password" id="newPassword" placeholder="Nova senha" />
+            <input type="password" id="confirmPassword" placeholder="Confirmar nova senha" />
+            <button class="btn" id="confirmPasswordChangeBtn" type="button">Salvar</button>
+          </div>
         </div>
       </div>
 
@@ -411,19 +473,24 @@
           <p style="color: #fca5a5;"><strong>Atenção:</strong> Esta ação é irreversível</p>
         </div>
         <div class="setting-control">
-          <button class="btn ghost" id="deleteAccountBtn" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">🗑️ Deletar</button>
+          <button class="btn ghost" id="deleteAccountBtn" type="button"
+            style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">
+            🗑️ Deletar
+          </button>
         </div>
       </div>
     </div>
 
     <div class="btn-section">
-      <button class="btn" id="saveAllBtn">💾 Salvar Todas as Configurações</button>
-      <button class="btn ghost" onclick="location.href='dashboard.html'">← Voltar</button>
+      <button class="btn" id="saveAllBtn" type="button">💾 Salvar Todas as Configurações</button>
+      <a class="btn ghost" href="dashboard.html">← Voltar</a>
     </div>
   </main>
 
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
+  <div id="globalFooter"></div>
+  <script src="js/footer-nav.js"></script>
   <script src="js/settings.js"></script>
 </body>
 
