@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="css/feed.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/responsivefeed.css" />
-  <link rel="stylesheet" href="js/feed.js" />
 </head>
 
 <body class="bg">
@@ -48,14 +47,32 @@
         <option value="Trabalho Acadêmico">Trabalho Acadêmico</option>
         <option value="Protótipo">Protótipo</option>
         <option value="Case Study">Case Study</option>
+        <option value="Web">Web</option>
+        <option value="Mobile">Mobile</option>
+        <option value="Desktop">Desktop</option>
       </select>
 
       <select id="orderFilter" class="input">
         <option value="recent">Mais recentes</option>
         <option value="liked">Mais curtidos</option>
         <option value="comments">Mais comentados</option>
+        <option value="saved">Mais salvos</option>
       </select>
     </section>
 
+    <section id="feedStats" class="feed-stats"></section>
     <section id="feedList" class="feed-list"></section>
   </main>
+
+  <div id="projectPreviewModal" class="project-preview-modal">
+    <div class="project-preview-box">
+      <button id="closePreviewModal" class="close-preview-btn" type="button">✕</button>
+      <div id="projectPreviewContent"></div>
+    </div>
+  </div>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/feed.js"></script>
+</body>
+
+</html>

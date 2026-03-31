@@ -15,7 +15,7 @@
   border: 1px solid rgba(99, 102, 241, 0.24);
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .feed-hero::before {
@@ -23,8 +23,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 26px 26px;
   pointer-events: none;
   opacity: 0.3;
@@ -90,8 +90,8 @@
     linear-gradient(180deg, rgba(16, 24, 40, 0.95), rgba(10, 15, 25, 0.98));
   border: 1px solid rgba(99, 102, 241, 0.18);
   box-shadow:
-    0 12px 38px rgba(0,0,0,.28),
-    inset 0 1px 0 rgba(255,255,255,0.03);
+    0 12px 38px rgba(0, 0, 0, .28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
@@ -99,15 +99,15 @@
   transform: translateY(-4px);
   border-color: rgba(99, 102, 241, 0.34);
   box-shadow:
-    0 18px 50px rgba(0,0,0,.36),
-    0 0 0 1px rgba(99,102,241,.08) inset;
+    0 18px 50px rgba(0, 0, 0, .36),
+    0 0 0 1px rgba(99, 102, 241, .08) inset;
 }
 
 .post-media {
   position: relative;
   min-height: 360px;
   background:
-    radial-gradient(circle at top, rgba(99,102,241,.25), transparent 40%),
+    radial-gradient(circle at top, rgba(99, 102, 241, .25), transparent 40%),
     linear-gradient(160deg, #0f172a, #111827);
 }
 
@@ -154,7 +154,7 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(99, 102, 241, 0.28);
-  background: rgba(255,255,255,.06);
+  background: rgba(255, 255, 255, .06);
   box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.06);
 }
 
@@ -213,7 +213,7 @@
   gap: 1rem;
   flex-wrap: wrap;
   padding-top: .4rem;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(255, 255, 255, .06);
   color: #93a4c7;
   font-size: .88rem;
 }
@@ -233,7 +233,7 @@
 .comments-box {
   display: none;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(255, 255, 255, .06);
 }
 
 .comments-box.show-comments {
@@ -251,8 +251,8 @@
 }
 
 .comment-item {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .06);
   border-radius: .9rem;
   padding: .85rem;
   color: #d8e4ff;
@@ -285,11 +285,11 @@
   min-width: 220px;
   display: none;
   background: rgba(10, 15, 25, 0.98);
-  border: 1px solid rgba(99,102,241,.22);
+  border: 1px solid rgba(99, 102, 241, .22);
   border-radius: .9rem;
   overflow: hidden;
   z-index: 30;
-  box-shadow: 0 15px 45px rgba(0,0,0,.35);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, .35);
 }
 
 .post-dropdown.show {
@@ -308,7 +308,7 @@
 }
 
 .post-dropdown button:hover {
-  background: rgba(255,255,255,.05);
+  background: rgba(255, 255, 255, .05);
 }
 
 .post-dropdown .danger {
@@ -319,6 +319,78 @@
   text-align: center;
   padding: 3.5rem 1rem;
   border-radius: 1rem;
-  background: rgba(99,102,241,.05);
-  border: 1px solid rgba(99,102,241,.18);
+  background: rgba(99, 102, 241, .05);
+  border: 1px solid rgba(99, 102, 241, .18);
+}
+
+.feed-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.project-preview-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .72);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 3000;
+}
+
+.project-preview-modal.show {
+  display: flex;
+}
+
+.project-preview-box {
+  width: min(900px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: #101827;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 20px;
+  padding: 1rem;
+  position: relative;
+}
+
+.close-preview-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.preview-cover img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.preview-body {
+  margin-top: 1rem;
+}
+
+.preview-author {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: 1rem;
+}
+
+.preview-author img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
 }

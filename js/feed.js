@@ -7,6 +7,9 @@ const searchInput = document.getElementById("searchInput");
 const typeFilter = document.getElementById("typeFilter");
 const orderFilter = document.getElementById("orderFilter");
 const feedStats = document.getElementById("feedStats");
+const projectPreviewModal = document.getElementById("projectPreviewModal");
+const projectPreviewContent = document.getElementById("projectPreviewContent");
+const closePreviewModal = document.getElementById("closePreviewModal");
 
 const currentUser = {
   id: localStorage.getItem("arcanjo_current_user_id") || "user_logado",
@@ -91,8 +94,8 @@ function normalizePost(post = {}) {
     technologies: Array.isArray(post.technologies)
       ? post.technologies
       : Array.isArray(post.techs)
-      ? post.techs
-      : [],
+        ? post.techs
+        : [],
     image: post.image ?? "",
     likes: Number(post.likes ?? 0),
     likedBy: Array.isArray(post.likedBy) ? post.likedBy : [],
@@ -120,8 +123,8 @@ function mapDbPostToFeed(post = {}) {
     technologies: Array.isArray(post.techs)
       ? post.techs
       : Array.isArray(post.technologies)
-      ? post.technologies
-      : [],
+        ? post.technologies
+        : [],
     image: post.image || DEFAULT_POST_IMAGE,
     likes: post.likes || post.likes_count || 0,
     likedBy: [],
@@ -191,6 +194,22 @@ function getAuthorAvatar(post) {
   return post.authorAvatar?.trim() ? post.authorAvatar : DEFAULT_AVATAR;
 }
 
+function formatRelativeDate(date) {
+  const now = new Date();
+  const target = new Date(date);
+  const diffMs = now - target;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMinutes < 1) return "agora";
+  if (diffMinutes < 60) return `${diffMinutes} min atrás`;
+  if (diffHours < 24) return `${diffHours} h atrás`;
+  if (diffDays < 7) return `${diffDays} d atrás`;
+
+  return target.toLocaleDateString("pt-BR");
+}
+
 function renderStats(posts) {
   if (!feedStats) return;
 
@@ -258,6 +277,7 @@ function buildPostHtml(post) {
           <div class="post-menu">
             <button class="btn ghost menu-toggle" data-id="${post.id}" type="button">⋯</button>
             <div class="post-dropdown" id="menu-${post.id}">
+              <button class="preview-btn" data-id="${post.id}" type="button">Visualizar</button>
               <button class="share-btn" data-id="${post.id}" type="button">Compartilhar</button>
               <button class="save-btn" data-id="${post.id}" type="button">
                 ${saved ? "Remover dos salvos" : "Salvar"}
@@ -293,6 +313,10 @@ function buildPostHtml(post) {
           <button class="btn ghost save-btn" data-id="${post.id}" type="button">
             ${saved ? "★ Salvo" : "☆ Salvar"}
           </button>
+
+          <button class="btn ghost preview-btn" data-id="${post.id}" type="button">
+            👁️ Ver
+          </button>
         </div>
 
         <div class="post-links">
@@ -309,16 +333,15 @@ function buildPostHtml(post) {
 
         <div class="comments-box" id="comments-${post.id}">
           <div class="comments-list">
-            ${
-              commentsCount
-                ? post.comments.map(comment => `
+            ${commentsCount
+      ? post.comments.map(comment => `
                   <div class="comment-item">
                     <strong>${escapeHtml(comment.user)}:</strong>
                     <span>${escapeHtml(comment.text)}</span>
                   </div>
                 `).join("")
-                : `<p class="no-comments">Ainda não há comentários.</p>`
-            }
+      : `<p class="no-comments">Ainda não há comentários.</p>`
+    }
           </div>
 
           <div class="comment-form">
@@ -473,6 +496,54 @@ function toggleComments(postId) {
   }
 }
 
+function openPreviewModal(postId) {
+  const post = allFeedPosts.find(item => item.id === postId);
+  if (!post || !projectPreviewContent || !projectPreviewModal) return;
+
+  projectPreviewContent.innerHTML = `
+    <div class="preview-cover">
+      <img src="${escapeHtml(getPostImage(post))}" alt="${escapeHtml(post.title)}">
+    </div>
+
+    <div class="preview-body">
+      <div class="preview-author">
+        <img src="${escapeHtml(getAuthorAvatar(post))}" alt="${escapeHtml(post.author)}">
+        <div>
+          <strong>${escapeHtml(post.author)}</strong>
+          <div class="muted small">${escapeHtml(post.type)} • ${escapeHtml(formatRelativeDate(post.createdAt))}</div>
+        </div>
+      </div>
+
+      <h2>${escapeHtml(post.title)}</h2>
+      <p>${escapeHtml(post.description)}</p>
+
+      <div class="tech-tags">
+        ${post.technologies.map(tech => `<span>${escapeHtml(tech)}</span>`).join("")}
+      </div>
+
+      <div class="post-stats">
+        <span>❤️ ${post.likes} curtidas</span>
+        <span>💬 ${post.comments.length} comentários</span>
+        <span>🔖 ${post.saves} salvos</span>
+        <span>↗ ${post.shares} compartilhamentos</span>
+      </div>
+
+      <div class="post-links" style="margin-top: 1rem;">
+        <a href="${escapeHtml(post.demo)}" class="btn ghost" target="_blank" rel="noopener noreferrer">Abrir projeto</a>
+        <a href="${escapeHtml(post.github)}" class="btn ghost" target="_blank" rel="noopener noreferrer">Abrir GitHub</a>
+      </div>
+    </div>
+  `;
+
+  projectPreviewModal.classList.add("show");
+}
+
+function closePreview() {
+  if (projectPreviewModal) {
+    projectPreviewModal.classList.remove("show");
+  }
+}
+
 function bindEvents() {
   document.querySelectorAll(".like-btn").forEach(button => {
     button.onclick = () => toggleLike(Number(button.dataset.id));
@@ -500,6 +571,10 @@ function bindEvents() {
 
   document.querySelectorAll(".block-btn").forEach(button => {
     button.onclick = () => blockUser(button.dataset.authorId);
+  });
+
+  document.querySelectorAll(".preview-btn").forEach(button => {
+    button.onclick = () => openPreviewModal(Number(button.dataset.id));
   });
 
   document.querySelectorAll(".menu-toggle").forEach(button => {
@@ -577,22 +652,6 @@ async function loadFeedFromDatabase() {
   }
 }
 
-function formatRelativeDate(date) {
-  const now = new Date();
-  const target = new Date(date);
-  const diffMs = now - target;
-  const diffMinutes = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMinutes < 1) return "agora";
-  if (diffMinutes < 60) return `${diffMinutes} min atrás`;
-  if (diffHours < 24) return `${diffHours} h atrás`;
-  if (diffDays < 7) return `${diffDays} d atrás`;
-
-  return target.toLocaleDateString("pt-BR");
-}
-
 function initializeFeed() {
   if (!localStorage.getItem(FEED_STORAGE_KEY)) {
     savePostsToLocalStorage(defaultPosts);
@@ -610,6 +669,18 @@ function initializeFeed() {
 
   if (orderFilter) {
     orderFilter.addEventListener("change", applyFilters);
+  }
+
+  if (closePreviewModal) {
+    closePreviewModal.addEventListener("click", closePreview);
+  }
+
+  if (projectPreviewModal) {
+    projectPreviewModal.addEventListener("click", (e) => {
+      if (e.target === projectPreviewModal) {
+        closePreview();
+      }
+    });
   }
 
   document.addEventListener("click", (e) => {
