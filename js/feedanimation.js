@@ -558,3 +558,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// BOTÃO VOLTAR AO TOPO
+(function initScrollTopButton() {
+  const btn = document.createElement("button");
+  btn.id = "scrollTopBtn";
+  btn.innerHTML = "↑";
+
+  document.body.appendChild(btn);
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      background: linear-gradient(135deg, #ffffff, #dcdcdc);
+      color: #000;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      opacity: 0;
+      transform: translateY(20px) scale(.9);
+      transition: all .3s ease;
+      z-index: 9999;
+    }
+
+    #scrollTopBtn.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    #scrollTopBtn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(0,0,0,.35);
+    }
+
+    #scrollTopBtn:active {
+      transform: scale(.9);
+    }
+  `;
+  document.head.appendChild(style);
+
+  // mostrar/esconder
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 400) {
+      btn.classList.add("show");
+    } else {
+      btn.classList.remove("show");
+    }
+  });
+
+  // subir suave
+  btn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+    // animação extra ao clicar
+    btn.classList.add("click-bounce");
+    setTimeout(() => btn.classList.remove("click-bounce"), 300);
+  });
+})();
