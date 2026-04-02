@@ -8,94 +8,8 @@
   <title>Arcanjo • Mensagens</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/resposive.css" />
-  <style>
-    .messages-container {
-      max-width: 900px;
-      margin: 1.5rem auto;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      background: rgba(11, 15, 20, 0.2);
-      border-radius: 1rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-    }
+  <link rel="stylesheet" href="css/messages.css" />
 
-    .chat-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .chat-box {
-      flex: 1;
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 1rem;
-      padding: 1rem;
-      background: rgba(11, 15, 20, 0.3);
-      overflow-y: auto;
-      max-height: 500px;
-    }
-
-    .message {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-direction: column;
-      max-width: 70%;
-    }
-
-    .message.self {
-      align-self: flex-end;
-      background: rgba(16, 185, 129, 0.2);
-      border-radius: 1rem 1rem 0 1rem;
-      padding: 0.5rem 0.75rem;
-    }
-
-    .message.other {
-      align-self: flex-start;
-      background: rgba(59, 130, 246, 0.2);
-      border-radius: 1rem 1rem 1rem 0;
-      padding: 0.5rem 0.75rem;
-    }
-
-    .message .meta {
-      font-size: 0.75rem;
-      color: #a5b4fc;
-      margin-bottom: 0.25rem;
-    }
-
-    .input-area {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .input-area textarea {
-      flex: 1;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      background: rgba(11, 15, 20, 0.5);
-      color: #e8eef7;
-      resize: vertical;
-      min-height: 60px;
-    }
-
-    .input-area button {
-      padding: 0.75rem 1.25rem;
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .input-area button:hover {
-      background: rgba(239, 68, 68, 0.4);
-      color: #fecaca;
-    }
-  </style>
 </head>
 
 <body class="bg">
@@ -111,22 +25,30 @@
     </div>
   </header>
 
-  <script src="js/auth.js"></script>
-  <script src="js/messages.js"></script>
-
   <main class="wrap messages-container">
     <div class="chat-header">
       <label for="userSelect">Conversar com:</label>
-      <select id="userSelect"></select>
+      <select id="userSelect">
+        <option value="">-- escolha um usuário --</option>
+      </select>
     </div>
 
-    <div id="chatBox" class="chat-box"></div>
+    <div id="chatBox" class="chat-box">
+      <div class="chat-empty">Selecione um usuário para começar a conversar.</div>
+    </div>
+
+    <div class="chat-helper">
+      Enter envia a mensagem. Shift + Enter quebra linha.
+    </div>
 
     <div class="input-area">
-      <textarea id="messageInput" placeholder="Digite sua mensagem..."></textarea>
-      <button id="sendBtn">Enviar</button>
+      <textarea id="messageInput" placeholder="Digite sua mensagem..." disabled></textarea>
+      <button id="sendBtn" disabled>Enviar</button>
     </div>
-  </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/messages.js"></script>
 </body>
 
 </html>
