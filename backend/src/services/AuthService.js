@@ -7,6 +7,11 @@ export async function register(data) {
     throw { status: 400, message: "Dados inválidos" };
   }
 
+  const existingUser = await repo.findByUsername(data.username);
+  if (existingUser) {
+    throw { status: 409, message: "Usuário já existe" };
+  }
+
   const hashed = await hashPassword(data.password);
   const user = await repo.create({ username: data.username, password: hashed });
 

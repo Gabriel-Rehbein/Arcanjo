@@ -1,7 +1,7 @@
 A ideia do projeto é concentrar todos os projetos FINAIS de todas as cadeiras que eu já fiz
 em um "super" Projeto final. 
 
-Unindo as cadeiras de Frameworks Web e Programação Full Stack junto a de Projeto de Desenvolvimento II, o Sistema Arcanjo terá todas
+Unindo as cadeiras de Frameworks Web junto a de Projeto de Desenvolvimento II, o Sistema Arcanjo terá todas
 os sistemas já criados por mim!
 
 Porque esse nome?? 

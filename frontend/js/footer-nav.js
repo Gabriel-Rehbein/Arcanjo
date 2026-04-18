@@ -8,7 +8,7 @@ async function injectGlobalFooter() {
   if (!footerHost) return;
 
   try {
-    const response = await fetch("components/footer-nav.html");
+    const response = await fetch("/components/footer-nav.html");
     const html = await response.text();
 
     footerHost.innerHTML = `
