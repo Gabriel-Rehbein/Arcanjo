@@ -1,0 +1,38 @@
+Como rodar o projeto Arcanjo
+
+1) Instalar o Node.js
+- Instale o Node.js na versão recomendada (pelo menos Node 18 ou superior).
+- O Node.js já traz o npm, que é usado para instalar dependências.
+
+2) Backend
+- Abra o terminal em backend/
+  Comando: cd backend
+- Instale dependências
+  Comando: npm install
+- Configure o arquivo .env com os dados do banco PostgreSQL (veja backend/.env.example)
+- Exemplo de variáveis necessárias:
+  DB_USER=postgres
+  DB_PASSWORD=senacrs
+  DB_HOST=localhost
+  DB_PORT=5432
+  DB_NAME=arcanjo
+- Inicie o backend
+  Comando: npm run dev
+
+3) Frontend
+- Abra o terminal em frontend/
+  Comando: cd frontend
+- Instale dependências
+  Comando: npm install
+- Inicie o frontend
+  Comando: npm run dev
+- O frontend usa Next.js e roda por padrão em http://localhost:3001
+
+4) Banco de dados
+- O backend usa PostgreSQL via a dependência pg.
+- Instale e rode um servidor PostgreSQL local.
+- Crie o banco de dados usado no .env.
+
+5) Observações
+- Primeiro inicie o backend, depois o frontend.
+- Se precisar mudar a porta ou o host, ajuste o arquivo de configuração do frontend ou o .env do backend.
