@@ -1,0 +1,41 @@
+Tecnologias Utilizadas - Projeto Arcanjo
+
+BACKEND
+=======
+- Node.js: Runtime JavaScript para servidor
+- Express.js: Framework web minimalista e rápido
+- PostgreSQL (pg): Banco de dados relacional
+- bcrypt: Hashing seguro de senhas
+- jsonwebtoken (JWT): Autenticação com tokens
+- CORS: Compartilhamento de recursos entre domínios
+- dotenv: Gerenciamento de variáveis de ambiente
+- open: Abre automaticamente o navegador
+
+FRONTEND
+========
+- Next.js: Framework React com SSR e otimizações
+- React: Biblioteca para construir interfaces
+- React-DOM: Renderização React no navegador
+- CSS: Estilização nativa (sem framework CSS)
+- JavaScript (ES6+): Linguagem de programação
+
+BANCO DE DADOS
+==============
+- PostgreSQL: Banco relacional para armazenar dados
+- Pool de conexões: Gerenciamento eficiente de conexões
+
+INFRAESTRUTURA
+==============
+- npm: Gerenciador de pacotes JavaScript
+- Portas: Backend na 3000, Frontend na 3001
+- CORS: Comunicação segura entre frontend e backend
+
+ARQUITETURA
+===========
+Backend: MVC (Model-View-Controller)
+- Controllers: Lógica de negócio
+- Routes: Definição de endpoints
+- Services: Processos reutilizáveis
+- Repositories: Acesso ao banco de dados
+- Entities: Modelos de dados
+- Middlewares: Tratamento de requisições
