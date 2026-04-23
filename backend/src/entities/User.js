@@ -1,7 +1,20 @@
-export default class User {
-  constructor(id, username, password) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-  }
-}
+﻿import { EntitySchema } from "typeorm";
+
+export default new EntitySchema({
+  name: "User",
+  tableName: "users",
+  columns: {
+    id: {
+      type: Number,
+      primary: true,
+      generated: true,
+    },
+    username: {
+      type: String,
+      unique: true,
+    },
+    password: {
+      type: String,
+    },
+  },
+});

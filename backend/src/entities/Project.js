@@ -1,8 +1,23 @@
-export default class Project {
-  constructor(id, title, description, user_id) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.user_id = user_id;
-  }
-}
+﻿import { EntitySchema } from "typeorm";
+
+export default new EntitySchema({
+  name: "Project",
+  tableName: "projects",
+  columns: {
+    id: {
+      type: Number,
+      primary: true,
+      generated: true,
+    },
+    title: {
+      type: String,
+    },
+    description: {
+      type: String,
+      nullable: true,
+    },
+    user_id: {
+      type: Number,
+    },
+  },
+});
