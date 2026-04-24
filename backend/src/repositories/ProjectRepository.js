@@ -11,6 +11,16 @@ export async function findByUserId(userId) {
   return repository.find({ where: { user_id: userId } });
 }
 
+export async function searchProjects(query) {
+  const repository = await getRepository(ProjectSchema);
+  return repository
+    .createQueryBuilder("project")
+    .where("project.title ILIKE :q", { q: `%${query}%` })
+    .orWhere("project.description ILIKE :q", { q: `%${query}%` })
+    .orWhere("project.tag ILIKE :q", { q: `%${query}%` })
+    .getMany();
+}
+
 export async function create(project) {
   const repository = await getRepository(ProjectSchema);
   return repository.save(project);

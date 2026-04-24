@@ -17,3 +17,26 @@ export async function create(req, res, next) {
     next(err);
   }
 }
+
+export async function search(req, res, next) {
+  try {
+    const query = String(req.query.q || "").trim();
+    if (!query) {
+      return res.json([]);
+    }
+
+    const projects = await service.search(query);
+    res.json(projects);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getFeed(req, res, next) {
+  try {
+    const data = await service.getFeed(req.user?.id);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}

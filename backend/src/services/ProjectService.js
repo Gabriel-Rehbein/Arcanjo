@@ -20,3 +20,23 @@ export async function create(data, userId) {
     user_id: userId,
   });
 }
+
+export async function search(query) {
+  if (!query || typeof query !== 'string') {
+    return [];
+  }
+
+  return await repo.searchProjects(query.trim());
+}
+
+export async function getFeed(userId) {
+  // Retorna projetos públicos (feed simples)
+  // TODO: Implementar busca de projetos dos usuários que o user segue
+  const cached = getCache("feed");
+  if (cached) return cached;
+
+  const data = await repo.findAll();
+  const publicProjects = data.filter(p => p.is_public !== false);
+  setCache("feed", publicProjects);
+  return publicProjects;
+}

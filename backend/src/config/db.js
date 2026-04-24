@@ -171,6 +171,20 @@ export async function createTablesIfNotExist() {
       )
     `);
 
+    // Adicionar colunas faltantes na tabela projects
+    await AppDataSource.query(`
+      ALTER TABLE projects
+      ADD COLUMN IF NOT EXISTS image_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS category VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS tags TEXT,
+      ADD COLUMN IF NOT EXISTS link VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT true,
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `);
+
     console.log("✅ Tabelas criadas/verficadas com sucesso");
   } catch (error) {
     console.error("❌ Erro ao criar tabelas:", error.message);

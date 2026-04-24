@@ -6,11 +6,21 @@ import styles from '../styles/components/Header.module.css';
 export default function Header() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/explore?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearching(true);
+      router.push(`/explore?search=${encodeURIComponent(searchQuery)}`).finally(() => {
+        setIsSearching(false);
+      });
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      handleSearch(e);
     }
   };
 
@@ -27,8 +37,16 @@ export default function Header() {
             placeholder="🔍 Pesquisar projetos, usuários..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isSearching}
           />
-          <button type="submit">Buscar</button>
+          <button 
+            type="submit" 
+            disabled={isSearching || !searchQuery.trim()}
+            title="Clique para buscar ou pressione Enter"
+          >
+            {isSearching ? 'Buscando...' : 'Buscar'}
+          </button>
         </form>
 
         <nav className={styles.nav}>

@@ -57,6 +57,23 @@
   font-weight: 600;
   color: #0095f6;
   padding: 0 10px;
+  font-size: 14px;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.searchBar button:hover:not(:disabled) {
+  color: #0078d4;
+  text-decoration: underline;
+}
+
+.searchBar button:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+.searchBar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .nav {
