@@ -1,0 +1,242 @@
+/* Notifications Page Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.notifications {
+  flex: 1;
+  background: #fff;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  color: #0095f6;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.clearBtn:hover {
+  opacity: 0.8;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.filters button {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.filters button:hover {
+  background: #e8e8e8;
+}
+
+.filters button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifItem {
+  display: flex;
+  gap: 12px;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-items: flex-start;
+}
+
+.notifItem:hover {
+  background: #f8f8f8;
+}
+
+.notifItem.unread {
+  background: #f0f7ff;
+}
+
+.notifItem img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.content strong {
+  font-weight: 600;
+  color: #000;
+}
+
+.time {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .notifications {
+    border: none;
+  }
+
+  .header {
+    padding: 15px;
+  }
+
+  .filters {
+    padding: 10px 15px;
+  }
+
+  .filters button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .notifItem {
+    padding: 12px 15px;
+  }
+
+  .notifItem img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .content p {
+    font-size: 13px;
+  }
+
+  .time {
+    font-size: 11px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 18px;
+  }
+
+  .filters {
+    gap: 8px;
+  }
+
+  .notifItem {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .notifItem img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .content p {
+    font-size: 12px;
+  }
+
+  .icon {
+    font-size: 16px;
+  }
+}
+
+/* Scrollbar */
+.notifications::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notifications::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notifications::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.notifications::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}

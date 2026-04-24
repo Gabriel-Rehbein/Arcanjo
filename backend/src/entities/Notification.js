@@ -1,21 +1,28 @@
 import { EntitySchema } from "typeorm";
 
 export default new EntitySchema({
-  name: "Message",
-  tableName: "messages",
+  name: "Notification",
+  tableName: "notifications",
   columns: {
     id: {
       type: Number,
       primary: true,
       generated: true,
     },
-    sender_id: {
+    user_id: {
       type: Number,
     },
-    receiver_id: {
+    from_user_id: {
       type: Number,
     },
-    content: {
+    type: {
+      type: String, // 'like', 'comment', 'follow', 'message'
+    },
+    project_id: {
+      type: Number,
+      nullable: true,
+    },
+    message: {
       type: String,
     },
     is_read: {

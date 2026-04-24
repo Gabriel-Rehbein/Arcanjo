@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (getToken()) {
-      router.push('/dashboard');
+      router.push('/feed');
     }
   }, [router]);
 
@@ -27,15 +27,15 @@ export default function LoginPage() {
       });
       setToken(data.token);
       setUser(username);
-      router.push('/dashboard');
+      router.push('/feed');
     } catch (err) {
       setError(err.message);
     }
   }
 
   return (
-    <div className="page-shell">
-      <div className="page-content card">
+    <div className="page-shell login-shell">
+      <div className="page-content card login-card">
         <h1 className="title">Entrar</h1>
         <p>Use seu usuário e senha para acessar o painel.</p>
         <form className="input-group" onSubmit={handleSubmit}>

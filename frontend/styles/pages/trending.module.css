@@ -1,0 +1,159 @@
+/* Trending Page Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.trending {
+  flex: 1;
+  background: #fff;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 8px 0 0 0;
+  color: #999;
+  font-size: 16px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+  justify-content: center;
+}
+
+.filters button {
+  padding: 10px 16px;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.filters button:hover {
+  background: #e8e8e8;
+}
+
+.filters button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+.projectsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.trendingItem {
+  position: relative;
+  padding-left: 60px;
+}
+
+.rank {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (max-width: 768px) {
+  .trending {
+    border: none;
+  }
+
+  .header {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .filters {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .filters button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .trendingItem {
+    padding-left: 50px;
+  }
+
+  .rank {
+    font-size: 24px;
+    left: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .header p {
+    font-size: 14px;
+  }
+
+  .trendingItem {
+    padding-left: 45px;
+  }
+
+  .rank {
+    font-size: 20px;
+    left: 12px;
+  }
+}

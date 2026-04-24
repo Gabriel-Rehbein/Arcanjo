@@ -1,0 +1,165 @@
+/* Saved Page Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.saved {
+  flex: 1;
+  background: #fff;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 8px 0 0 0;
+  color: #999;
+  font-size: 16px;
+}
+
+.categories {
+  display: flex;
+  gap: 8px;
+  padding: 15px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+  justify-content: center;
+}
+
+.categories button {
+  padding: 8px 14px;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.categories button:hover {
+  background: #e8e8e8;
+}
+
+.categories button.active {
+  background: #0095f6;
+  color: #fff;
+  border-color: #0095f6;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+}
+
+.empty a {
+  display: inline-block;
+  color: #0095f6;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.empty a:hover {
+  opacity: 0.8;
+}
+
+.projectsList {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .saved {
+    border: none;
+  }
+
+  .header {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .categories {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .categories button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .header p {
+    font-size: 14px;
+  }
+
+  .categories {
+    padding: 8px;
+  }
+
+  .empty p {
+    font-size: 14px;
+  }
+}
+
+/* Scrollbar */
+.categories::-webkit-scrollbar {
+  height: 6px;
+}
+
+.categories::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.categories::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.categories::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}

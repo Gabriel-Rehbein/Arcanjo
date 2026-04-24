@@ -1,26 +1,26 @@
 import { EntitySchema } from "typeorm";
 
 export default new EntitySchema({
-  name: "Message",
-  tableName: "messages",
+  name: "Story",
+  tableName: "stories",
   columns: {
     id: {
       type: Number,
       primary: true,
       generated: true,
     },
-    sender_id: {
+    user_id: {
       type: Number,
     },
-    receiver_id: {
-      type: Number,
+    image_url: {
+      type: String,
     },
     content: {
       type: String,
+      nullable: true,
     },
-    is_read: {
-      type: Boolean,
-      default: false,
+    expires_at: {
+      type: "timestamp",
     },
     created_at: {
       type: "timestamp",

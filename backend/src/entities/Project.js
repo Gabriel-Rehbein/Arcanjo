@@ -19,5 +19,41 @@ export default new EntitySchema({
     user_id: {
       type: Number,
     },
+    image_url: {
+      type: String,
+      nullable: true,
+    },
+    category: {
+      type: String,
+      nullable: true,
+    },
+    tags: {
+      type: String,
+      nullable: true, // JSON string de tags
+    },
+    link: {
+      type: String,
+      nullable: true,
+    },
+    likes_count: {
+      type: Number,
+      default: 0,
+    },
+    comments_count: {
+      type: Number,
+      default: 0,
+    },
+    is_featured: {
+      type: Boolean,
+      default: false,
+    },
+    created_at: {
+      type: "timestamp",
+      default: () => "CURRENT_TIMESTAMP",
+    },
+    updated_at: {
+      type: "timestamp",
+      default: () => "CURRENT_TIMESTAMP",
+    },
   },
 });

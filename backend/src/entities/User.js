@@ -16,5 +16,33 @@ export default new EntitySchema({
     password: {
       type: String,
     },
+    email: {
+      type: String,
+      nullable: true,
+    },
+    full_name: {
+      type: String,
+      nullable: true,
+    },
+    bio: {
+      type: String,
+      nullable: true,
+    },
+    avatar_url: {
+      type: String,
+      nullable: true,
+    },
+    banner_url: {
+      type: String,
+      nullable: true,
+    },
+    is_private: {
+      type: Boolean,
+      default: false,
+    },
+    created_at: {
+      type: "timestamp",
+      default: () => "CURRENT_TIMESTAMP",
+    },
   },
 });

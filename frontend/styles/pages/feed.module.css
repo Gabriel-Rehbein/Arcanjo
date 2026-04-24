@@ -1,0 +1,75 @@
+/* Feed Page Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.feed {
+  flex: 1;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+.error {
+  color: #f91880;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border-radius: 8px;
+  color: #999;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .feed {
+    padding: 10px;
+    max-width: 100%;
+  }
+
+  .posts {
+    gap: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-top: 0;
+  }
+
+  .feed {
+    padding: 0;
+  }
+}

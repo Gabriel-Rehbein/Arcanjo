@@ -6,6 +6,11 @@ export async function findAll() {
   return repository.find();
 }
 
+export async function findByUserId(userId) {
+  const repository = await getRepository(ProjectSchema);
+  return repository.find({ where: { user_id: userId } });
+}
+
 export async function create(project) {
   const repository = await getRepository(ProjectSchema);
   return repository.save(project);

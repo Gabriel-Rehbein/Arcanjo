@@ -1,0 +1,124 @@
+/* Story Bar Styles */
+.storyBar {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.storiesContainer {
+  display: flex;
+  gap: 10px;
+  min-width: min-content;
+  padding: 5px;
+}
+
+.addStory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 120px;
+  background: #f0f0f0;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.addStory:hover {
+  background: #e8e8e8;
+  border-color: #0095f6;
+}
+
+.addBtn {
+  font-size: 32px;
+  margin-bottom: 5px;
+  color: #0095f6;
+}
+
+.addStory p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.story {
+  position: relative;
+  min-width: 80px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid #e0e0e0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.story:hover {
+  border-color: #0095f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.story img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.story span {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .storyBar {
+    margin-bottom: 15px;
+  }
+
+  .story,
+  .addStory {
+    min-width: 70px;
+    height: 100px;
+  }
+}
+
+/* Scrollbar styles */
+.storyBar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.storyBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.storyBar::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.storyBar::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
