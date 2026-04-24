@@ -41,7 +41,7 @@
   border: 1px solid #ffeaa7;
 }
 
-form {
+.form {
   display: flex;
   flex-direction: column;
   gap: 20px;

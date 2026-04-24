@@ -1,218 +1,234 @@
-/* Project Card Styles */
 .card {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 24px;
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  color: #f8fafc;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 30px 85px rgba(37, 99, 235, 0.22);
 }
 
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
 }
 
-.userInfo {
+.userButton {
+  border: 0;
+  background: transparent;
+  color: inherit;
   display: flex;
-  gap: 10px;
-  flex: 1;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
 }
 
-.userInfo img {
-  width: 40px;
-  height: 40px;
+.userButton strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.userButton span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgba(59, 130, 246, 0.55);
 }
 
-.userDetails {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.userDetails a {
-  text-decoration: none;
-  color: #000;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.username {
-  color: #999;
-  font-size: 12px;
-}
-
-.menuBtn {
-  background: none;
-  border: none;
-  font-size: 18px;
+.moreButton {
+  border: 0;
+  background: rgba(15, 23, 42, 0.8);
+  color: #cbd5e1;
   cursor: pointer;
-  color: #999;
-  padding: 0;
+  font-size: 1.2rem;
+  border-radius: 14px;
+  padding: 8px 10px;
 }
 
-.imageContainer {
+.imageBox {
   width: 100%;
-  background: #f0f0f0;
-  max-height: 500px;
+  aspect-ratio: 16 / 10;
+  background: #020617;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.imageContainer img {
+.imageBox img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.45s ease, filter 0.45s ease;
+}
+
+.card:hover .imageBox img {
+  transform: scale(1.04);
+  filter: brightness(1.08);
+}
+
+.content {
+  padding: 16px;
 }
 
 .actions {
   display: flex;
-  gap: 15px;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #000;
+.leftActions {
   display: flex;
   align-items: center;
-  gap: 5px;
-  transition: color 0.2s;
+  gap: 8px;
 }
 
-.btn:hover {
-  color: #0095f6;
+.actionBtn {
+  border: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(30, 41, 59, 0.95);
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 1.15rem;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.btn.active {
-  color: #ff0000;
+.actionBtn:hover {
+  transform: translateY(-2px) scale(1.06);
+  background: rgba(51, 65, 85, 1);
 }
 
-.save {
-  margin-left: auto;
+.activeLike {
+  background: rgba(220, 38, 38, 0.2);
 }
 
-.content {
-  padding: 15px;
+.activeSave {
+  background: rgba(234, 179, 8, 0.2);
+}
+
+.metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.metrics strong {
+  color: #f8fafc;
 }
 
 .content h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
+  font-size: 1.15rem;
+  margin: 0 0 8px;
 }
 
-.content p {
-  margin: 0 0 12px 0;
-  color: #666;
-  font-size: 14px;
-  line-height: 1.5;
+.description {
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.readMore {
+  border: 0;
+  background: transparent;
+  color: #60a5fa;
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 700;
+}
+
+.category {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .tags {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.tag {
-  background: #f0f0f0;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #0095f6;
+.tags span {
+  color: #38bdf8;
+  font-size: 0.85rem;
 }
 
-.category {
-  display: inline-block;
-  background: #0095f6;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  margin-bottom: 10px;
-}
-
-.link {
-  display: inline-block;
-  color: #0095f6;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 10px;
-  transition: opacity 0.2s;
-}
-
-.link:hover {
-  opacity: 0.8;
-}
-
-.commentsSection {
-  padding: 15px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.commentsSection form {
+.footer {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
 }
 
-.commentsSection input {
-  flex: 1;
-  border: 1px solid #e0e0e0;
-  padding: 8px 12px;
-  border-radius: 4px;
-  outline: none;
-}
-
-.commentsSection button {
-  padding: 8px 16px;
-  background: #0095f6;
+.footer button {
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
   color: #fff;
-  border: none;
-  border-radius: 4px;
+  padding: 10px 14px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.timestamp {
-  padding: 8px 15px;
-  font-size: 12px;
-  color: #999;
-  border-top: 1px solid #f0f0f0;
+.footer small {
+  color: #94a3b8;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .card {
-    border-radius: 0;
-    margin-bottom: 0;
-    border-left: none;
-    border-right: none;
+    border-radius: 18px;
   }
 
-  .header {
-    padding: 12px;
-  }
-
-  .actions {
-    padding: 12px;
-  }
-
+  .header,
   .content {
-    padding: 12px;
+    padding: 14px;
+  }
+
+  .avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .imageBox {
+    aspect-ratio: 4 / 3;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .footer button {
+    width: 100%;
   }
 }

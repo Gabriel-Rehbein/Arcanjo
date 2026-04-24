@@ -1,30 +1,34 @@
-
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/profile.module.css';
 import { apiFetch } from '../utils/api';
 import { getUser } from '../utils/auth';
+import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function Profile() {
+  useAuthGuard();
+
   const router = useRouter();
   const { username } = router.query;
+
   const [profileUsername, setProfileUsername] = useState(null);
-  const [user, setUser] = useState(null);
+  const [user, setUserData] = useState(null);
   const [projects, setProjects] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
   const [loading, setLoading] = useState(true);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const currentUser = getUser();
     const targetUsername = username || currentUser;
 
     if (!targetUsername) {
-      router.replace('/login');
+      router.replace('/');
       return;
     }
 
@@ -38,134 +42,211 @@ export default function Profile() {
     }
   }, [profileUsername]);
 
-  const loadProfile = async (targetUsername) => {
+  async function loadProfile(targetUsername) {
     try {
-      const userData = await apiFetch(`/users/${targetUsername}`);
-      setUser(userData);
+      setLoading(true);
+      setError('');
 
-      const projectsData = await apiFetch(`/users/${targetUsername}/projects`);
-      setProjects(projectsData);
+      const [userData, projectsData] = await Promise.all([
+        apiFetch(`/users/${targetUsername}`),
+        apiFetch(`/users/${targetUsername}/projects`),
+      ]);
+
+      setUserData(userData);
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
+      setIsFollowing(Boolean(userData?.is_following));
     } catch (err) {
-      console.error('Erro ao carregar perfil:', err);
+      setError(err.message || 'Erro ao carregar perfil.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleFollow = async () => {
+  async function handleFollow() {
+    if (!user) return;
+
     try {
-      if (isFollowing) {
-        await apiFetch(`/users/${user.id}/unfollow`, { method: 'POST' });
-      } else {
-        await apiFetch(`/users/${user.id}/follow`, { method: 'POST' });
-      }
-      setIsFollowing(!isFollowing);
+      const endpoint = isFollowing
+        ? `/users/${user.id}/unfollow`
+        : `/users/${user.id}/follow`;
+
+      await apiFetch(endpoint, { method: 'POST' });
+
+      setIsFollowing((prev) => !prev);
+
+      setUserData((prev) => ({
+        ...prev,
+        followers_count: isFollowing
+          ? Math.max((prev.followers_count || 1) - 1, 0)
+          : (prev.followers_count || 0) + 1,
+      }));
     } catch (err) {
       console.error('Erro ao seguir/deseguir:', err);
     }
-  };
+  }
 
-  if (loading) return <div>Carregando...</div>;
-  if (!user) return <div>Usuário não encontrado</div>;
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <p>Carregando perfil...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <p>{error}</p>
+        <button onClick={() => router.push('/feed')}>Voltar ao feed</button>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className={styles.error}>
+        <p>Usuário não encontrado.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
       <Header />
+
       <div className={styles.main}>
         <Sidebar />
-        <div className={styles.profile}>
-          {/* Banner */}
+
+        <main className={styles.profile}>
           <div className={styles.banner}>
-            <img src={user.banner_url || '/img/default-banner.jpg'} alt="Banner" />
+            <img
+              src={user.banner_url || '/img/default-banner.jpg'}
+              alt="Banner do perfil"
+            />
           </div>
 
-          {/* Info */}
-          <div className={styles.info}>
+          <section className={styles.info}>
             <div className={styles.header}>
-              <img src={user.avatar_url || '/img/default-avatar.png'} alt="Avatar" className={styles.avatar} />
+              <img
+                src={user.avatar_url || '/img/default-avatar.png'}
+                alt={user.username}
+                className={styles.avatar}
+              />
+
               <div className={styles.userInfo}>
-                <h1>{user.full_name}</h1>
+                <h1>{user.full_name || user.username}</h1>
                 <p className={styles.username}>@{user.username}</p>
-                <p className={styles.bio}>{user.bio}</p>
+                <p className={styles.bio}>
+                  {user.bio || 'Este usuário ainda não adicionou uma bio.'}
+                </p>
               </div>
+
               <div className={styles.actions}>
                 {isOwnProfile ? (
                   <>
-                    <button className={styles.btn} onClick={() => setShowEditModal(true)}>
-                      ✏️ Editar Perfil
+                    <button
+                      className={styles.btn}
+                      onClick={() => router.push('/settings')}
+                    >
+                      Editar Perfil
                     </button>
-                    <button className={styles.btn}>⚙️ Configurações</button>
+
+                    <button
+                      className={styles.btn}
+                      onClick={() => router.push('/create-project')}
+                    >
+                      Novo Projeto
+                    </button>
                   </>
                 ) : (
                   <>
                     <button
-                      className={`${styles.btn} ${isFollowing ? styles.following : ''}`}
+                      className={`${styles.btn} ${
+                        isFollowing ? styles.following : ''
+                      }`}
                       onClick={handleFollow}
                     >
-                      {isFollowing ? '✓ Seguindo' : '+ Seguir'}
+                      {isFollowing ? 'Seguindo' : 'Seguir'}
                     </button>
-                    <button className={styles.btn}>💬 Mensagem</button>
+
+                    <button
+                      className={styles.btn}
+                      onClick={() => router.push(`/messages?user=${user.id}`)}
+                    >
+                      Mensagem
+                    </button>
                   </>
                 )}
               </div>
             </div>
 
-            {/* Stats */}
             <div className={styles.stats}>
               <div className={styles.stat}>
                 <strong>{projects.length}</strong>
                 <span>Projetos</span>
               </div>
+
               <div className={styles.stat}>
                 <strong>{user.followers_count || 0}</strong>
                 <span>Seguidores</span>
               </div>
+
               <div className={styles.stat}>
                 <strong>{user.following_count || 0}</strong>
                 <span>Seguindo</span>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Tabs */}
           <div className={styles.tabs}>
             <button
               className={activeTab === 'projects' ? styles.active : ''}
               onClick={() => setActiveTab('projects')}
             >
-              📌 Projetos
+              Projetos
             </button>
+
             <button
               className={activeTab === 'gallery' ? styles.active : ''}
               onClick={() => setActiveTab('gallery')}
             >
-              🖼️ Galeria
+              Galeria
             </button>
+
             {isOwnProfile && (
               <button
                 className={activeTab === 'saved' ? styles.active : ''}
-                onClick={() => setActiveTab('saved')}
+                onClick={() => router.push('/saved')}
               >
-                💾 Salvos
+                Salvos
               </button>
             )}
           </div>
 
-          {/* Content */}
-          <div className={styles.content}>
-            {activeTab === 'projects' && (
+          <section className={styles.content}>
+            {activeTab === 'projects' && projects.length > 0 && (
               <div className={styles.projectsGrid}>
                 {projects.map((project) => (
-                  <div key={project.id} className={styles.projectCard}>
-                    {project.image_url && <img src={project.image_url} alt={project.title} />}
-                    <h3>{project.title}</h3>
-                    <p>{project.description}</p>
-                  </div>
+                  <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
             )}
-          </div>
-        </div>
+
+            {activeTab === 'projects' && projects.length === 0 && (
+              <div className={styles.empty}>
+                <h3>Nenhum projeto publicado</h3>
+                <p>Quando houver projetos, eles aparecerão aqui.</p>
+              </div>
+            )}
+
+            {activeTab === 'gallery' && (
+              <div className={styles.empty}>
+                <h3>Galeria em desenvolvimento</h3>
+                <p>Essa área pode mostrar imagens dos projetos futuramente.</p>
+              </div>
+            )}
+          </section>
+        </main>
       </div>
     </div>
   );

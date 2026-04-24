@@ -1,25 +1,50 @@
 import React from 'react';
-import Link from 'next/link';
-import styles from '../styles/components/StoryBar.module.css';
+import styles from '../styles/components/storyBar.module.css';
 
-export default function StoryBar({ stories }) {
+export default function StoryBar({ stories = [], onOpenStory }) {
+  const fallbackStories = [
+    {
+      id: 'create',
+      username: 'Criar',
+      avatar_url: '/img/logoaba.png',
+      isCreate: true,
+    },
+  ];
+
+  const storyList = stories.length > 0 ? [...fallbackStories, ...stories] : fallbackStories;
+
+  function handleClick(story) {
+    if (story.isCreate) {
+      alert('Função de criar story será implementada.');
+      return;
+    }
+
+    if (onOpenStory) {
+      onOpenStory(story);
+    }
+  }
+
   return (
-    <div className={styles.storyBar}>
-      <div className={styles.storiesContainer}>
-        {/* Story para adicionar nova */}
-        <div className={styles.addStory}>
-          <div className={styles.addBtn}>+</div>
-          <p>Sua história</p>
-        </div>
+    <section className={styles.storyBar}>
+      {storyList.map((story) => (
+        <button
+          key={story.id}
+          type="button"
+          className={`${styles.story} ${story.isCreate ? styles.createStory : ''}`}
+          onClick={() => handleClick(story)}
+        >
+          <div className={styles.avatarRing}>
+            <img
+              src={story.avatar_url || story.user?.avatar_url || '/img/default-avatar.png'}
+              alt={story.username || story.user?.username || 'Story'}
+            />
+          </div>
 
-        {/* Stories existentes */}
-        {stories && stories.map((story) => (
-          <Link key={story.id} href={`/story/${story.id}`} className={styles.story}>
-            <img src={story.image_url} alt="story" />
-            <span>{story.user?.username}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
+          <span>
+            {story.username || story.user?.username || 'usuário'}
+          </span>
+        </button>
+      ))}
+    </section>
   );
 }

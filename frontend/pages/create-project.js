@@ -4,57 +4,112 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
 import { apiFetch } from '../utils/api';
+import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function CreateProject() {
+  useAuthGuard();
+
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'design',
+    category: 'desenvolvimento',
     tags: '',
     image_url: '',
     link: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const categories = [
+    'design',
+    'desenvolvimento',
+    'marketing',
+    'fotografia',
+    'arte',
+    'outro',
+  ];
 
-  const handleSubmit = async (e) => {
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
+  function validateForm() {
+    if (formData.title.trim().length < 3) {
+      return 'O título precisa ter pelo menos 3 caracteres.';
+    }
+
+    if (formData.description.trim().length < 10) {
+      return 'A descrição precisa ter pelo menos 10 caracteres.';
+    }
+
+    if (formData.image_url && !formData.image_url.startsWith('http')) {
+      return 'A URL da imagem precisa começar com http ou https.';
+    }
+
+    if (formData.link && !formData.link.startsWith('http')) {
+      return 'O link do projeto precisa começar com http ou https.';
+    }
+
+    return '';
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError('');
+
+      const payload = {
+        ...formData,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        tags: formData.tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      };
+
       await apiFetch('/projects', {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
+
       router.push('/profile');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erro ao publicar projeto.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const categories = ['design', 'desenvolvimento', 'marketing', 'fotografia', 'arte', 'outro'];
+  }
 
   return (
     <div className={styles.container}>
       <Header />
+
       <div className={styles.main}>
         <Sidebar />
-        <div className={styles.createProject}>
+
+        <main className={styles.createProject}>
           <div className={styles.formContainer}>
-            <h1>📱 Novo Projeto</h1>
-            
+            <h1>Novo Projeto</h1>
+            <p>Publique um projeto para aparecer no feed da rede social.</p>
+
             {error && <div className={styles.error}>{error}</div>}
 
             <form onSubmit={handleSubmit}>
@@ -65,7 +120,7 @@ export default function CreateProject() {
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="Nome do seu projeto"
+                  placeholder="Ex: Sistema de Portfólio"
                   required
                 />
               </div>
@@ -76,7 +131,7 @@ export default function CreateProject() {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Descreva seu projeto em detalhes..."
+                  placeholder="Explique o objetivo, tecnologias e funcionalidades..."
                   rows="6"
                   required
                 />
@@ -85,8 +140,12 @@ export default function CreateProject() {
               <div className={styles.row}>
                 <div className={styles.formGroup}>
                   <label>Categoria</label>
-                  <select name="category" value={formData.category} onChange={handleChange}>
-                    {categories.map(cat => (
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                  >
+                    {categories.map((cat) => (
                       <option key={cat} value={cat}>
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
                       </option>
@@ -95,13 +154,13 @@ export default function CreateProject() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>Tags (separadas por vírgula)</label>
+                  <label>Tags</label>
                   <input
                     type="text"
                     name="tags"
                     value={formData.tags}
                     onChange={handleChange}
-                    placeholder="web, design, react..."
+                    placeholder="react, node, mysql"
                   />
                 </div>
               </div>
@@ -113,9 +172,15 @@ export default function CreateProject() {
                   name="image_url"
                   value={formData.image_url}
                   onChange={handleChange}
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="https://site.com/imagem.png"
                 />
               </div>
+
+              {formData.image_url && (
+                <div className={styles.preview}>
+                  <img src={formData.image_url} alt="Prévia do projeto" />
+                </div>
+              )}
 
               <div className={styles.formGroup}>
                 <label>Link do Projeto</label>
@@ -124,25 +189,27 @@ export default function CreateProject() {
                   name="link"
                   value={formData.link}
                   onChange={handleChange}
-                  placeholder="https://seu-projeto.com"
+                  placeholder="https://github.com/seu-projeto"
                 />
               </div>
 
               <div className={styles.actions}>
                 <button type="submit" className={styles.submitBtn} disabled={loading}>
-                  {loading ? 'Publicando...' : '✨ Publicar Projeto'}
+                  {loading ? 'Publicando...' : 'Publicar Projeto'}
                 </button>
+
                 <button
                   type="button"
                   className={styles.cancelBtn}
                   onClick={() => router.back()}
+                  disabled={loading}
                 >
                   Cancelar
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

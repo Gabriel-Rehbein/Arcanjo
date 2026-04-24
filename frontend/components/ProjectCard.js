@@ -1,137 +1,164 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
-import styles from '../styles/components/ProjectCard.module.css';
-import { apiFetch } from '../utils/api';
+import { useRouter } from 'next/router';
+import styles from '../styles/components/projectCard.module.css';
 
-export default function ProjectCard({ project, onLike, onComment }) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(project.likes_count || 0);
-  const [comments, setComments] = useState(project.comments_count || 0);
-  const [isSaved, setIsSaved] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState('');
+export default function ProjectCard({
+  project,
+  onLike,
+  onSave,
+  onComment,
+  onShare,
+}) {
+  const router = useRouter();
 
-  const handleLike = async () => {
-    try {
-      setIsLiked(!isLiked);
-      setLikes(isLiked ? likes - 1 : likes + 1);
-      if (onLike) onLike(project.id);
-    } catch (err) {
-      console.error('Erro ao dar like:', err);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
+  const image = project?.image_url || '/img/logoaba.png';
+  const title = project?.title || 'Projeto sem título';
+  const description = project?.description || 'Sem descrição disponível.';
+  const username =
+    project?.user?.username ||
+    project?.author?.username ||
+    project?.username ||
+    'usuario';
+
+  function handleOpenProfile() {
+    router.push(`/profile?username=${username}`);
+  }
+
+  function handleOpenProject() {
+    if (project?.link) {
+      window.open(project.link, '_blank', 'noopener,noreferrer');
     }
-  };
+  }
 
-  const handleSave = () => {
-    setIsSaved(!isSaved);
-  };
-
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-
-    try {
-      // Chamar API para salvar comentário
-      setComments(comments + 1);
-      setNewComment('');
-      if (onComment) onComment(project.id, newComment);
-    } catch (err) {
-      console.error('Erro ao comentar:', err);
+  function handleShare() {
+    if (onShare) {
+      onShare(project);
+      return;
     }
-  };
+
+    const shareText = `${title} - ${description}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title,
+        text: shareText,
+        url: project?.link || window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(project?.link || window.location.href);
+      alert('Link copiado!');
+    }
+  }
 
   return (
-    <div className={styles.card}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.userInfo}>
-          <img src={project.user?.avatar_url || '/img/default-avatar.png'} alt="Avatar" />
-          <div className={styles.userDetails}>
-            <Link href={`/user/${project.user_id}`}>
-              <strong>{project.user?.full_name || 'Usuário'}</strong>
-            </Link>
-            <span className={styles.username}>@{project.user?.username}</span>
+    <article className={styles.card}>
+      <header className={styles.header}>
+        <button type="button" className={styles.userButton} onClick={handleOpenProfile}>
+          <img
+            className={styles.avatar}
+            src={project?.user?.avatar_url || project?.author?.avatar_url || '/img/default-avatar.png'}
+            alt={username}
+          />
+
+          <div>
+            <strong>{project?.user?.full_name || project?.author?.full_name || username}</strong>
+            <span>@{username}</span>
           </div>
-        </div>
-        <button className={styles.menuBtn}>⋯</button>
+        </button>
+
+        <button type="button" className={styles.moreButton}>
+          •••
+        </button>
+      </header>
+
+      <div className={styles.imageBox} onDoubleClick={onLike}>
+        <img src={image} alt={title} />
       </div>
 
-      {/* Imagem do projeto */}
-      {project.image_url && (
-        <div className={styles.imageContainer}>
-          <img src={project.image_url} alt={project.title} />
+      <section className={styles.content}>
+        <div className={styles.actions}>
+          <div className={styles.leftActions}>
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${project?.is_liked ? styles.activeLike : ''}`}
+              onClick={onLike}
+            >
+              {project?.is_liked ? '❤️' : '🤍'}
+            </button>
+
+            <button type="button" className={styles.actionBtn} onClick={onComment}>
+              💬
+            </button>
+
+            <button type="button" className={styles.actionBtn} onClick={handleShare}>
+              📤
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className={`${styles.actionBtn} ${project?.is_saved ? styles.activeSave : ''}`}
+            onClick={onSave}
+          >
+            {project?.is_saved ? '🔖' : '📑'}
+          </button>
         </div>
-      )}
 
-      {/* Actions */}
-      <div className={styles.actions}>
-        <button
-          className={`${styles.btn} ${isLiked ? styles.active : ''}`}
-          onClick={handleLike}
-        >
-          {isLiked ? '❤️' : '🤍'} {likes}
-        </button>
-        <button className={styles.btn} onClick={() => setShowComments(!showComments)}>
-          💬 {comments}
-        </button>
-        <button className={styles.btn}>
-          ↗️
-        </button>
-        <button
-          className={`${styles.btn} ${styles.save} ${isSaved ? styles.active : ''}`}
-          onClick={handleSave}
-        >
-          {isSaved ? '💾' : '🔖'}
-        </button>
-      </div>
+        <div className={styles.metrics}>
+          <strong>{project?.likes_count || 0} curtidas</strong>
+          <span>{project?.comments_count || 0} comentários</span>
+        </div>
 
-      {/* Conteúdo */}
-      <div className={styles.content}>
-        <h3>{project.title}</h3>
-        <p>{project.description}</p>
+        <h3>{title}</h3>
 
-        {project.tags && (
+        <p className={styles.description}>
+          {showFullDescription
+            ? description
+            : description.length > 140
+              ? `${description.slice(0, 140)}...`
+              : description}
+        </p>
+
+        {description.length > 140 && (
+          <button
+            type="button"
+            className={styles.readMore}
+            onClick={() => setShowFullDescription(!showFullDescription)}
+          >
+            {showFullDescription ? 'Ver menos' : 'Ver mais'}
+          </button>
+        )}
+
+        {project?.category && (
+          <span className={styles.category}>
+            {project.category}
+          </span>
+        )}
+
+        {project?.tags?.length > 0 && (
           <div className={styles.tags}>
-            {project.tags.split(',').map((tag, idx) => (
-              <span key={idx} className={styles.tag}>
-                #{tag.trim()}
-              </span>
+            {project.tags.map((tag) => (
+              <span key={tag}>#{tag}</span>
             ))}
           </div>
         )}
 
-        {project.category && (
-          <span className={styles.category}>{project.category}</span>
-        )}
+        <div className={styles.footer}>
+          {project?.link && (
+            <button type="button" onClick={handleOpenProject}>
+              Ver projeto
+            </button>
+          )}
 
-        {project.link && (
-          <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.link}>
-            Visitar Projeto →
-          </a>
-        )}
-      </div>
-
-      {/* Comentários */}
-      {showComments && (
-        <div className={styles.commentsSection}>
-          <form onSubmit={handleCommentSubmit}>
-            <input
-              type="text"
-              placeholder="Adicione um comentário..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <button type="submit">Enviar</button>
-          </form>
-          <div className={styles.commentsList}>
-            {/* Lista de comentários */}
-          </div>
+          <small>
+            {project?.created_at
+              ? new Date(project.created_at).toLocaleDateString('pt-BR')
+              : 'Publicado recentemente'}
+          </small>
         </div>
-      )}
-
-      {/* Timestamp */}
-      <div className={styles.timestamp}>
-        {new Date(project.created_at).toLocaleDateString('pt-BR')}
-      </div>
-    </div>
+      </section>
+    </article>
   );
 }

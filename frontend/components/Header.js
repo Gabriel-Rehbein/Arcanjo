@@ -1,72 +1,71 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import styles from '../styles/components/Header.module.css';
+import styles from '../styles/components/header.module.css';
+import { getUser } from '../utils/auth';
 
 export default function Header() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = (e) => {
+  const [search, setSearch] = useState('');
+  const username = getUser();
+
+  function handleSearch(e) {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearching(true);
-      router.push(`/explore?search=${encodeURIComponent(searchQuery)}`).finally(() => {
-        setIsSearching(false);
-      });
-    }
-  };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      handleSearch(e);
-    }
-  };
+    const term = search.trim();
+
+    if (!term) return;
+
+    router.push(`/explore?search=${encodeURIComponent(term)}`);
+    setSearch('');
+  }
 
   return (
     <header className={styles.header}>
-      <div className={styles.container}>
-        <Link href="/feed" className={styles.logo}>
-          <h1>📱 ArcanjoHub</h1>
-        </Link>
+      <button
+        type="button"
+        className={styles.logo}
+        onClick={() => router.push('/feed')}
+      >
+        <img src="/img/logoaba.png" alt="Arcanjo" />
+        <span>Arcanjo</span>
+      </button>
 
-        <form className={styles.searchBar} onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="🔍 Pesquisar projetos, usuários..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isSearching}
-          />
-          <button 
-            type="submit" 
-            disabled={isSearching || !searchQuery.trim()}
-            title="Clique para buscar ou pressione Enter"
-          >
-            {isSearching ? 'Buscando...' : 'Buscar'}
-          </button>
-        </form>
+      <form className={styles.searchBox} onSubmit={handleSearch}>
+        <input
+          type="text"
+          placeholder="Buscar projetos, usuários ou tags..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-        <nav className={styles.nav}>
-          <Link href="/feed" className={router.pathname === '/feed' ? styles.active : ''}>
-            Home
-          </Link>
-          <Link href="/explore" className={router.pathname === '/explore' ? styles.active : ''}>
-            Explorar
-          </Link>
-          <Link href="/messages" className={router.pathname === '/messages' ? styles.active : ''}>
-            💬
-          </Link>
-          <Link href="/notifications" className={router.pathname === '/notifications' ? styles.active : ''}>
-            🔔
-          </Link>
-          <Link href="/dashboard" className={router.pathname === '/dashboard' ? styles.active : ''}>
-            Perfil
-          </Link>
-        </nav>
-      </div>
+        <button type="submit">
+          Buscar
+        </button>
+      </form>
+
+      <nav className={styles.actions}>
+        <button type="button" onClick={() => router.push('/create-project')}>
+          Publicar
+        </button>
+
+        <button type="button" onClick={() => router.push('/notifications')}>
+          🔔
+        </button>
+
+        <button type="button" onClick={() => router.push('/messages')}>
+          💬
+        </button>
+
+        <button
+          type="button"
+          className={styles.profileBtn}
+          onClick={() => router.push('/profile')}
+        >
+          <img src="/img/default-avatar.png" alt={username || 'Perfil'} />
+          <span>{username || 'Perfil'}</span>
+        </button>
+      </nav>
     </header>
   );
 }

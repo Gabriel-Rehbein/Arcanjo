@@ -1,118 +1,193 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/messages.module.css';
 import { apiFetch } from '../utils/api';
+import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function Messages() {
+  useAuthGuard();
+
   const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadConversations();
   }, []);
 
-  const loadConversations = async () => {
+  useEffect(() => {
+    if (!selectedUser) return;
+
+    const interval = setInterval(() => {
+      loadMessages(selectedUser.id, false);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [selectedUser]);
+
+  async function loadConversations() {
     try {
+      setLoading(true);
       const data = await apiFetch('/messages/conversations');
-      setConversations(data);
+      setConversations(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Erro ao carregar conversas:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const loadMessages = async (userId) => {
+  async function loadMessages(userId, showLoading = true) {
     try {
+      if (showLoading) setMessages([]);
+
       const data = await apiFetch(`/messages/${userId}`);
-      setMessages(data);
+      setMessages(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Erro ao carregar mensagens:', err);
     }
-  };
+  }
 
-  const handleSelectUser = (user) => {
+  function handleSelectUser(user) {
     setSelectedUser(user);
     loadMessages(user.id);
-  };
+  }
 
-  const handleSendMessage = async (e) => {
+  async function handleSendMessage(e) {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedUser) return;
+
+    const content = newMessage.trim();
+
+    if (!content || !selectedUser || sending) return;
+
+    const temporaryMessage = {
+      id: `temp-${Date.now()}`,
+      content,
+      is_own: true,
+      created_at: new Date().toISOString(),
+      sending: true,
+    };
+
+    setMessages((prev) => [...prev, temporaryMessage]);
+    setNewMessage('');
 
     try {
-      await apiFetch(`/messages/send`, {
+      setSending(true);
+
+      await apiFetch('/messages/send', {
         method: 'POST',
         body: JSON.stringify({
           receiver_id: selectedUser.id,
-          content: newMessage,
+          content,
         }),
       });
 
-      setMessages([...messages, {
-        id: Date.now(),
-        content: newMessage,
-        is_own: true,
-        created_at: new Date(),
-      }]);
-      setNewMessage('');
+      await loadMessages(selectedUser.id, false);
+      await loadConversations();
     } catch (err) {
       console.error('Erro ao enviar mensagem:', err);
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === temporaryMessage.id
+            ? { ...msg, sending: false, error: true }
+            : msg
+        )
+      );
+    } finally {
+      setSending(false);
     }
-  };
+  }
 
   return (
     <div className={styles.container}>
       <Header />
+
       <div className={styles.main}>
         <Sidebar />
-        <div className={styles.messagesContainer}>
-          <div className={styles.conversationsList}>
+
+        <main className={styles.messagesContainer}>
+          <section className={styles.conversationsList}>
             <div className={styles.header}>
               <h2>Mensagens</h2>
-              <button className={styles.newBtn}>✏️</button>
+              <button className={styles.newBtn} type="button">
+                ✏️
+              </button>
             </div>
-            <input type="text" placeholder="🔍 Pesquisar conversas..." className={styles.search} />
+
+            <input
+              type="text"
+              placeholder="Pesquisar conversas..."
+              className={styles.search}
+            />
 
             <div className={styles.conversations}>
+              {loading && <p>Carregando conversas...</p>}
+
+              {!loading && conversations.length === 0 && (
+                <p>Nenhuma conversa encontrada.</p>
+              )}
+
               {conversations.map((conv) => (
-                <div
+                <button
                   key={conv.id}
-                  className={`${styles.conversation} ${selectedUser?.id === conv.id ? styles.active : ''}`}
+                  type="button"
+                  className={`${styles.conversation} ${
+                    selectedUser?.id === conv.id ? styles.active : ''
+                  }`}
                   onClick={() => handleSelectUser(conv)}
                 >
-                  <img src={conv.avatar_url || '/img/default-avatar.png'} alt={conv.username} />
+                  <img
+                    src={conv.avatar_url || '/img/default-avatar.png'}
+                    alt={conv.username}
+                  />
+
                   <div className={styles.info}>
                     <h4>{conv.full_name || conv.username}</h4>
-                    <p>{conv.last_message}</p>
+                    <p>{conv.last_message || 'Sem mensagens ainda'}</p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className={styles.chatArea}>
+          <section className={styles.chatArea}>
             {selectedUser ? (
               <>
                 <div className={styles.chatHeader}>
-                  <img src={selectedUser.avatar_url || '/img/default-avatar.png'} alt={selectedUser.username} />
-                  <h3>{selectedUser.full_name || selectedUser.username}</h3>
+                  <img
+                    src={selectedUser.avatar_url || '/img/default-avatar.png'}
+                    alt={selectedUser.username}
+                  />
+
+                  <div>
+                    <h3>{selectedUser.full_name || selectedUser.username}</h3>
+                    <span>@{selectedUser.username}</span>
+                  </div>
                 </div>
 
                 <div className={styles.messagesBox}>
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`${styles.message} ${msg.is_own ? styles.own : styles.other}`}
+                      className={`${styles.message} ${
+                        msg.is_own ? styles.own : styles.other
+                      }`}
                     >
                       <p>{msg.content}</p>
+
                       <span className={styles.time}>
-                        {new Date(msg.created_at).toLocaleTimeString()}
+                        {new Date(msg.created_at).toLocaleTimeString('pt-BR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+
+                        {msg.sending && ' • enviando...'}
+                        {msg.error && ' • erro'}
                       </span>
                     </div>
                   ))}
@@ -125,16 +200,20 @@ export default function Messages() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                   />
-                  <button type="submit">📤</button>
+
+                  <button type="submit" disabled={sending || !newMessage.trim()}>
+                    Enviar
+                  </button>
                 </form>
               </>
             ) : (
               <div className={styles.empty}>
-                <p>Selecione uma conversa para começar</p>
+                <h3>Selecione uma conversa</h3>
+                <p>Escolha alguém para começar a conversar.</p>
               </div>
             )}
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   );

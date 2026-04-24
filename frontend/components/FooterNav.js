@@ -1,24 +1,32 @@
-
-import Link from 'next/link';
+import React from 'react';
 import { useRouter } from 'next/router';
+import styles from '../styles/components/footerNav.module.css';
 
-const links = [
-  { href: '/feed', label: 'Feed' },
-  { href: '/profile', label: 'Perfil' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/calendar', label: 'Calendário' },
-  { href: '/diary', label: 'Diário' },
-  { href: '/settings', label: 'Config.' },
+const items = [
+  { href: '/feed', label: 'Feed', icon: '🏠' },
+  { href: '/explore', label: 'Explorar', icon: '🔎' },
+  { href: '/create-project', label: 'Publicar', icon: '➕' },
+  { href: '/messages', label: 'Chat', icon: '💬' },
+  { href: '/profile', label: 'Perfil', icon: '👤' },
 ];
 
 export default function FooterNav() {
-  const { pathname } = useRouter();
+  const router = useRouter();
+
   return (
-    <nav className="footer-nav" aria-label="Navegação principal">
-      {links.map((link) => (
-        <Link key={link.href} href={link.href} className={`footer-link${pathname === link.href ? ' active' : ''}`}>
-          {link.label}
-        </Link>
+    <nav className={styles.footerNav}>
+      {items.map((item) => (
+        <button
+          key={item.href}
+          type="button"
+          className={`${styles.item} ${
+            router.pathname === item.href ? styles.active : ''
+          }`}
+          onClick={() => router.push(item.href)}
+        >
+          <span>{item.icon}</span>
+          <small>{item.label}</small>
+        </button>
       ))}
     </nav>
   );

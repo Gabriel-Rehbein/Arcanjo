@@ -1,31 +1,24 @@
+import Head from 'next/head';
+import styles from '../styles/components/layout.module.css';
 
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { logout, getToken } from '../utils/auth';
-
-export default function Layout({ children, title }) {
-  const router = useRouter();
-  const isAuth = Boolean(getToken());
+export default function Layout({ title = 'Arcanjo', children }) {
+  const pageTitle = `${title} • Arcanjo`;
 
   return (
-    <div className="page-shell">
-      <header className="toolbar">
-        <div>
-          <h1 className="title">Arcanjo</h1>
-          {title && <p>{title}</p>}
-        </div>
-        <div>
-          <Link href="/dashboard" className="footer-link">Dashboard</Link>
-          {isAuth ? (
-            <button type="button" onClick={() => { logout(); router.push('/'); }} className="footer-link">
-              Sair
-            </button>
-          ) : (
-            <Link href="/" className="footer-link">Entrar</Link>
-          )}
-        </div>
-      </header>
-      <main className="page-content">{children}</main>
-    </div>
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta
+          name="description"
+          content="Arcanjo é uma rede social de projetos, portfólios e conexões profissionais."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      <main className={styles.layout}>
+        <div className={styles.backgroundGlow} />
+        <section className={styles.content}>{children}</section>
+      </main>
+    </>
   );
 }
