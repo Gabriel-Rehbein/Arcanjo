@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #fafafa;
+  background: #f8fafc;
 }
 
 .main {
@@ -13,16 +13,16 @@
 
 .trending {
   flex: 1;
-  background: #fff;
-  border-left: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .header {
   padding: 30px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e2e8f0;
   text-align: center;
 }
 
@@ -30,11 +30,12 @@
   margin: 0;
   font-size: 32px;
   font-weight: 600;
+  color: #0f172a;
 }
 
 .header p {
   margin: 8px 0 0 0;
-  color: #999;
+  color: #64748b;
   font-size: 16px;
 }
 
@@ -43,43 +44,43 @@
   gap: 10px;
   padding: 15px 20px;
   overflow-x: auto;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e2e8f0;
   justify-content: center;
 }
 
 .filters button {
   padding: 10px 16px;
-  background: #f0f0f0;
-  border: 1px solid #e0e0e0;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: #475569;
   white-space: nowrap;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .filters button:hover {
-  background: #e8e8e8;
+  background: #e2e8f0;
 }
 
 .filters button.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
 }
 
 .loading {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: #64748b;
 }
 
 .empty {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
+  color: #64748b;
   font-size: 16px;
 }
 
@@ -100,7 +101,7 @@
   transform: translateY(-50%);
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

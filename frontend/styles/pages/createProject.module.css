@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #fafafa;
+  background: #f8fafc;
 }
 
 .main {
@@ -20,25 +20,26 @@
 }
 
 .formContainer {
-  background: #fff;
+  background: #ffffff;
   border-radius: 8px;
   padding: 30px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e2e8f0;
 }
 
 .formContainer h1 {
   margin: 0 0 30px 0;
   font-size: 24px;
+  color: #0f172a;
 }
 
 .error {
-  background: #fff3cd;
-  color: #856404;
+  background: #fef3c7;
+  color: #92400e;
   padding: 12px 16px;
   border-radius: 4px;
   margin-bottom: 20px;
   font-size: 14px;
-  border: 1px solid #ffeaa7;
+  border: 1px solid #fde68a;
 }
 
 .form {
@@ -56,25 +57,27 @@
   margin-bottom: 8px;
   font-weight: 600;
   font-size: 14px;
-  color: #000;
+  color: #0f172a;
 }
 
 .formGroup input,
 .formGroup textarea,
 .formGroup select {
   padding: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .formGroup input:focus,
 .formGroup textarea:focus,
 .formGroup select:focus {
-  border-color: #0095f6;
+  border-color: #6366f1;
 }
 
 .formGroup textarea {
@@ -97,8 +100,8 @@
 .submitBtn {
   flex: 1;
   padding: 12px;
-  background: #0095f6;
-  color: #fff;
+  background: #6366f1;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   font-weight: 600;
@@ -108,7 +111,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #0080d0;
+  background: #4f46e5;
 }
 
 .submitBtn:disabled {
@@ -119,9 +122,9 @@
 .cancelBtn {
   flex: 1;
   padding: 12px;
-  background: #f0f0f0;
-  color: #000;
-  border: 1px solid #e0e0e0;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
   font-weight: 600;
   font-size: 16px;
@@ -130,7 +133,7 @@
 }
 
 .cancelBtn:hover {
-  background: #e8e8e8;
+  background: #e2e8f0;
 }
 
 @media (max-width: 768px) {

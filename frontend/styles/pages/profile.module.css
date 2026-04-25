@@ -1,7 +1,7 @@
 /* Profile Page Styles */
 .container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #eff3ff 0%, #f8fbff 35%, #ffffff 100%);
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 35%, #ffffff 100%);
 }
 
 .main {
@@ -24,15 +24,15 @@
   border-radius: 1.5rem;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  box-shadow: 0 24px 80px rgba(99, 102, 241, 0.12);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 24px 80px rgba(99, 102, 241, 0.16);
 }
 
 .banner::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(15,23,42,0.08));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(15, 23, 42, 0.08));
 }
 
 .banner img {
@@ -48,7 +48,7 @@
   border-radius: 1.5rem;
   margin-top: -70px;
   box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid #e2e8f0;
 }
 
 .header {
@@ -65,9 +65,9 @@
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #fff;
+  border: 4px solid #ffffff;
   margin-top: -75px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
   flex-shrink: 0;
 }
 
@@ -83,7 +83,7 @@
 }
 
 .username {
-  color: #4f46e5;
+  color: #6366f1;
   font-size: 15px;
   margin-top: 6px;
   display: block;
@@ -97,7 +97,7 @@
   background: #f8fafc;
   padding: 1rem 1.2rem;
   border-radius: 1rem;
-  border: 1px solid rgba(99, 102, 241, 0.08);
+  border: 1px solid #e2e8f0;
   max-width: 720px;
 }
 
@@ -111,8 +111,8 @@
 
 .btn {
   padding: 10px 20px;
-  background: #0095f6;
-  color: #fff;
+  background: #6366f1;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -122,17 +122,17 @@
 }
 
 .btn:hover {
-  background: #0080d0;
+  background: #4f46e5;
 }
 
 .btn.following {
-  background: #f0f0f0;
-  color: #000;
-  border: 1px solid #e0e0e0;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
 }
 
 .btn.following:hover {
-  background: #e0e0e0;
+  background: #e2e8f0;
 }
 
 .stats {
@@ -141,7 +141,7 @@
   gap: 1rem;
   margin-top: 22px;
   padding: 1.5rem;
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  border-top: 1px solid #e2e8f0;
   background: #f8fafc;
   border-radius: 1.25rem;
 }
@@ -152,7 +152,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: #fff;
+  background: #ffffff;
   border-radius: 1rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
@@ -160,7 +160,7 @@
 .stat strong {
   font-size: 22px;
   margin-bottom: 8px;
-  color: #111827;
+  color: #0f172a;
 }
 
 .stat span {
@@ -175,13 +175,13 @@
   display: flex;
   gap: 1rem;
   padding: 1.5rem 0 0.5rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-bottom: 1px solid #e2e8f0;
   flex-wrap: wrap;
 }
 
 .tabs button {
   padding: 0.95rem 1.4rem;
-  background: rgba(99, 102, 241, 0.1);
+  background: #eef2ff;
   border: 1px solid transparent;
   border-radius: 999px;
   cursor: pointer;
@@ -191,14 +191,14 @@
 }
 
 .tabs button:hover {
-  background: rgba(99, 102, 241, 0.18);
-  color: #1f2937;
+  background: #e0e7ff;
+  color: #1e293b;
 }
 
 .tabs button.active {
-  color: #fff;
+  color: #ffffff;
   background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
-  box-shadow: 0 14px 40px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 14px 40px rgba(99, 102, 241, 0.22);
 }
 
 .content {
@@ -217,13 +217,13 @@
   border-radius: 1.25rem;
   overflow: hidden;
   cursor: pointer;
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  border: 1px solid #e2e8f0;
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
 }
 
 .projectCard:hover {
   transform: translateY(-6px);
-  border-color: rgba(99, 102, 241, 0.24);
+  border-color: #a5b4fc;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
 }
 
@@ -238,7 +238,7 @@
   padding: 1rem;
   font-size: 16px;
   line-height: 1.4;
-  color: #111827;
+  color: #0f172a;
 }
 
 .projectCard p {
