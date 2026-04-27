@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 const SECRET = "segredo";
 
 export function generateToken(user) {
-  return jwt.sign({ id: user.id }, SECRET, { expiresIn: "1h" });
+  return jwt.sign({ id: user.id }, SECRET);
 }
 
 export function verifyToken(token) {

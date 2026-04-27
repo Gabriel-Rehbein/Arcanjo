@@ -75,7 +75,7 @@ export default function DashboardPage() {
                 <div className={styles.profileMain}>
                   <img
                     className={styles.avatar}
-                    src={profile?.avatar_url || '/img/default-avatar.png'}
+                    src={profile?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                     alt={profile?.username || user}
                   />
 

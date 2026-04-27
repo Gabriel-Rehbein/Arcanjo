@@ -5,10 +5,8 @@ import StoryBar from '../components/StoryBar';
 import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/feed.module.css';
 import { apiFetch } from '../utils/api';
-import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function Feed() {
-  useAuthGuard();
 
   const [projects, setProjects] = useState([]);
   const [stories, setStories] = useState([]);
@@ -84,7 +82,7 @@ export default function Feed() {
         <Sidebar />
 
         <main className={styles.feed}>
-          <StoryBar stories={stories} />
+          <StoryBar stories={stories} onStoryCreated={loadFeed} />
 
           {loading && <div className={styles.loading}>Carregando feed...</div>}
 

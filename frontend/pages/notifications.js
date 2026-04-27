@@ -145,7 +145,7 @@ export default function Notifications() {
                   onClick={() => markAsRead(notif.id)}
                 >
                   <img
-                    src={notif.from_user?.avatar_url || '/img/default-avatar.png'}
+                    src={notif.from_user?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                     alt={notif.from_user?.username || 'Usuário'}
                   />
 

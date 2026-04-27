@@ -1,5 +1,5 @@
 import * as userRepo from "../repositories/UserRepository.js";
-import * as projectRepo from "../repositories/ProjectRepository.js";
+import * as projectService from "../services/ProjectService.js";
 
 function sanitizeUser(user) {
   if (!user) return null;
@@ -40,7 +40,7 @@ export async function getUserProjects(req, res) {
     return res.status(404).json({ message: "Usuário não encontrado" });
   }
 
-  const projects = await projectRepo.findByUserId(user.id);
+  const projects = await projectService.getByUserId(user.id);
   res.json(projects || []);
 }
 

@@ -1,6 +1,6 @@
 import { verifyToken } from "../utils/jwt.js";
 
-export default function (req, res, next) {
+export function authenticateToken(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) return res.status(401).json({ error: "Sem token" });
@@ -12,3 +12,20 @@ export default function (req, res, next) {
     res.status(401).json({ error: "Token inválido" });
   }
 }
+
+export function optionalAuthenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return next();
+  }
+
+  try {
+    req.user = verifyToken(token);
+  } catch {
+    // Ignorar token inválido e continuar como visitante
+  }
+
+  next();
+}
+
+export default authenticateToken;

@@ -18,6 +18,7 @@ export default new EntitySchema({
     },
     user_id: {
       type: Number,
+      nullable: true,
     },
     image_url: {
       type: String,
@@ -34,6 +35,10 @@ export default new EntitySchema({
     link: {
       type: String,
       nullable: true,
+    },
+    is_public: {
+      type: Boolean,
+      default: true,
     },
     likes_count: {
       type: Number,
@@ -54,6 +59,16 @@ export default new EntitySchema({
     updated_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    user: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "user_id",
+      },
+      nullable: true,
     },
   },
 });

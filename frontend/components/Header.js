@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/components/header.module.css';
 import { getUser } from '../utils/auth';
@@ -7,7 +7,24 @@ export default function Header() {
   const router = useRouter();
 
   const [search, setSearch] = useState('');
-  const username = getUser();
+  const [username, setUsername] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setUsername(getUser());
+  }, []);
+
+  function handleSearch(e) {
+    e.preventDefault();
+
+    const term = search.trim();
+
+    if (!term) return;
+
+    router.push(`/explore?search=${encodeURIComponent(term)}`);
+    setSearch('');
+  }
 
   function handleSearch(e) {
     e.preventDefault();
@@ -62,7 +79,7 @@ export default function Header() {
           className={styles.profileBtn}
           onClick={() => router.push('/profile')}
         >
-          <img src="/img/default-avatar.png" alt={username || 'Perfil'} />
+          <img src="https://via.placeholder.com/150x150.png?text=Avatar" alt={username || 'Perfil'} />
           <span>{username || 'Perfil'}</span>
         </button>
       </nav>

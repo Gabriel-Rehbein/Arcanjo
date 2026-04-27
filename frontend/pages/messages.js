@@ -142,7 +142,7 @@ export default function Messages() {
                   onClick={() => handleSelectUser(conv)}
                 >
                   <img
-                    src={conv.avatar_url || '/img/default-avatar.png'}
+                    src={conv.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                     alt={conv.username}
                   />
 
@@ -160,7 +160,7 @@ export default function Messages() {
               <>
                 <div className={styles.chatHeader}>
                   <img
-                    src={selectedUser.avatar_url || '/img/default-avatar.png'}
+                    src={selectedUser.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                     alt={selectedUser.username}
                   />
 

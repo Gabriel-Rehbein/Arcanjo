@@ -10,7 +10,7 @@ export default function UserCard({ user, onFollow }) {
 
   const username = user?.username || 'usuario';
   const fullName = user?.full_name || username;
-  const avatar = user?.avatar_url || '/img/default-avatar.png';
+  const avatar = user?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar';
   const bio = user?.bio || 'Usuário da rede Arcanjo.';
 
   async function handleFollow(e) {

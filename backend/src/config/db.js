@@ -76,7 +76,7 @@ export async function createTablesIfNotExist() {
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
-        user_id INTEGER NOT NULL,
+        user_id INTEGER,
         image_url VARCHAR(255),
         category VARCHAR(100),
         tags TEXT,
@@ -87,6 +87,11 @@ export async function createTablesIfNotExist() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    await AppDataSource.query(`
+      ALTER TABLE projects
+      ALTER COLUMN user_id DROP NOT NULL
     `);
 
     // Criar tabela likes

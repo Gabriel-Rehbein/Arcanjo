@@ -11,7 +11,7 @@ export async function getAll(req, res, next) {
 
 export async function create(req, res, next) {
   try {
-    const data = await service.create(req.body, req.user.id);
+    const data = await service.create(req.body, req.user?.id);
     res.status(201).json(data);
   } catch (err) {
     next(err);
@@ -35,6 +35,25 @@ export async function search(req, res, next) {
 export async function getFeed(req, res, next) {
   try {
     const data = await service.getFeed(req.user?.id);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getExplore(req, res, next) {
+  try {
+    const data = await service.getAll();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getByCategory(req, res, next) {
+  try {
+    const category = req.params.category;
+    const data = await service.getByCategory(category);
     res.json(data);
   } catch (err) {
     next(err);

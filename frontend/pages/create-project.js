@@ -4,10 +4,8 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
 import { apiFetch } from '../utils/api';
-import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function CreateProject() {
-  useAuthGuard();
 
   const router = useRouter();
 
@@ -90,7 +88,7 @@ export default function CreateProject() {
         body: JSON.stringify(payload),
       });
 
-      router.push('/profile');
+      router.push('/feed');
     } catch (err) {
       setError(err.message || 'Erro ao publicar projeto.');
     } finally {

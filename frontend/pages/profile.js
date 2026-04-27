@@ -120,7 +120,7 @@ export default function Profile() {
         <main className={styles.profile}>
           <div className={styles.banner}>
             <img
-              src={user.banner_url || '/img/default-banner.jpg'}
+              src={user.banner_url || 'https://via.placeholder.com/800x200.jpg?text=Banner'}
               alt="Banner do perfil"
             />
           </div>
@@ -128,7 +128,7 @@ export default function Profile() {
           <section className={styles.info}>
             <div className={styles.header}>
               <img
-                src={user.avatar_url || '/img/default-avatar.png'}
+                src={user.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                 alt={user.username}
                 className={styles.avatar}
               />

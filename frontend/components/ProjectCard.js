@@ -52,13 +52,22 @@ export default function ProjectCard({
     }
   }
 
+  const tags = Array.isArray(project?.tags)
+    ? project.tags
+    : typeof project?.tags === 'string'
+    ? project.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    : [];
+
   return (
     <article className={styles.card}>
       <header className={styles.header}>
         <button type="button" className={styles.userButton} onClick={handleOpenProfile}>
           <img
             className={styles.avatar}
-            src={project?.user?.avatar_url || project?.author?.avatar_url || '/img/default-avatar.png'}
+            src={project?.user?.avatar_url || project?.author?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
             alt={username}
           />
 
@@ -137,9 +146,9 @@ export default function ProjectCard({
           </span>
         )}
 
-        {project?.tags?.length > 0 && (
+        {tags.length > 0 && (
           <div className={styles.tags}>
-            {project.tags.map((tag) => (
+            {tags.map((tag) => (
               <span key={tag}>#{tag}</span>
             ))}
           </div>
