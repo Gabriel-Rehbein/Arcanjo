@@ -1,26 +1,66 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import styles from '../styles/components/projectCard.module.css';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import styles from "../styles/components/projectCard.module.css";
+import { apiFetch } from "../utils/api";
 
-export default function ProjectCard({
-  project,
-  onLike,
-  onSave,
-  onComment,
-  onShare,
-}) {
+export default function ProjectCard({ project, onLike, onSave }) {
   const router = useRouter();
 
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [loadingComments, setLoadingComments] = useState(false);
 
-  const image = project?.image_url || '/img/logoaba.png';
-  const title = project?.title || 'Projeto sem título';
-  const description = project?.description || 'Sem descrição disponível.';
+  const image = project?.image_url || "/img/logoaba.png";
+  const title = project?.title || "Projeto sem título";
+  const description = project?.description || "Sem descrição disponível.";
+
   const username =
     project?.user?.username ||
     project?.author?.username ||
     project?.username ||
-    'usuario';
+    "usuario";
+
+  const avatar =
+    project?.user?.avatar_url ||
+    project?.author?.avatar_url ||
+    "/img/logoaba.png";
+
+  useEffect(() => {
+    if (showComments) {
+      loadComments();
+    }
+  }, [showComments]);
+
+  async function loadComments() {
+    try {
+      setLoadingComments(true);
+      const data = await apiFetch(`/projects/${project.id}/comments`);
+      setComments(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erro ao carregar comentários:", err);
+    } finally {
+      setLoadingComments(false);
+    }
+  }
+
+  async function sendComment() {
+    const content = commentText.trim();
+
+    if (!content) return;
+
+    try {
+      const newComment = await apiFetch(`/projects/${project.id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ content }),
+      });
+
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
+    } catch (err) {
+      console.error("Erro ao comentar:", err);
+    }
+  }
 
   function handleOpenProfile() {
     router.push(`/profile?username=${username}`);
@@ -28,38 +68,9 @@ export default function ProjectCard({
 
   function handleOpenProject() {
     if (project?.link) {
-      window.open(project.link, '_blank', 'noopener,noreferrer');
+      window.open(project.link, "_blank", "noopener,noreferrer");
     }
   }
-
-  function handleShare() {
-    if (onShare) {
-      onShare(project);
-      return;
-    }
-
-    const shareText = `${title} - ${description}`;
-
-    if (navigator.share) {
-      navigator.share({
-        title,
-        text: shareText,
-        url: project?.link || window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(project?.link || window.location.href);
-      alert('Link copiado!');
-    }
-  }
-
-  const tags = Array.isArray(project?.tags)
-    ? project.tags
-    : typeof project?.tags === 'string'
-    ? project.tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean)
-    : [];
 
   return (
     <article className={styles.card}>
@@ -67,12 +78,12 @@ export default function ProjectCard({
         <button type="button" className={styles.userButton} onClick={handleOpenProfile}>
           <img
             className={styles.avatar}
-            src={project?.user?.avatar_url || project?.author?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
-            alt={username}
+            src={avatar}
+            onError={(e) => (e.target.src = "/img/logoaba.png")}
           />
 
           <div>
-            <strong>{project?.user?.full_name || project?.author?.full_name || username}</strong>
+            <strong>{project?.user?.full_name || username}</strong>
             <span>@{username}</span>
           </div>
         </button>
@@ -91,82 +102,98 @@ export default function ProjectCard({
           <div className={styles.leftActions}>
             <button
               type="button"
-              className={`${styles.actionBtn} ${project?.is_liked ? styles.activeLike : ''}`}
+              className={`${styles.actionBtn} ${project?.is_liked ? styles.activeLike : ""}`}
               onClick={onLike}
             >
-              {project?.is_liked ? '❤️' : '🤍'}
+              {project?.is_liked ? "❤️" : "🤍"}
             </button>
 
-            <button type="button" className={styles.actionBtn} onClick={onComment}>
+            <button
+              type="button"
+              className={styles.actionBtn}
+              onClick={() => setShowComments((prev) => !prev)}
+            >
               💬
             </button>
 
-            <button type="button" className={styles.actionBtn} onClick={handleShare}>
+            <button
+              type="button"
+              className={styles.actionBtn}
+              onClick={() => navigator.clipboard.writeText(project?.link || window.location.href)}
+            >
               📤
             </button>
           </div>
 
           <button
             type="button"
-            className={`${styles.actionBtn} ${project?.is_saved ? styles.activeSave : ''}`}
+            className={`${styles.actionBtn} ${project?.is_saved ? styles.activeSave : ""}`}
             onClick={onSave}
           >
-            {project?.is_saved ? '🔖' : '📑'}
+            {project?.is_saved ? "🔖" : "📑"}
           </button>
         </div>
 
         <div className={styles.metrics}>
           <strong>{project?.likes_count || 0} curtidas</strong>
-          <span>{project?.comments_count || 0} comentários</span>
+          <span>{comments.length || project?.comments_count || 0} comentários</span>
         </div>
 
         <h3>{title}</h3>
-
-        <p className={styles.description}>
-          {showFullDescription
-            ? description
-            : description.length > 140
-              ? `${description.slice(0, 140)}...`
-              : description}
-        </p>
-
-        {description.length > 140 && (
-          <button
-            type="button"
-            className={styles.readMore}
-            onClick={() => setShowFullDescription(!showFullDescription)}
-          >
-            {showFullDescription ? 'Ver menos' : 'Ver mais'}
-          </button>
-        )}
+        <p className={styles.description}>{description}</p>
 
         {project?.category && (
-          <span className={styles.category}>
-            {project.category}
-          </span>
+          <span className={styles.category}>{project.category}</span>
         )}
 
-        {tags.length > 0 && (
-          <div className={styles.tags}>
-            {tags.map((tag) => (
-              <span key={tag}>#{tag}</span>
-            ))}
-          </div>
-        )}
-
-        <div className={styles.footer}>
-          {project?.link && (
+        {project?.link && (
+          <div className={styles.footer}>
             <button type="button" onClick={handleOpenProject}>
               Ver projeto
             </button>
-          )}
 
-          <small>
-            {project?.created_at
-              ? new Date(project.created_at).toLocaleDateString('pt-BR')
-              : 'Publicado recentemente'}
-          </small>
-        </div>
+            <small>
+              {project?.created_at
+                ? new Date(project.created_at).toLocaleDateString("pt-BR")
+                : "Publicado recentemente"}
+            </small>
+          </div>
+        )}
+
+        {showComments && (
+          <div className={styles.commentsBox}>
+            <div className={styles.commentForm}>
+              <input
+                type="text"
+                placeholder="Escreva um comentário..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") sendComment();
+                }}
+              />
+
+              <button type="button" onClick={sendComment}>
+                Enviar
+              </button>
+            </div>
+
+            <div className={styles.commentsList}>
+              {loadingComments && <p>Carregando comentários...</p>}
+
+              {!loadingComments && comments.length === 0 && (
+                <p className={styles.emptyComments}>Nenhum comentário ainda.</p>
+              )}
+
+              {comments.map((comment) => (
+                <div key={comment.id} className={styles.commentItem}>
+                  <strong>@{comment?.user?.username || "usuario"}</strong>
+                  <span>{comment.content}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </article>
   );

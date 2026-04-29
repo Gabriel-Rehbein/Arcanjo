@@ -19,3 +19,11 @@ export async function create(user) {
   const repository = await getRepository(UserSchema);
   return repository.save(user);
 }
+
+export async function findById(id) {
+  const repository = await getRepository(UserSchema);
+
+  return repository.findOne({
+    where: { id: Number(id) },
+  });
+}

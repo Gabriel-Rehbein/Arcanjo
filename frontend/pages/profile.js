@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import ProjectCard from '../components/ProjectCard';
-import styles from '../styles/pages/profile.module.css';
-import { apiFetch } from '../utils/api';
-import { getUser } from '../utils/auth';
-import { useAuthGuard } from '../utils/useAuthGuard';
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import ProjectCard from "../components/ProjectCard";
+import styles from "../styles/pages/profile.module.css";
+import { apiFetch } from "../utils/api";
+import { getUser } from "../utils/auth";
 
 export default function Profile() {
-  useAuthGuard();
-
   const router = useRouter();
   const { username } = router.query;
 
@@ -19,22 +16,21 @@ export default function Profile() {
   const [projects, setProjects] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [activeTab, setActiveTab] = useState('projects');
+  const [activeTab, setActiveTab] = useState("projects");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  const galleryProjects = useMemo(() => {
+    return projects.filter((project) => project.image_url);
+  }, [projects]);
 
   useEffect(() => {
     const currentUser = getUser();
-    const targetUsername = username || currentUser;
-
-    if (!targetUsername) {
-      router.replace('/');
-      return;
-    }
+    const targetUsername = username || currentUser || "usuario";
 
     setProfileUsername(targetUsername);
     setIsOwnProfile(targetUsername === currentUser);
-  }, [username, router]);
+  }, [username]);
 
   useEffect(() => {
     if (profileUsername) {
@@ -45,7 +41,7 @@ export default function Profile() {
   async function loadProfile(targetUsername) {
     try {
       setLoading(true);
-      setError('');
+      setError("");
 
       const [userData, projectsData] = await Promise.all([
         apiFetch(`/users/${targetUsername}`),
@@ -56,7 +52,7 @@ export default function Profile() {
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setIsFollowing(Boolean(userData?.is_following));
     } catch (err) {
-      setError(err.message || 'Erro ao carregar perfil.');
+      setError(err.message || "Erro ao carregar perfil.");
     } finally {
       setLoading(false);
     }
@@ -70,7 +66,7 @@ export default function Profile() {
         ? `/users/${user.id}/unfollow`
         : `/users/${user.id}/follow`;
 
-      await apiFetch(endpoint, { method: 'POST' });
+      await apiFetch(endpoint, { method: "POST" });
 
       setIsFollowing((prev) => !prev);
 
@@ -81,33 +77,39 @@ export default function Profile() {
           : (prev.followers_count || 0) + 1,
       }));
     } catch (err) {
-      console.error('Erro ao seguir/deseguir:', err);
+      console.error("Erro ao seguir/deseguir:", err);
+    }
+  }
+
+  async function handleDeleteProject(projectId) {
+    if (!confirm("Deseja excluir esta publicação?")) return;
+
+    try {
+      await apiFetch(`/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    } catch (err) {
+      alert(err.message || "Erro ao excluir publicação.");
     }
   }
 
   if (loading) {
-    return (
-      <div className={styles.loading}>
-        <p>Carregando perfil...</p>
-      </div>
-    );
+    return <div className={styles.loading}>Carregando perfil...</div>;
   }
 
   if (error) {
     return (
       <div className={styles.error}>
         <p>{error}</p>
-        <button onClick={() => router.push('/feed')}>Voltar ao feed</button>
+        <button onClick={() => router.push("/feed")}>Voltar ao feed</button>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <div className={styles.error}>
-        <p>Usuário não encontrado.</p>
-      </div>
-    );
+    return <div className={styles.error}>Usuário não encontrado.</div>;
   }
 
   return (
@@ -118,132 +120,149 @@ export default function Profile() {
         <Sidebar />
 
         <main className={styles.profile}>
-          <div className={styles.banner}>
-            <img
-              src={user.banner_url || 'https://via.placeholder.com/800x200.jpg?text=Banner'}
-              alt="Banner do perfil"
-            />
-          </div>
-
-          <section className={styles.info}>
-            <div className={styles.header}>
+          <section className={styles.hero}>
+            <div className={styles.banner}>
               <img
-                src={user.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
+                src={user.banner_url || "/img/logoaba.png"}
+                alt="Banner do perfil"
+              />
+            </div>
+
+            <div className={styles.info}>
+              <img
+                src={user.avatar_url || "/img/logoaba.png"}
                 alt={user.username}
                 className={styles.avatar}
+                onError={(e) => (e.target.src = "/img/logoaba.png")}
               />
 
               <div className={styles.userInfo}>
                 <h1>{user.full_name || user.username}</h1>
-                <p className={styles.username}>@{user.username}</p>
+                <span className={styles.username}>@{user.username}</span>
+
                 <p className={styles.bio}>
-                  {user.bio || 'Este usuário ainda não adicionou uma bio.'}
+                  {user.bio || "Este usuário ainda não adicionou uma bio."}
                 </p>
               </div>
 
               <div className={styles.actions}>
                 {isOwnProfile ? (
                   <>
-                    <button
-                      className={styles.btn}
-                      onClick={() => router.push('/settings')}
-                    >
-                      Editar Perfil
+                    <button onClick={() => router.push("/settings")}>
+                      Editar perfil
                     </button>
 
-                    <button
-                      className={styles.btn}
-                      onClick={() => router.push('/create-project')}
-                    >
-                      Novo Projeto
+                    <button onClick={() => router.push("/create-project")}>
+                      Novo projeto
                     </button>
                   </>
                 ) : (
                   <>
                     <button
-                      className={`${styles.btn} ${
-                        isFollowing ? styles.following : ''
-                      }`}
+                      className={isFollowing ? styles.following : styles.followBtn}
                       onClick={handleFollow}
                     >
-                      {isFollowing ? 'Seguindo' : 'Seguir'}
+                      {isFollowing ? "Seguindo ✓" : "Seguir +"}
                     </button>
 
-                    <button
-                      className={styles.btn}
-                      onClick={() => router.push(`/messages?user=${user.id}`)}
-                    >
+                    <button onClick={() => router.push(`/messages?user=${user.id}`)}>
                       Mensagem
                     </button>
                   </>
                 )}
               </div>
             </div>
+          </section>
 
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <strong>{projects.length}</strong>
-                <span>Projetos</span>
-              </div>
+          <section className={styles.stats}>
+            <div>
+              <strong>{projects.length}</strong>
+              <span>Projetos</span>
+            </div>
 
-              <div className={styles.stat}>
-                <strong>{user.followers_count || 0}</strong>
-                <span>Seguidores</span>
-              </div>
+            <div>
+              <strong>{user.followers_count || 0}</strong>
+              <span>Seguidores</span>
+            </div>
 
-              <div className={styles.stat}>
-                <strong>{user.following_count || 0}</strong>
-                <span>Seguindo</span>
-              </div>
+            <div>
+              <strong>{user.following_count || 0}</strong>
+              <span>Seguindo</span>
             </div>
           </section>
 
-          <div className={styles.tabs}>
+          <nav className={styles.tabs}>
             <button
-              className={activeTab === 'projects' ? styles.active : ''}
-              onClick={() => setActiveTab('projects')}
+              className={activeTab === "projects" ? styles.active : ""}
+              onClick={() => setActiveTab("projects")}
             >
               Projetos
             </button>
 
             <button
-              className={activeTab === 'gallery' ? styles.active : ''}
-              onClick={() => setActiveTab('gallery')}
+              className={activeTab === "gallery" ? styles.active : ""}
+              onClick={() => setActiveTab("gallery")}
             >
               Galeria
             </button>
 
             {isOwnProfile && (
-              <button
-                className={activeTab === 'saved' ? styles.active : ''}
-                onClick={() => router.push('/saved')}
-              >
+              <button onClick={() => router.push("/saved")}>
                 Salvos
               </button>
             )}
-          </div>
+          </nav>
 
           <section className={styles.content}>
-            {activeTab === 'projects' && projects.length > 0 && (
-              <div className={styles.projectsGrid}>
-                {projects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </div>
+            {activeTab === "projects" && (
+              projects.length ? (
+                <div className={styles.projectsList}>
+                  {projects.map((project) => (
+                    <div key={project.id} className={styles.projectWrapper}>
+                      {isOwnProfile && (
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => handleDeleteProject(project.id)}
+                        >
+                          Excluir publicação
+                        </button>
+                      )}
+
+                      <ProjectCard project={project} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.empty}>
+                  <h3>Nenhum projeto publicado</h3>
+                  <p>Quando houver projetos, eles aparecerão aqui.</p>
+                </div>
+              )
             )}
 
-            {activeTab === 'projects' && projects.length === 0 && (
-              <div className={styles.empty}>
-                <h3>Nenhum projeto publicado</h3>
-                <p>Quando houver projetos, eles aparecerão aqui.</p>
-              </div>
-            )}
-
-            {activeTab === 'gallery' && (
-              <div className={styles.empty}>
-                <h3>Galeria em desenvolvimento</h3>
-                <p>Essa área pode mostrar imagens dos projetos futuramente.</p>
-              </div>
+            {activeTab === "gallery" && (
+              galleryProjects.length ? (
+                <div className={styles.galleryGrid}>
+                  {galleryProjects.map((project) => (
+                    <button
+                      key={project.id}
+                      className={styles.galleryItem}
+                      onClick={() => setActiveTab("projects")}
+                    >
+                      <img src={project.image_url} alt={project.title} />
+                      <div>
+                        <strong>{project.title}</strong>
+                        <span>{project.category || "Projeto"}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.empty}>
+                  <h3>Galeria vazia</h3>
+                  <p>Publique projetos com imagem para aparecerem aqui.</p>
+                </div>
+              )
             )}
           </section>
         </main>

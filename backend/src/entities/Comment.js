@@ -9,18 +9,26 @@ export default new EntitySchema({
       primary: true,
       generated: true,
     },
-    user_id: {
-      type: Number,
-    },
-    project_id: {
-      type: Number,
-    },
     content: {
       type: String,
     },
     created_at: {
       type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
+    },
+  },
+  relations: {
+    user: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: { name: "user_id" },
+      eager: true,
+    },
+    project: {
+      type: "many-to-one",
+      target: "Project",
+      joinColumn: { name: "project_id" },
+      eager: false,
     },
   },
 });

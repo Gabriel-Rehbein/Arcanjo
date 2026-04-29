@@ -1,12 +1,13 @@
 import * as userRepo from "../repositories/UserRepository.js";
 import * as projectService from "../services/ProjectService.js";
 
+const TEST_USER_ID = 1;
+
 function sanitizeUser(user) {
   if (!user) return null;
-  const {
-    password,
-    ...safeUser
-  } = user;
+
+  const { password, ...safeUser } = user;
+
   return {
     id: safeUser.id,
     username: safeUser.username,
@@ -21,35 +22,47 @@ function sanitizeUser(user) {
   };
 }
 
-export async function getUserByUsername(req, res) {
-  const { username } = req.params;
-  const user = await userRepo.findByUsername(username);
+export async function getUserByUsername(req, res, next) {
+  try {
+    const { username } = req.params;
 
-  if (!user) {
-    return res.status(404).json({ message: "Usuário não encontrado" });
+    let user = await userRepo.findByUsername(username);
+
+    if (!user) {
+      user = await userRepo.findById(TEST_USER_ID);
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.json(sanitizeUser(user));
+  } catch (err) {
+    next(err);
   }
-
-  res.json(sanitizeUser(user));
 }
 
-export async function getUserProjects(req, res) {
-  const { username } = req.params;
-  const user = await userRepo.findByUsername(username);
+export async function getUserProjects(req, res, next) {
+  try {
+    const projects = await projectService.getByUserId(TEST_USER_ID);
 
-  if (!user) {
-    return res.status(404).json({ message: "Usuário não encontrado" });
+    res.json(projects || []);
+  } catch (err) {
+    next(err);
   }
-
-  const projects = await projectService.getByUserId(user.id);
-  res.json(projects || []);
 }
 
-export async function searchUsers(req, res) {
-  const query = String(req.query.q || "").trim();
-  if (!query) {
-    return res.json([]);
-  }
+export async function searchUsers(req, res, next) {
+  try {
+    const query = String(req.query.q || "").trim();
 
-  const users = await userRepo.searchUsers(query);
-  res.json(users.map(sanitizeUser));
+    if (!query) {
+      return res.json([]);
+    }
+
+    const users = await userRepo.searchUsers(query);
+    res.json(users.map(sanitizeUser));
+  } catch (err) {
+    next(err);
+  }
 }

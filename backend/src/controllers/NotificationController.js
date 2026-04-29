@@ -2,8 +2,9 @@ import { getNotifications, markAsRead, markAllAsRead } from "../services/Notific
 
 export async function getUserNotifications(req, res) {
   try {
-    const userId = req.user.id;
+    const userId = 1; // fixo para teste
     const type = req.query.type;
+
     const notifications = await getNotifications(userId, type);
     res.json(notifications);
   } catch (error) {
@@ -14,7 +15,8 @@ export async function getUserNotifications(req, res) {
 export async function markNotificationAsRead(req, res) {
   try {
     const notificationId = parseInt(req.params.id);
-    const userId = req.user.id;
+    const userId = 1; // fixo
+
     const notification = await markAsRead(notificationId, userId);
     res.json(notification);
   } catch (error) {
@@ -28,7 +30,8 @@ export async function markNotificationAsRead(req, res) {
 
 export async function markAllNotificationsAsRead(req, res) {
   try {
-    const userId = req.user.id;
+    const userId = 1; // fixo
+
     const notifications = await markAllAsRead(userId);
     res.json(notifications);
   } catch (error) {

@@ -79,7 +79,11 @@ export default function Header() {
           className={styles.profileBtn}
           onClick={() => router.push('/profile')}
         >
-          <img src="https://via.placeholder.com/150x150.png?text=Avatar" alt={username || 'Perfil'} />
+          <img
+            src="/img/logoaba.png"
+            alt={username || 'Perfil'}
+            onError={(e) => (e.target.src = "/img/logoaba.png")}
+          />
           <span>{username || 'Perfil'}</span>
         </button>
       </nav>
