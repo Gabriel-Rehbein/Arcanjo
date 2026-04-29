@@ -1,42 +1,42 @@
-import { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
-import FooterNav from '../components/FooterNav';
-import { getUser, getToken } from '../utils/auth';
-import { useRouter } from 'next/router';
+import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import FooterNav from "../components/FooterNav";
+import { getUser, getToken } from "../utils/auth";
+import { useRouter } from "next/router";
 
 export default function SettingsPage() {
   const router = useRouter();
 
-  const [username, setUsername] = useState('');
-  const [theme, setTheme] = useState('dark');
+  const [username, setUsername] = useState("");
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
     if (!getToken()) {
-      router.replace('/');
+      router.replace("/");
       return;
     }
 
-    setUsername(getUser() || '');
-    setTheme(localStorage.getItem('arcanjo_theme') || 'dark');
+    setUsername(getUser() || "");
+    setTheme(localStorage.getItem("arcanjo_theme") || "dark");
   }, [router]);
 
   function handleThemeChange(value) {
     setTheme(value);
-    localStorage.setItem('arcanjo_theme', value);
+    localStorage.setItem("arcanjo_theme", value);
     document.documentElement.dataset.theme = value;
   }
 
   function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.replace('/');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.replace("/");
   }
 
   return (
     <Layout title="Configurações">
       <div className="card">
         <h2>Configurações</h2>
-        <p>Gerencie sua conta, tema e preferências da rede social.</p>
+        <p>Gerencie sua conta, tema, privacidade e preferências.</p>
 
         <div className="input-group">
           <label>
@@ -52,8 +52,12 @@ export default function SettingsPage() {
             </select>
           </label>
 
-          <button type="button" onClick={() => router.push('/profile')}>
+          <button type="button" onClick={() => router.push("/profile")}>
             Ver perfil
+          </button>
+
+          <button type="button" onClick={() => router.push("/saiba-mais")}>
+            Saiba mais sobre privacidade e LGPD
           </button>
 
           <button type="button" onClick={handleLogout}>

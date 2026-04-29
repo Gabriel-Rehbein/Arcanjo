@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import styles from "../styles/components/projectCard.module.css";
 import { apiFetch } from "../utils/api";
 
 export default function ProjectCard({ project, onLike, onSave }) {
-  const router = useRouter();
-
-  const [showComments, setShowComments] = useState(false);
+  const [likedAnimation, setLikedAnimation] = useState(false);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
 
   const image = project?.image_url || "/img/logoaba.png";
-  const title = project?.title || "Projeto sem título";
-  const description = project?.description || "Sem descrição disponível.";
+  const avatar =
+    project?.user?.avatar_url ||
+    project?.author?.avatar_url ||
+    "/img/logoaba.png";
 
   const username =
     project?.user?.username ||
@@ -21,16 +21,14 @@ export default function ProjectCard({ project, onLike, onSave }) {
     project?.username ||
     "usuario";
 
-  const avatar =
-    project?.user?.avatar_url ||
-    project?.author?.avatar_url ||
-    "/img/logoaba.png";
+  async function handleLikeClick() {
+    setLikedAnimation(true);
+    setTimeout(() => setLikedAnimation(false), 750);
 
-  useEffect(() => {
-    if (showComments) {
-      loadComments();
+    if (onLike) {
+      onLike();
     }
-  }, [showComments]);
+  }
 
   async function loadComments() {
     try {
@@ -42,6 +40,11 @@ export default function ProjectCard({ project, onLike, onSave }) {
     } finally {
       setLoadingComments(false);
     }
+  }
+
+  async function openComments() {
+    setShowCommentsModal(true);
+    await loadComments();
   }
 
   async function sendComment() {
@@ -62,110 +65,152 @@ export default function ProjectCard({ project, onLike, onSave }) {
     }
   }
 
-  function handleOpenProfile() {
-    router.push(`/profile?username=${username}`);
-  }
-
-  function handleOpenProject() {
-    if (project?.link) {
-      window.open(project.link, "_blank", "noopener,noreferrer");
-    }
-  }
-
   return (
-    <article className={styles.card}>
-      <header className={styles.header}>
-        <button type="button" className={styles.userButton} onClick={handleOpenProfile}>
+    <>
+      <article className={styles.card}>
+        <header className={styles.header}>
+          <div className={styles.userButton}>
+            <img
+              className={styles.avatar}
+              src={avatar}
+              alt={username}
+              onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+            />
+
+            <div>
+              <strong>{project?.user?.full_name || username}</strong>
+              <span>@{username}</span>
+            </div>
+          </div>
+
+          <button type="button" className={styles.moreButton}>
+            •••
+          </button>
+        </header>
+
+        <div className={styles.imageBox} onDoubleClick={handleLikeClick}>
           <img
-            className={styles.avatar}
-            src={avatar}
-            onError={(e) => (e.target.src = "/img/logoaba.png")}
+            src={image}
+            alt={project?.title || "Projeto"}
+            onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
           />
 
-          <div>
-            <strong>{project?.user?.full_name || username}</strong>
-            <span>@{username}</span>
+          {likedAnimation && (
+            <div className={styles.likeExplosion}>❤️</div>
+          )}
+        </div>
+
+        <section className={styles.content}>
+          <div className={styles.actions}>
+            <div className={styles.leftActions}>
+              <button
+                type="button"
+                className={`${styles.actionBtn} ${
+                  project?.is_liked ? styles.activeLike : ""
+                }`}
+                onClick={handleLikeClick}
+              >
+                {project?.is_liked ? "❤️" : "🤍"}
+              </button>
+
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={openComments}
+              >
+                💬
+              </button>
+
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    project?.link || window.location.href
+                  )
+                }
+              >
+                📤
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${
+                project?.is_saved ? styles.activeSave : ""
+              }`}
+              onClick={onSave}
+            >
+              {project?.is_saved ? "🔖" : "📑"}
+            </button>
           </div>
-        </button>
 
-        <button type="button" className={styles.moreButton}>
-          •••
-        </button>
-      </header>
-
-      <div className={styles.imageBox} onDoubleClick={onLike}>
-        <img src={image} alt={title} />
-      </div>
-
-      <section className={styles.content}>
-        <div className={styles.actions}>
-          <div className={styles.leftActions}>
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${project?.is_liked ? styles.activeLike : ""}`}
-              onClick={onLike}
-            >
-              {project?.is_liked ? "❤️" : "🤍"}
-            </button>
-
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={() => setShowComments((prev) => !prev)}
-            >
-              💬
-            </button>
-
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={() => navigator.clipboard.writeText(project?.link || window.location.href)}
-            >
-              📤
-            </button>
+          <div className={styles.metrics}>
+            <strong>{project?.likes_count || 0} curtidas</strong>
+            <span>{project?.comments_count || comments.length || 0} comentários</span>
           </div>
 
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${project?.is_saved ? styles.activeSave : ""}`}
-            onClick={onSave}
+          <h3>{project?.title || "Projeto sem título"}</h3>
+
+          <p className={styles.description}>
+            {project?.description || "Sem descrição disponível."}
+          </p>
+
+          {project?.category && (
+            <span className={styles.category}>{project.category}</span>
+          )}
+        </section>
+      </article>
+
+      {showCommentsModal && (
+        <div
+          className={styles.commentModalOverlay}
+          onClick={() => setShowCommentsModal(false)}
+        >
+          <div
+            className={styles.commentModal}
+            onClick={(e) => e.stopPropagation()}
           >
-            {project?.is_saved ? "🔖" : "📑"}
-          </button>
-        </div>
+            <div className={styles.commentModalHeader}>
+              <h3>Comentários</h3>
 
-        <div className={styles.metrics}>
-          <strong>{project?.likes_count || 0} curtidas</strong>
-          <span>{comments.length || project?.comments_count || 0} comentários</span>
-        </div>
+              <button
+                type="button"
+                onClick={() => setShowCommentsModal(false)}
+              >
+                ✕
+              </button>
+            </div>
 
-        <h3>{title}</h3>
-        <p className={styles.description}>{description}</p>
+            <div className={styles.commentModalList}>
+              {loadingComments && <p>Carregando comentários...</p>}
 
-        {project?.category && (
-          <span className={styles.category}>{project.category}</span>
-        )}
+              {!loadingComments && comments.length === 0 && (
+                <p className={styles.emptyComments}>
+                  Nenhum comentário ainda.
+                </p>
+              )}
 
-        {project?.link && (
-          <div className={styles.footer}>
-            <button type="button" onClick={handleOpenProject}>
-              Ver projeto
-            </button>
+              {comments.map((comment) => (
+                <div key={comment.id} className={styles.commentItem}>
+                  <img
+                    src={comment?.user?.avatar_url || "/img/logoaba.png"}
+                    alt="avatar"
+                    onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+                  />
 
-            <small>
-              {project?.created_at
-                ? new Date(project.created_at).toLocaleDateString("pt-BR")
-                : "Publicado recentemente"}
-            </small>
-          </div>
-        )}
+                  <div>
+                    <strong>@{comment?.user?.username || "usuario"}</strong>
+                    <p>{comment.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-        {showComments && (
-          <div className={styles.commentsBox}>
-            <div className={styles.commentForm}>
+            <div className={styles.commentModalForm}>
               <input
                 type="text"
-                placeholder="Escreva um comentário..."
+                placeholder="Adicione um comentário..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={(e) => {
@@ -174,27 +219,12 @@ export default function ProjectCard({ project, onLike, onSave }) {
               />
 
               <button type="button" onClick={sendComment}>
-                Enviar
+                Publicar
               </button>
             </div>
-
-            <div className={styles.commentsList}>
-              {loadingComments && <p>Carregando comentários...</p>}
-
-              {!loadingComments && comments.length === 0 && (
-                <p className={styles.emptyComments}>Nenhum comentário ainda.</p>
-              )}
-
-              {comments.map((comment) => (
-                <div key={comment.id} className={styles.commentItem}>
-                  <strong>@{comment?.user?.username || "usuario"}</strong>
-                  <span>{comment.content}</span>
-                </div>
-              ))}
-            </div>
           </div>
-        )}
-      </section>
-    </article>
+        </div>
+      )}
+    </>
   );
 }
