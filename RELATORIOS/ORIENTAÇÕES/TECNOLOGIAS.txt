@@ -10,6 +10,7 @@ BACKEND
 - CORS: Compartilhamento de recursos entre domínios
 - dotenv: Gerenciamento de variáveis de ambiente
 - open: Abre automaticamente o navegador
+-Typerom: Criação de tabelas e demais componentes do banco
 
 FRONTEND
 ========
@@ -17,6 +18,7 @@ FRONTEND
 - React: Biblioteca para construir interfaces
 - React-DOM: Renderização React no navegador
 - CSS: Estilização nativa (sem framework CSS)
+- HTML: Linguagem de Estrutural
 - JavaScript (ES6+): Linguagem de programação
 
 BANCO DE DADOS

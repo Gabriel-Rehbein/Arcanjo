@@ -1,307 +1,183 @@
-# 🎭 Arcanjo - Rede Social de Projetos
+# 🌟 Arcanjo
 
-Uma **rede social moderna e totalmente funcional** para compartilhar e gerenciar projetos, com autenticação via Supabase, perfil customizável e configurações avançadas.
-
-## ✨ Características Principais
-
-### 🔐 Autenticação Segura
-- Login/Signup com Supabase
-- Sessão persistente em localStorage
-- Proteção de rotas
-- Logout com confirmação
-
-### 📊 Gerenciamento de Projetos
-- Adicionar, editar e deletar projetos
-- Filtrar por tags
-- Buscar por texto
-- Interface em modal intuitiva
-
-### 👤 Perfil Personalizável
-- Editar bio (até 500 caracteres)
-- Adicionar localização e profissão
-- Links para website e GitHub
-- Email de contato
-- Data de membro desde
-
-### ⚙️ Configurações Avançadas
-- **Notificações**: Email, digest diário, horário customizado
-- **Aparência**: 8 cores para fundo, tema claro/escuro
-- **Privacidade**: Perfil público, mostrar email
-- **Dados**: Download em JSON, limpar cache
-
-### 🎨 Design Responsivo
-- Totalmente adaptável para mobile
-- Design limpo e moderno
-- Gradientes e cores atraentes
-- Tipografia clara
-
-## 🚀 Como Começar
-
-### 1️⃣ Iniciar Servidor
-
-**Python (recomendado):**
-```bash
-python -m http.server 8000
-```
-
-**Node.js:**
-```bash
-npx http-server
-```
-
-**VS Code:**
-Clique direito em `index.html` → "Open with Live Server"
-
-### 2️⃣ Acessar Aplicação
-```
-http://localhost:8000
-```
-
-### 3️⃣ Fazer Login
-
-Use a conta de teste:
-- **Usuário**: Gabriel
-- **Senha**: Meu1234
-
-Ou crie uma nova conta clicando em "Criar Conta"
-
-## 📁 Estrutura do Projeto
-
-```
-Arcanjo/
-├── 📄 Páginas HTML
-│   ├── index.html           # Landing page
-│   ├── login.html           # Autenticação
-│   ├── dashboard.html       # Painel principal
-│   ├── profile.html         # Perfil do usuário
-│   └── settings.html        # Configurações
-│
-├── 📜 JavaScript (js/)
-│   ├── auth.js              # Sessão e autenticação
-│   ├── auth-login.js        # Lógica de login/signup
-│   ├── dashboard.js         # Lógica do dashboard
-│   ├── profile.js           # Lógica de perfil
-│   ├── settings.js          # Lógica de configurações
-│   ├── supabase-config.js   # Cliente Supabase
-│   └── data.js              # Dados globais
-│
-├── 🎨 Estilos (css/)
-│   ├── style.css            # Estilos principais
-│   └── resposive.css        # Responsividade
-│
-├── 📚 Documentação
-│   ├── README.md            # Este arquivo
-│   ├── SETUP.md             # Configuração
-│   ├── QUICK_START.md       # Guia rápido
-│   └── IMPLEMENTATION_SUMMARY.md  # Resumo técnico
-│
-└── 🧪 Testes
-    ├── test-features.html   # Checklist de features
-    └── test-checklist.sh    # Script de verificação
-```
-
-## 🌐 Páginas & Rotas
-
-| Rota | Tipo | Descrição |
-|------|------|-----------|
-| `/` ou `/index.html` | Public | Landing page com features |
-| `/login.html` | Public | Login e signup |
-| `/dashboard.html` | Private | Painel principal (requer autenticação) |
-| `/profile.html` | Private | Editar perfil (requer autenticação) |
-| `/settings.html` | Private | Configurações (requer autenticação) |
-
-## 💾 Armazenamento de Dados
-
-### Supabase (Autenticação)
-- Tabela: `users`
-- Campos: `id`, `username`, `password`, `created_at`, `updated_at`
-
-### LocalStorage (Dados Cliente)
-```javascript
-arcanjo_user_session        // Sessão do usuário
-profile_{userId}            // Dados do perfil
-settings_{userId}           // Configurações
-arcanjo_projects_{userId}   // Projetos do usuário
-```
-
-## 🎯 Fluxo Principal
-
-```
-┌─────────────┐
-│ index.html  │ (Landing page)
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ login.html  │ (Autenticação)
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────┐
-│ dashboard.html  │ (Painel principal)
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-profile.html  settings.html (Subpáginas)
-    │         │
-    └────┬────┘
-         ▼
-    dashboard.html (Voltar)
-```
-
-## 📋 Funcionalidades por Página
-
-### 📊 Dashboard
-- ✅ Ver todos os projetos
-- ✅ Adicionar novo projeto
-- ✅ Editar projeto
-- ✅ Deletar projeto
-- ✅ Filtrar por tag
-- ✅ Buscar por texto
-- ✅ Bem-vindo com nome do usuário
-- ✅ Logout
-
-### 👤 Perfil
-- ✅ Editar bio (500 caracteres max)
-- ✅ Editar localização
-- ✅ Editar profissão
-- ✅ Editar website
-- ✅ Editar GitHub
-- ✅ Editar email
-- ✅ Ver data de membro desde
-
-### ⚙️ Configurações
-- ✅ Notificações por email (toggle)
-- ✅ Digest diário (toggle)
-- ✅ Definir email para notificações
-- ✅ Escolher horário de notificação
-- ✅ Color picker (8 cores)
-- ✅ Seletor de tema
-- ✅ Perfil público (toggle)
-- ✅ Mostrar email (toggle)
-- ✅ Download de dados (JSON)
-- ✅ Limpar cache
-- ✅ Mudança de senha (stub)
-- ✅ Exclusão de conta (stub)
-
-## 🔧 Tecnologias Utilizadas
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Backend**: Supabase (PostgreSQL + REST API)
-- **Armazenamento**: LocalStorage + Supabase
-- **Autenticação**: Custom Auth com Supabase
-- **Design**: CSS Grid, Flexbox, Gradientes
-
-## 🎨 Paleta de Cores
-
-| Cor | Código | Uso |
-|-----|--------|-----|
-| Preto | #0b0f14 | Padrão |
-| Azul Escuro | #1a1a2e | Alternativa |
-| Azul Marinho | #16213e | Alternativa |
-| Azul Royal | #0f3460 | Alternativa |
-| Roxo | #533483 | Alternativa |
-| Cinza Escuro | #2d3142 | Alternativa |
-| Índigo | #1a1f36 | Alternativa |
-| Preto Profundo | #0d0221 | Alternativa |
-
-## 📱 Responsividade
-
-- ✅ Desktop (1920px+)
-- ✅ Tablet (768px - 1024px)
-- ✅ Mobile (320px - 767px)
-- ✅ Touch-friendly buttons
-- ✅ Adaptive layouts
-
-## 🔐 Segurança
-
-- ✅ Proteção de rotas (redireciona não autenticados)
-- ✅ Validação de email
-- ✅ Validação de senha
-- ✅ Limite de caracteres (bio: 500)
-- ✅ Confirmação em ações críticas
-- ✅ Sessão segura em localStorage
-
-## ⚡ Performance
-
-- ✅ Sem frameworks pesados
-- ✅ Carregamento rápido
-- ✅ Dados em localStorage (sem latência de rede)
-- ✅ CSS otimizado
-- ✅ JavaScript eficiente
-
-## 🧪 Testes
-
-Abra `/test-features.html` para ver um checklist completo de todas as funcionalidades implementadas.
-
-## 📊 Estatísticas
-
-- **Páginas**: 5
-- **Funções JavaScript**: 50+
-- **Linhas de código**: 2500+
-- **Funcionalidades**: 25+
-- **Taxa de conclusão**: 89%
-
-## 🚀 Próximas Melhorias
-
-- [ ] Backend para envio de emails reais
-- [ ] 2FA (Two-Factor Authentication)
-- [ ] Perfis públicos de usuários
-- [ ] Sistema de mensagens entre usuários
-- [ ] Feed de atividades
-- [ ] Upload de foto de perfil
-- [ ] Compartilhamento de projetos
-- [ ] Comentários em projetos
-- [ ] Notificações em tempo real
-- [ ] Histórico de atividades
-
-## 💡 Dicas & Troubleshooting
-
-### "Página não encontrada"
-- Certifique-se de que está usando um servidor local (http://)
-- Não abra arquivos diretamente (file://)
-
-### "Sessão perdida"
-- Limpe o cache em Configurações
-- Faça login novamente
-
-### "Cores não mudam"
-- Recarregue a página (F5)
-- Limpe cache do navegador (Ctrl+Shift+Del)
-
-### "Email não salva"
-- Verifique se é um email válido
-- Tente outro formato (exemplo@email.com)
-
-## 📞 Conta de Teste
-
-Para testar imediatamente, use:
-- **Usuário**: Gabriel
-- **Senha**: Meu1234
-
-## 📚 Documentação Adicional
-
-- [SETUP.md](SETUP.md) - Instruções detalhadas de configuração
-- [QUICK_START.md](QUICK_START.md) - Guia rápido de início
-- [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - Sumário técnico completo
-
-## 🔗 Links Úteis
-
-- [Supabase Documentation](https://supabase.com/docs)
-- [MDN Web Docs](https://developer.mozilla.org/)
-- [CSS Tricks](https://css-tricks.com/)
-
-## 📝 Licença
-
-Este projeto está disponível sob a Licença MIT.
-
-## 🎉 Créditos
-
-Desenvolvido como uma rede social moderna e funcional com foco em experiência do usuário.
+<p align="center">
+  Plataforma social voltada para desenvolvedores, criadores e profissionais que desejam compartilhar seus projetos, ideias e portfólios de forma moderna, visual e interativa.
+</p>
 
 ---
 
-**Arcanjo v1.0** - Pronto para Produção ✅
+# 📖 Sobre o Projeto
 
-Desenvolvido com ❤️ - Janeiro 2024
+O **Arcanjo** nasceu com a proposta de transformar a maneira como projetos são apresentados na internet.
+
+Muitas pessoas possuem ideias incríveis, criam sistemas, designs, aplicações, artes ou soluções inovadoras, mas acabam tendo dificuldade para divulgar isso de forma profissional, organizada e visualmente atrativa.
+
+O Arcanjo surge como uma plataforma onde:
+
+- Criadores podem publicar seus projetos
+- Desenvolvedores podem montar seus portfólios
+- Usuários podem descobrir novas ideias
+- Empresas podem visualizar talentos
+- Projetos podem ganhar visibilidade de forma simples e moderna
+
+---
+
+# 🎯 Objetivo
+
+O principal objetivo do Arcanjo é criar um ambiente digital onde criatividade, tecnologia e inovação possam ser compartilhadas de maneira acessível e inspiradora.
+
+A plataforma busca:
+
+- Incentivar novos desenvolvedores
+- Valorizar projetos independentes
+- Aproximar criadores e oportunidades
+- Facilitar a divulgação de portfólios
+- Construir uma comunidade focada em tecnologia e inovação
+
+---
+
+# 🚀 Como Funciona
+
+No Arcanjo, os usuários podem:
+
+- Criar um perfil personalizado
+- Publicar projetos
+- Adicionar imagens e descrições
+- Curtir conteúdos
+- Comentar publicações
+- Salvar projetos favoritos
+- Explorar novas ideias
+- Interagir com outros criadores
+
+Tudo isso em uma experiência moderna, fluida e visual.
+
+---
+
+# 💡 Diferencial do Arcanjo
+
+O Arcanjo não é apenas um espaço para postar projetos.
+
+A ideia da plataforma é oferecer:
+
+- Uma experiência visual moderna
+- Interface inspiradora e dinâmica
+- Ambiente focado em criatividade
+- Valorização de portfólios
+- Descoberta de talentos
+- Interação entre criadores
+
+O foco principal é transformar projetos em algo mais vivo, visual e compartilhável.
+
+---
+
+# 🌎 Impacto
+
+O projeto busca impactar principalmente:
+
+- Estudantes de tecnologia
+- Desenvolvedores iniciantes
+- Designers
+- Criadores independentes
+- Freelancers
+- Profissionais em busca de oportunidades
+
+O Arcanjo pretende ajudar pessoas a mostrarem seu potencial para o mundo de forma mais profissional e acessível.
+
+---
+
+# 🔮 Visão Futura
+
+Entre as ideias futuras do projeto estão:
+
+- Sistema de destaque para projetos
+- Perfis profissionais avançados
+- Feed inteligente de recomendações
+- Sistema de networking
+- Eventos e comunidades
+- Área para recrutadores
+- Gamificação da plataforma
+- Recursos de inteligência artificial
+
+---
+
+# 🧠 Conceito da Plataforma
+
+O Arcanjo foi pensado para unir:
+
+- Rede social
+- Portfólio profissional
+- Compartilhamento de projetos
+- Criatividade visual
+- Tecnologia
+- Networking
+
+Tudo dentro de uma única plataforma.
+
+A proposta é permitir que usuários transformem seus projetos em algo mais acessível, moderno e atrativo para outras pessoas.
+
+---
+
+# ✨ Experiência do Usuário
+
+A plataforma possui foco em:
+
+- Interface moderna
+- Navegação intuitiva
+- Experiência fluida
+- Layout responsivo
+- Interações dinâmicas
+- Animações visuais
+- Design profissional
+
+O objetivo é criar uma experiência agradável tanto para quem publica quanto para quem explora conteúdos.
+
+---
+
+# 📈 Crescimento do Projeto
+
+O Arcanjo possui potencial para expansão em diversas áreas, como:
+
+- Educação
+- Tecnologia
+- Portfólios profissionais
+- Comunidades criativas
+- Recrutamento
+- Freelancing
+- Startups
+- Compartilhamento de conhecimento
+
+---
+
+# 🔐 Segurança e Privacidade
+
+O projeto também busca oferecer:
+
+- Controle de privacidade
+- Proteção de dados
+- Segurança de contas
+- Ambiente seguro para usuários
+- Gerenciamento de conteúdos
+
+---
+
+# 👨‍💻 Criador
+
+## Gabriel Menezes Rehbein
+
+Desenvolvedor focado em inovação, tecnologia e experiência do usuário.
+
+O projeto Arcanjo representa a ideia de transformar criatividade e desenvolvimento em uma plataforma social moderna e acessível.
+
+---
+
+# 📌 Status do Projeto
+
+🚧 Projeto em desenvolvimento contínuo.
+
+Novas funcionalidades, melhorias visuais e recursos estão sendo implementados constantemente.
+
+---
+
+# ❤️ Arcanjo
+
+> “Projetos merecem ser vistos, compartilhados e valorizados.”
