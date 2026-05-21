@@ -1,5 +1,5 @@
 import express from "express";
-import { optionalAuthenticateToken } from "../middlewares/auth.middleware.js";
+import { authenticateToken, optionalAuthenticateToken } from "../middlewares/auth.middleware.js";
 
 import {
   getAll,
@@ -19,22 +19,22 @@ import {
 
 const router = express.Router();
 
-router.get("/feed", getFeed);
+router.get("/feed", authenticateToken, getFeed);
 router.get("/explore", getExplore);
 router.get("/category/:category", getByCategory);
 router.get("/search", search);
 router.get("/trending", getTrending);
-router.get("/saved", getSaved);
+router.get("/saved", authenticateToken, getSaved);
 
-router.post("/:id/like", likeProject);
-router.post("/:id/save", saveProject);
+router.post("/:id/like", authenticateToken, likeProject);
+router.post("/:id/save", authenticateToken, saveProject);
 
 router.get("/:id/comments", getProjectComments);
-router.post("/:id/comments", createProjectComment);
+router.post("/:id/comments", authenticateToken, createProjectComment);
 
-router.delete("/:id", deleteProject);
+router.delete("/:id", authenticateToken, deleteProject);
 
 router.get("/", getAll);
-router.post("/", optionalAuthenticateToken, create);
+router.post("/", authenticateToken, create);
 
 export default router;

@@ -27,10 +27,10 @@ export async function getUserByUsername(req, res, next) {
   try {
     const { username } = req.params;
 
-    let user = await userRepo.findByUsername(username);
+    const user = await userRepo.findByUsername(username);
 
     if (!user) {
-      user = await userRepo.findById(TEST_USER_ID);
+      return res.status(404).json({ message: "Usuário não encontrado" });
     }
 
     if (!user) {
@@ -94,7 +94,15 @@ export async function unfollowUser(req, res, next) {
 
 export async function getUserProjects(req, res, next) {
   try {
-    const projects = await projectService.getByUserId(TEST_USER_ID);
+    const { username } = req.params;
+
+    const user = await userRepo.findByUsername(username);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    const projects = await projectService.getByUserId(user.id);
 
     res.json(projects || []);
   } catch (err) {
