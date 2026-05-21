@@ -29,9 +29,11 @@ export async function findSavedByUserId(userId, category) {
   `;
   const params = [userId];
 
-  const query = category
-    ? `${baseQuery} AND p.category = $2 ORDER BY s.created_at DESC`
-    : `${baseQuery} ORDER BY s.created_at DESC`;
+  let query = `${baseQuery} ORDER BY s.created_at DESC`;
+  if (category) {
+    params.push(category);
+    query = `${baseQuery} AND p.category = $2 ORDER BY s.created_at DESC`;
+  }
 
   return repository.query(query, params);
 }
