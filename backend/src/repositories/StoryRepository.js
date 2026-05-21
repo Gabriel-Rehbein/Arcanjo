@@ -3,15 +3,16 @@ import StorySchema from "../entities/Story.js";
 
 export async function findAll() {
   const repository = await getRepository(StorySchema);
-  return repository.find();
+  return repository.find({ relations: ["user"] });
 }
 
 export async function findByUserId(userId) {
   const repository = await getRepository(StorySchema);
-  return repository.find({ where: { user_id: userId } });
+  return repository.find({ where: { user_id: userId }, relations: ["user"] });
 }
 
 export async function create(story) {
   const repository = await getRepository(StorySchema);
-  return repository.save(story);
+  const savedStory = await repository.save(story);
+  return repository.findOne({ where: { id: savedStory.id }, relations: ["user"] });
 }

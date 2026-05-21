@@ -5,6 +5,7 @@ import { apiFetch } from '../utils/api';
 export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [storyData, setStoryData] = useState({ image_url: '', content: '' });
+  const [selectedStory, setSelectedStory] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const fallbackStories = [
@@ -23,6 +24,8 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
       setIsCreateModalOpen(true);
       return;
     }
+
+    setSelectedStory(story);
 
     if (onOpenStory) {
       onOpenStory(story);
@@ -66,8 +69,11 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
           >
             <div className={styles.avatarRing}>
               <img
-                src={story.avatar_url || story.user?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
+                src={story.avatar_url || story.user?.avatar_url || '/img/logoaba.png'}
                 alt={story.username || story.user?.username || 'Story'}
+                onError={(e) => {
+                  e.currentTarget.src = '/img/logoaba.png';
+                }}
               />
             </div>
 
@@ -77,6 +83,28 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
           </button>
         ))}
       </section>
+
+      {selectedStory && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedStory(null)}>
+          <div className={styles.storyViewer} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={() => setSelectedStory(null)}
+            >
+              ×
+            </button>
+            <img
+              src={selectedStory.image_url}
+              alt={selectedStory.user?.username ? `${selectedStory.user.username} Story` : 'Story'}
+            />
+            <div className={styles.storyMeta}>
+              <strong>{selectedStory.user?.username || 'usuário'}</strong>
+              {selectedStory.content && <p>{selectedStory.content}</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       {isCreateModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsCreateModalOpen(false)}>

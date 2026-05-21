@@ -27,4 +27,14 @@ export default new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
+  relations: {
+    user: {
+      type: "many-to-one",
+      target: "User",
+      joinColumn: {
+        name: "user_id",
+      },
+      nullable: false,
+    },
+  },
 });
