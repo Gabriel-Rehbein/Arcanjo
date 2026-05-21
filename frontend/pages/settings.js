@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import FooterNav from "../components/FooterNav";
-import { getUser, getToken } from "../utils/auth";
+import { getUser, getToken, logout } from "../utils/auth";
 import { useRouter } from "next/router";
 
 export default function SettingsPage() {
@@ -27,8 +27,7 @@ export default function SettingsPage() {
   }
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     router.replace("/");
   }
 

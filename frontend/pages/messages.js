@@ -126,10 +126,16 @@ export default function Messages() {
             />
 
             <div className={styles.conversations}>
-              {loading && <p>Carregando conversas...</p>}
+              {loading && (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                  <p>Carregando conversas...</p>
+                </div>
+              )}
 
               {!loading && conversations.length === 0 && (
-                <p>Nenhuma conversa encontrada.</p>
+                <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                  <p>Nenhuma conversa encontrada.</p>
+                </div>
               )}
 
               {conversations.map((conv) => (
@@ -140,15 +146,19 @@ export default function Messages() {
                     selectedUser?.id === conv.id ? styles.active : ''
                   }`}
                   onClick={() => handleSelectUser(conv)}
+                  title={conv.full_name || conv.username}
                 >
                   <img
                     src={conv.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
                     alt={conv.username}
+                    loading="lazy"
                   />
 
                   <div className={styles.info}>
                     <h4>{conv.full_name || conv.username}</h4>
-                    <p>{conv.last_message || 'Sem mensagens ainda'}</p>
+                    <p title={conv.last_message || 'Sem mensagens ainda'}>
+                      {conv.last_message || 'Sem mensagens ainda'}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -171,26 +181,37 @@ export default function Messages() {
                 </div>
 
                 <div className={styles.messagesBox}>
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`${styles.message} ${
-                        msg.is_own ? styles.own : styles.other
-                      }`}
-                    >
-                      <p>{msg.content}</p>
-
-                      <span className={styles.time}>
-                        {new Date(msg.created_at).toLocaleTimeString('pt-BR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-
-                        {msg.sending && ' • enviando...'}
-                        {msg.error && ' • erro'}
-                      </span>
+                  {messages.length === 0 ? (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      color: '#94a3b8',
+                      marginTop: 'auto',
+                      marginBottom: 'auto'
+                    }}>
+                      <p>Inicie a conversa enviando a primeira mensagem</p>
                     </div>
-                  ))}
+                  ) : (
+                    messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`${styles.message} ${
+                          msg.is_own ? styles.own : styles.other
+                        }`}
+                      >
+                        <p>{msg.content}</p>
+
+                        <span className={styles.time}>
+                          {new Date(msg.created_at).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+
+                          {msg.sending && ' • enviando...'}
+                          {msg.error && ' • erro'}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <form className={styles.messageForm} onSubmit={handleSendMessage}>
@@ -208,8 +229,9 @@ export default function Messages() {
               </>
             ) : (
               <div className={styles.empty}>
+                <div style={{ fontSize: '48px', marginBottom: '12px' }}>💬</div>
                 <h3>Selecione uma conversa</h3>
-                <p>Escolha alguém para começar a conversar.</p>
+                <p>Escolha alguém da lista para começar a conversar.</p>
               </div>
             )}
           </section>

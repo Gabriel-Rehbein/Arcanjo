@@ -26,7 +26,12 @@ export default function Profile() {
 
   useEffect(() => {
     const currentUser = getUser();
-    const targetUsername = username || currentUser || "usuario";
+    const targetUsername = username || currentUser;
+
+    if (!targetUsername) {
+      router.push('/feed');
+      return;
+    }
 
     setProfileUsername(targetUsername);
     setIsOwnProfile(targetUsername === currentUser);

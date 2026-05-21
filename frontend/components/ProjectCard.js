@@ -19,7 +19,12 @@ export default function ProjectCard({ project, onLike, onSave }) {
     project?.user?.username ||
     project?.author?.username ||
     project?.username ||
-    "usuario";
+    "Usuário";
+
+  const displayName =
+    project?.user?.full_name ||
+    project?.author?.full_name ||
+    username;
 
   async function handleLikeClick() {
     setLikedAnimation(true);
@@ -78,7 +83,7 @@ export default function ProjectCard({ project, onLike, onSave }) {
             />
 
             <div>
-              <strong>{project?.user?.full_name || username}</strong>
+              <strong>{displayName}</strong>
               <span>@{username}</span>
             </div>
           </div>
@@ -200,7 +205,11 @@ export default function ProjectCard({ project, onLike, onSave }) {
                   />
 
                   <div>
-                    <strong>@{comment?.user?.username || "usuario"}</strong>
+                    <strong>
+                      {comment?.user?.username
+                        ? `@${comment.user.username}`
+                        : comment?.user?.full_name || "Usuário"}
+                    </strong>
                     <p>{comment.content}</p>
                   </div>
                 </div>

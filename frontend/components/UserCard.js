@@ -8,9 +8,9 @@ export default function UserCard({ user, onFollow }) {
   const [isFollowing, setIsFollowing] = useState(Boolean(user?.is_following));
   const [followersCount, setFollowersCount] = useState(user?.followers_count || 0);
 
-  const username = user?.username || 'usuario';
+  const username = user?.username || 'Usuário';
   const fullName = user?.full_name || username;
-  const avatar = user?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar';
+  const avatar = user?.avatar_url || '/img/logoaba.png';
   const bio = user?.bio || 'Usuário da rede Arcanjo.';
 
   async function handleFollow(e) {

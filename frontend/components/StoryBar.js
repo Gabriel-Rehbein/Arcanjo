@@ -70,7 +70,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
             <div className={styles.avatarRing}>
               <img
                 src={story.avatar_url || story.user?.avatar_url || '/img/logoaba.png'}
-                alt={story.username || story.user?.username || 'Story'}
+                alt={story.username || story.user?.full_name || story.user?.username || 'Story'}
                 onError={(e) => {
                   e.currentTarget.src = '/img/logoaba.png';
                 }}
@@ -78,7 +78,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
             </div>
 
             <span>
-              {story.username || story.user?.username || 'usuário'}
+              {story.username || story.user?.full_name || story.user?.username || 'Usuário'}
             </span>
           </button>
         ))}
@@ -96,10 +96,10 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
             </button>
             <img
               src={selectedStory.image_url}
-              alt={selectedStory.user?.username ? `${selectedStory.user.username} Story` : 'Story'}
+              alt={selectedStory.user?.full_name || selectedStory.user?.username ? `${selectedStory.user?.full_name || selectedStory.user.username} Story` : 'Story'}
             />
             <div className={styles.storyMeta}>
-              <strong>{selectedStory.user?.username || 'usuário'}</strong>
+              <strong>{selectedStory.user?.full_name || selectedStory.user?.username || 'Usuário'}</strong>
               {selectedStory.content && <p>{selectedStory.content}</p>}
             </div>
           </div>

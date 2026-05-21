@@ -1,5 +1,6 @@
 import * as userRepo from "../repositories/UserRepository.js";
 import * as projectService from "../services/ProjectService.js";
+import * as followService from "../services/FollowService.js";
 
 const TEST_USER_ID = 1;
 
@@ -36,7 +37,56 @@ export async function getUserByUsername(req, res, next) {
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
 
-    res.json(sanitizeUser(user));
+    const followers_count = await followService.getFollowerCount(user.id);
+    const following_count = await followService.getFollowingCount(user.id);
+    const is_following = req.user ? await followService.isFollowing(req.user.id, user.id) : false;
+
+    const safe = sanitizeUser(user);
+
+    res.json({
+      ...safe,
+      followers_count,
+      following_count,
+      is_following,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function followUser(req, res, next) {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+    if (!targetId) return res.status(400).json({ message: "ID inválido" });
+
+    const followerId = req.user?.id || TEST_USER_ID;
+
+    await followService.follow(followerId, targetId);
+
+    const followers_count = await followService.getFollowerCount(targetId);
+    const following_count = await followService.getFollowingCount(followerId);
+    const is_following = await followService.isFollowing(followerId, targetId);
+
+    res.json({ success: true, followers_count, following_count, is_following });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function unfollowUser(req, res, next) {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+    if (!targetId) return res.status(400).json({ message: "ID inválido" });
+
+    const followerId = req.user?.id || TEST_USER_ID;
+
+    await followService.unfollow(followerId, targetId);
+
+    const followers_count = await followService.getFollowerCount(targetId);
+    const following_count = await followService.getFollowingCount(followerId);
+    const is_following = await followService.isFollowing(followerId, targetId);
+
+    res.json({ success: true, followers_count, following_count, is_following });
   } catch (err) {
     next(err);
   }

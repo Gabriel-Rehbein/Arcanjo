@@ -47,7 +47,10 @@ function normalizeProjects(projects) {
 export async function getAll() {
   const cached = getCache("projects");
 
-  if (cached) return cached;
+  if (cached) {
+    const hasUsers = Array.isArray(cached) && cached.every((p) => p.user || p.author || p.user_id);
+    if (hasUsers) return cached;
+  }
 
   const data = await repo.findAll();
   const normalized = normalizeProjects(data);
@@ -121,7 +124,10 @@ export async function getSaved(userId = TEST_USER_ID, category) {
 export async function getFeed(userId = TEST_USER_ID) {
   const cached = getCache("feed");
 
-  if (cached) return cached;
+  if (cached) {
+    const hasUsers = Array.isArray(cached) && cached.every((p) => p.user || p.author || p.user_id);
+    if (hasUsers) return cached;
+  }
 
   const data = await repo.findAll(userId || TEST_USER_ID);
   const normalized = normalizeProjects(data);

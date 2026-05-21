@@ -70,7 +70,8 @@ export async function searchProjects(query) {
 
 export async function create(project) {
   const repository = await getRepository(ProjectSchema);
-  return repository.save(project);
+  const saved = await repository.save(project);
+  return repository.findOne({ where: { id: saved.id }, relations: ["user"] });
 }
 
 export async function save(project) {

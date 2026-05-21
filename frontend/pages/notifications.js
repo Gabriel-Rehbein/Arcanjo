@@ -145,13 +145,14 @@ export default function Notifications() {
                   onClick={() => markAsRead(notif.id)}
                 >
                   <img
-                    src={notif.from_user?.avatar_url || 'https://via.placeholder.com/150x150.png?text=Avatar'}
-                    alt={notif.from_user?.username || 'Usuário'}
+                    src={notif.from_user?.avatar_url || '/img/logoaba.png'}
+                    alt={notif.from_user?.full_name || notif.from_user?.username || 'Usuário'}
+                    onError={(e) => (e.currentTarget.src = '/img/logoaba.png')}
                   />
 
                   <div className={styles.content}>
                     <p>
-                      <strong>{notif.from_user?.username || 'Usuário'}</strong>{' '}
+                      <strong>{notif.from_user?.full_name || notif.from_user?.username || 'Usuário'}</strong>{' '}
                       {notif.message || 'interagiu com você.'}
                     </p>
 
