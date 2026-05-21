@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/components/userCard.module.css';
+import { apiFetch } from '../utils/api';
 
 export default function UserCard({ user, onFollow }) {
   const router = useRouter();
@@ -16,12 +17,21 @@ export default function UserCard({ user, onFollow }) {
   async function handleFollow(e) {
     e.stopPropagation();
 
-    if (onFollow) {
-      await onFollow(user);
+    try {
+      if (isFollowing) {
+        const res = await apiFetch(`/users/${user.id}/unfollow`, { method: 'POST' });
+        setIsFollowing(Boolean(res.is_following));
+        setFollowersCount(res.followers_count || Math.max(followersCount - 1, 0));
+        if (onFollow) onFollow({ id: user.id, ...res });
+      } else {
+        const res = await apiFetch(`/users/${user.id}/follow`, { method: 'POST' });
+        setIsFollowing(Boolean(res.is_following));
+        setFollowersCount(res.followers_count || (followersCount + 1));
+        if (onFollow) onFollow({ id: user.id, ...res });
+      }
+    } catch (err) {
+      console.error('Erro follow/unfollow', err);
     }
-
-    setIsFollowing((prev) => !prev);
-    setFollowersCount((prev) => (isFollowing ? Math.max(prev - 1, 0) : prev + 1));
   }
 
   function openProfile() {
@@ -52,7 +62,7 @@ export default function UserCard({ user, onFollow }) {
 
       <div className={styles.actions}>
         <button type="button" onClick={handleFollow}>
-          {isFollowing ? 'Seguindo' : 'Seguir'}
+          {isFollowing ? 'Deixar de seguir' : 'Seguir'}
         </button>
 
         <button type="button" onClick={openMessages}>

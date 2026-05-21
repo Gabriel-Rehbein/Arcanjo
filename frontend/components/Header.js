@@ -22,16 +22,14 @@ export default function Header() {
 
     if (!term) return;
 
-    router.push(`/explore?search=${encodeURIComponent(term)}`);
-    setSearch('');
-  }
-
-  function handleSearch(e) {
-    e.preventDefault();
-
-    const term = search.trim();
-
-    if (!term) return;
+    try {
+      const raw = localStorage.getItem('recentSearches');
+      const arr = raw ? JSON.parse(raw) : [];
+      const updated = [term, ...arr.filter((t) => t !== term)].slice(0, 10);
+      localStorage.setItem('recentSearches', JSON.stringify(updated));
+    } catch (err) {
+      // ignore localStorage errors
+    }
 
     router.push(`/explore?search=${encodeURIComponent(term)}`);
     setSearch('');

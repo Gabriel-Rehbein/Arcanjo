@@ -124,6 +124,44 @@
   gap: 10px;
 }
 
+.recentSearches {
+  background: #ffffff;
+  border: 1px solid #e6edf3;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.recentSearches h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.recentList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.recentItem {
+  padding: 6px 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #374151;
+  font-weight: 500;
+  font-size: 13px;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.recentItem:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

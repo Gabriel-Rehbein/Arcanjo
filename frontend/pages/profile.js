@@ -153,7 +153,7 @@ export default function Profile() {
               <div className={styles.actions}>
                 {isOwnProfile ? (
                   <>
-                    <button onClick={() => router.push("/settings")}>
+                    <button onClick={() => router.push("/edit-profile")}>
                       Editar perfil
                     </button>
 

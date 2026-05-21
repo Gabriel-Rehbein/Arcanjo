@@ -17,6 +17,7 @@ export default function Explore() {
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState('projects');
+  const [recentSearches, setRecentSearches] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [orderBy, setOrderBy] = useState('recent');
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,16 @@ export default function Explore() {
 
   useEffect(() => {
     loadExplore();
-  }, [search, selectedCategory]);
+  }, [search, selectedCategory, filter]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('recentSearches');
+      setRecentSearches(raw ? JSON.parse(raw) : []);
+    } catch (err) {
+      setRecentSearches([]);
+    }
+  }, [search, filter]);
 
   async function loadExplore() {
     try {
@@ -42,6 +52,9 @@ export default function Explore() {
           apiFetch(`/projects/search?q=${query}`),
           apiFetch(`/users/search?q=${query}`),
         ]);
+      } else if (filter === 'users') {
+        // show all users when on the Users tab and no search
+        usersData = await apiFetch('/users');
       } else if (selectedCategory !== 'all') {
         projectsData = await apiFetch(`/projects/category/${selectedCategory}`);
       } else {
@@ -55,6 +68,11 @@ export default function Explore() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleUserFollow(updated) {
+    // updated is { id, followers_count, following_count, is_following }
+    setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
   }
 
   const sortedProjects = useMemo(() => {
@@ -98,7 +116,7 @@ export default function Explore() {
               </button>
             </div>
 
-            {!search && (
+            {filter === 'projects' && !search && (
               <div className={styles.categories}>
                 {categories.map((cat) => (
                   <button
@@ -152,15 +170,35 @@ export default function Explore() {
               )}
 
               {filter === 'users' && (
-                users.length ? (
-                  <div className={styles.usersList}>
-                    {users.map((user) => (
-                      <UserCard key={user.id} user={user} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className={styles.empty}>Nenhum usuário encontrado.</div>
-                )
+                <div>
+                  {recentSearches && recentSearches.length > 0 && (
+                    <div className={styles.recentSearches}>
+                      <h3>Buscas recentes</h3>
+                      <div className={styles.recentList}>
+                        {recentSearches.map((term) => (
+                          <button
+                            key={term}
+                            type="button"
+                            className={styles.recentItem}
+                            onClick={() => router.push(`/explore?search=${encodeURIComponent(term)}`)}
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {users.length ? (
+                    <div className={styles.usersList}>
+                      {users.map((user) => (
+                          <UserCard key={user.id} user={user} onFollow={handleUserFollow} />
+                        ))}
+                    </div>
+                  ) : (
+                    <div className={styles.empty}>Nenhum usuário encontrado.</div>
+                  )}
+                </div>
               )}
             </div>
           )}

@@ -27,3 +27,22 @@ export async function findById(id) {
     where: { id: Number(id) },
   });
 }
+
+export async function getAll(limit = 100, offset = 0) {
+  const repository = await getRepository(UserSchema);
+  return repository.find({
+    take: Number(limit),
+    skip: Number(offset),
+    order: { created_at: 'DESC' },
+  });
+}
+
+export async function update(id, fields) {
+  const repository = await getRepository(UserSchema);
+  const user = await repository.findOneBy({ id: Number(id) });
+  if (!user) return null;
+
+  Object.assign(user, fields);
+
+  return repository.save(user);
+}
