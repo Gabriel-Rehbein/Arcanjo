@@ -63,6 +63,38 @@
   padding: 8px 10px;
 }
 
+.moreMenuWrapper {
+  position: relative;
+}
+
+.moreMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22);
+  z-index: 10;
+}
+
+.deleteMenuItem {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #f8fafc;
+  text-align: left;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 16px;
+}
+
+.deleteMenuItem:hover {
+  background: rgba(59, 130, 246, 0.14);
+}
+
 .imageBox {
   width: 100%;
   aspect-ratio: 16 / 10;

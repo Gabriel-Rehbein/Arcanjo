@@ -5,6 +5,7 @@ import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/saved.module.css';
 import { apiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
+import { getUser } from '../utils/auth';
 
 export default function Saved() {
   useAuthGuard();
@@ -14,10 +15,12 @@ export default function Saved() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   const filters = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
 
   useEffect(() => {
+    setCurrentUser(getUser());
     loadSavedProjects();
   }, [filter]);
 
@@ -34,6 +37,17 @@ export default function Saved() {
       setError(err.message || 'Erro ao carregar projetos salvos.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteProject(projectId) {
+    if (!confirm('Deseja excluir esta publicação?')) return;
+
+    try {
+      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    } catch (err) {
+      alert(err.message || 'Erro ao excluir publicação.');
     }
   }
 
@@ -105,9 +119,18 @@ export default function Saved() {
 
           {!loading && !error && filteredProjects.length > 0 && (
             <div className={styles.projectsList}>
-              {filteredProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
+              {filteredProjects.map((project) => {
+                const ownerUsername = project?.user?.username || project?.author?.username || project?.username;
+                const isOwnProject = currentUser && ownerUsername === currentUser;
+
+                return (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onDelete={isOwnProject ? () => handleDeleteProject(project.id) : undefined}
+                  />
+                );
+              })}
             </div>
           )}
         </main>

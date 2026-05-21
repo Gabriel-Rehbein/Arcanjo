@@ -5,6 +5,7 @@ import StoryBar from '../components/StoryBar';
 import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/feed.module.css';
 import { apiFetch } from '../utils/api';
+import { getUser } from '../utils/auth';
 
 export default function Feed() {
 
@@ -12,9 +13,11 @@ export default function Feed() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     loadFeed();
+    setCurrentUser(getUser());
   }, []);
 
   async function loadFeed() {
@@ -74,6 +77,17 @@ export default function Feed() {
     }
   }
 
+  async function handleDeleteProject(projectId) {
+    if (!confirm('Deseja excluir esta publicação?')) return;
+
+    try {
+      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    } catch (err) {
+      alert(err.message || 'Erro ao excluir publicação.');
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Header />
@@ -102,14 +116,20 @@ export default function Feed() {
 
           {!loading && !error && projects.length > 0 && (
             <div className={styles.posts}>
-              {projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  onLike={() => handleLike(project.id)}
-                  onSave={() => handleSave(project.id)}
-                />
-              ))}
+              {projects.map((project) => {
+                const ownerUsername = project?.user?.username || project?.author?.username || project?.username;
+                const isOwnProject = currentUser && ownerUsername === currentUser;
+
+                return (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onLike={() => handleLike(project.id)}
+                    onSave={() => handleSave(project.id)}
+                    onDelete={isOwnProject ? () => handleDeleteProject(project.id) : undefined}
+                  />
+                );
+              })}
             </div>
           )}
         </main>

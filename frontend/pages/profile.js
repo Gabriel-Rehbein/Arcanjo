@@ -224,16 +224,10 @@ export default function Profile() {
                 <div className={styles.projectsList}>
                   {projects.map((project) => (
                     <div key={project.id} className={styles.projectWrapper}>
-                      {isOwnProfile && (
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDeleteProject(project.id)}
-                        >
-                          Excluir publicação
-                        </button>
-                      )}
-
-                      <ProjectCard project={project} />
+                      <ProjectCard
+                        project={project}
+                        onDelete={() => handleDeleteProject(project.id)}
+                      />
                     </div>
                   ))}
                 </div>

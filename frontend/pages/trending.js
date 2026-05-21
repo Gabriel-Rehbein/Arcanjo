@@ -5,6 +5,7 @@ import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/trending.module.css';
 import { apiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
+import { getUser } from '../utils/auth';
 
 export default function Trending() {
   useAuthGuard();
@@ -13,6 +14,7 @@ export default function Trending() {
   const [filter, setFilter] = useState('today');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   const filters = [
     { value: 'today', label: 'Hoje' },
@@ -22,6 +24,7 @@ export default function Trending() {
   ];
 
   useEffect(() => {
+    setCurrentUser(getUser());
     loadTrending();
   }, [filter]);
 
@@ -36,6 +39,17 @@ export default function Trending() {
       setError(err.message || 'Erro ao carregar tendências.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteProject(projectId) {
+    if (!confirm('Deseja excluir esta publicação?')) return;
+
+    try {
+      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    } catch (err) {
+      alert(err.message || 'Erro ao excluir publicação.');
     }
   }
 
@@ -82,12 +96,20 @@ export default function Trending() {
 
           {!loading && !error && projects.length > 0 && (
             <div className={styles.projectsList}>
-              {projects.map((project, index) => (
-                <div key={project.id} className={styles.trendingItem}>
-                  <div className={styles.rank}>#{index + 1}</div>
-                  <ProjectCard project={project} />
-                </div>
-              ))}
+              {projects.map((project, index) => {
+                const ownerUsername = project?.user?.username || project?.author?.username || project?.username;
+                const isOwnProject = currentUser && ownerUsername === currentUser;
+
+                return (
+                  <div key={project.id} className={styles.trendingItem}>
+                    <div className={styles.rank}>#{index + 1}</div>
+                    <ProjectCard
+                      project={project}
+                      onDelete={isOwnProject ? () => handleDeleteProject(project.id) : undefined}
+                    />
+                  </div>
+                );
+              })}
             </div>
           )}
         </main>

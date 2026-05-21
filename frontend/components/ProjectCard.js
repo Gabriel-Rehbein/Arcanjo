@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/components/projectCard.module.css";
 import { apiFetch } from "../utils/api";
+import { getUser } from "../utils/auth";
 
-export default function ProjectCard({ project, onLike, onSave }) {
+export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const [likedAnimation, setLikedAnimation] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const currentUser = getUser();
+  const ownerUsername = project?.user?.username || project?.author?.username || project?.username || null;
+  const isOwnProject = currentUser && ownerUsername === currentUser;
 
   const image = project?.image_url || "/img/logoaba.png";
   const avatar =
@@ -88,9 +94,32 @@ export default function ProjectCard({ project, onLike, onSave }) {
             </div>
           </div>
 
-          <button type="button" className={styles.moreButton}>
-            •••
-          </button>
+          {isOwnProject && onDelete && (
+            <div className={styles.moreMenuWrapper}>
+              <button
+                type="button"
+                className={styles.moreButton}
+                onClick={() => setShowMenu((prev) => !prev)}
+              >
+                •••
+              </button>
+
+              {showMenu && (
+                <div className={styles.moreMenu}>
+                  <button
+                    type="button"
+                    className={styles.deleteMenuItem}
+                    onClick={() => {
+                      setShowMenu(false);
+                      onDelete();
+                    }}
+                  >
+                    Excluir publicação
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </header>
 
         <div className={styles.imageBox} onDoubleClick={handleLikeClick}>

@@ -7,6 +7,7 @@ import UserCard from '../components/UserCard';
 import styles from '../styles/pages/explore.module.css';
 import { apiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
+import { getUser } from '../utils/auth';
 
 export default function Explore() {
   useAuthGuard();
@@ -22,10 +23,12 @@ export default function Explore() {
   const [orderBy, setOrderBy] = useState('recent');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   const categories = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
 
   useEffect(() => {
+    setCurrentUser(getUser());
     loadExplore();
   }, [search, selectedCategory, filter]);
 
@@ -73,6 +76,17 @@ export default function Explore() {
   function handleUserFollow(updated) {
     // updated is { id, followers_count, following_count, is_following }
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
+  }
+
+  async function handleDeleteProject(projectId) {
+    if (!confirm('Deseja excluir esta publicação?')) return;
+
+    try {
+      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    } catch (err) {
+      alert(err.message || 'Erro ao excluir publicação.');
+    }
   }
 
   const sortedProjects = useMemo(() => {
@@ -160,9 +174,18 @@ export default function Explore() {
               {filter === 'projects' && (
                 sortedProjects.length ? (
                   <div className={styles.grid}>
-                    {sortedProjects.map((project) => (
-                      <ProjectCard key={project.id} project={project} />
-                    ))}
+                    {sortedProjects.map((project) => {
+                      const ownerUsername = project?.user?.username || project?.author?.username || project?.username;
+                      const isOwnProject = currentUser && ownerUsername === currentUser;
+
+                      return (
+                        <ProjectCard
+                          key={project.id}
+                          project={project}
+                          onDelete={isOwnProject ? () => handleDeleteProject(project.id) : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className={styles.empty}>Nenhum projeto encontrado.</div>
