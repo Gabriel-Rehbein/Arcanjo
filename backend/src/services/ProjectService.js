@@ -242,7 +242,8 @@ export async function deleteProject(projectId, userId = TEST_USER_ID) {
 }
 
 export async function getProjectComments(projectId) {
-  return [];
+  const comments = await commentRepo.findByProjectId(projectId);
+  return Array.isArray(comments) ? comments : [];
 }
 
 export async function createProjectComment(projectId, data, userId = TEST_USER_ID) {
@@ -258,11 +259,23 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
     throw { status: 400, message: "Comentário obrigatório" };
   }
 
-  return {
-    id: Date.now(),
-    project_id: fixedProjectId,
-    user_id: fixedUserId,
+  const project = await repo.findById(fixedProjectId);
+  if (!project) {
+    throw { status: 404, message: "Projeto não encontrado" };
+  }
+
+  const comment = await commentRepo.create({
     content,
-    created_at: new Date().toISOString(),
-  };
+    user: { id: fixedUserId },
+    project: { id: fixedProjectId },
+  });
+
+  project.comments_count = (project.comments_count || 0) + 1;
+  await repo.save(project);
+
+  setCache("projects", null);
+  setCache("feed", null);
+
+  const createdComment = await commentRepo.findById(comment.id);
+  return createdComment || comment;
 }

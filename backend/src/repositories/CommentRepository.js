@@ -15,3 +15,11 @@ export async function findByProjectId(projectId) {
     order: { created_at: "DESC" },
   });
 }
+
+export async function findById(id) {
+  const repository = await getRepository(CommentSchema);
+  return repository.findOne({
+    where: { id: Number(id) },
+    relations: ["user"],
+  });
+}

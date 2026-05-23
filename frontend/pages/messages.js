@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/messages.module.css';
@@ -8,12 +9,15 @@ import { useAuthGuard } from '../utils/useAuthGuard';
 export default function Messages() {
   useAuthGuard();
 
+  const router = useRouter();
   const [conversations, setConversations] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+
+  const { user: userQuery } = router.query;
 
   useEffect(() => {
     loadConversations();
@@ -51,6 +55,32 @@ export default function Messages() {
       console.error('Erro ao carregar mensagens:', err);
     }
   }
+
+  async function loadUserById(userId) {
+    try {
+      setLoading(true);
+      const user = await apiFetch(`/users/id/${userId}`);
+      setSelectedUser(user);
+      setMessages([]);
+      await loadMessages(userId, false);
+    } catch (err) {
+      console.error('Erro ao carregar usuário:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const selectedId = Number(userQuery);
+    if (!userQuery || Number.isNaN(selectedId)) return;
+
+    const existing = conversations.find((conv) => conv.id === selectedId);
+    if (existing) {
+      handleSelectUser(existing);
+    } else {
+      loadUserById(selectedId);
+    }
+  }, [userQuery, conversations]);
 
   function handleSelectUser(user) {
     setSelectedUser(user);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "../styles/components/projectCard.module.css";
 import { apiFetch } from "../utils/api";
-import { getUser } from "../utils/auth";
+import { getUser, getToken } from "../utils/auth";
 
 export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const [likedAnimation, setLikedAnimation] = useState(false);
@@ -9,6 +9,9 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(project?.comments_count || 0);
+  const [commentError, setCommentError] = useState("");
   const [showMenu, setShowMenu] = useState(false);
 
   const currentUser = getUser();
@@ -45,7 +48,9 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
     try {
       setLoadingComments(true);
       const data = await apiFetch(`/projects/${project.id}/comments`);
-      setComments(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setComments(list);
+      setCommentsCount(list.length || project?.comments_count || 0);
     } catch (err) {
       console.error("Erro ao carregar comentários:", err);
     } finally {
@@ -61,18 +66,31 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   async function sendComment() {
     const content = commentText.trim();
 
+    setCommentError("");
+
     if (!content) return;
 
+    if (!getToken()) {
+      setCommentError("Faça login para postar um comentário.");
+      window.location.href = "/";
+      return;
+    }
+
     try {
+      setSendingComment(true);
       const newComment = await apiFetch(`/projects/${project.id}/comments`, {
         method: "POST",
         body: JSON.stringify({ content }),
       });
 
       setComments((prev) => [newComment, ...prev]);
+      setCommentsCount((c) => Number(c || 0) + 1);
       setCommentText("");
     } catch (err) {
       console.error("Erro ao comentar:", err);
+      setCommentError(err.message || "Erro ao enviar comentário.");
+    } finally {
+      setSendingComment(false);
     }
   }
 
@@ -181,7 +199,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
 
           <div className={styles.metrics}>
             <strong>{project?.likes_count || 0} curtidas</strong>
-            <span>{project?.comments_count || comments.length || 0} comentários</span>
+            <span>{commentsCount || comments.length || 0} comentários</span>
           </div>
 
           <h3>{project?.title || "Projeto sem título"}</h3>
@@ -246,6 +264,9 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
             </div>
 
             <div className={styles.commentModalForm}>
+              {commentError && (
+                <p className={styles.commentError}>{commentError}</p>
+              )}
               <input
                 type="text"
                 placeholder="Adicione um comentário..."
@@ -256,8 +277,12 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
                 }}
               />
 
-              <button type="button" onClick={sendComment}>
-                Publicar
+              <button
+                type="button"
+                onClick={sendComment}
+                disabled={sendingComment || !commentText.trim()}
+              >
+                {sendingComment ? "Enviando..." : "Publicar"}
               </button>
             </div>
           </div>

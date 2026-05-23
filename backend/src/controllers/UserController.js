@@ -25,6 +25,34 @@ function sanitizeUser(user) {
   };
 }
 
+export async function getUserById(req, res, next) {
+  try {
+    const userId = Number(req.params.id);
+    if (!userId) return res.status(400).json({ message: "ID inválido" });
+
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    const followers_count = await followService.getFollowerCount(user.id);
+    const following_count = await followService.getFollowingCount(user.id);
+    const is_following = req.user ? await followService.isFollowing(req.user.id, user.id) : false;
+
+    const safe = sanitizeUser(user);
+
+    res.json({
+      ...safe,
+      followers_count,
+      following_count,
+      is_following,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getUserByUsername(req, res, next) {
   try {
     const { username } = req.params;
