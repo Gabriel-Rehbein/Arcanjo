@@ -6,13 +6,24 @@ const { Client } = pkg;
 dotenv.config();
 
 async function resetDatabase() {
-  const client = new Client({
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "senacrs",
-    host: process.env.DB_HOST || "localhost",
-    port: Number(process.env.DB_PORT || 5432),
-    database: process.env.DB_NAME || "arcanjo",
-  });
+  const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
+const sslEnabled = process.env.DB_SSL === "true" || process.env.NODE_ENV === "production";
+
+const clientConfig = databaseUrl
+  ? {
+      connectionString: databaseUrl,
+      ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+    }
+  : {
+      user: process.env.DB_USER || "postgres",
+      password: process.env.DB_PASSWORD || "senacrs",
+      host: process.env.DB_HOST || "localhost",
+      port: Number(process.env.DB_PORT || 5432),
+      database: process.env.DB_NAME || "arcanjo",
+      ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+    };
+
+const client = new Client(clientConfig);
 
   try {
     console.log("🔥 Conectando ao banco de dados...");

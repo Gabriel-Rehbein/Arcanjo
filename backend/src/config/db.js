@@ -13,13 +13,18 @@ import MessageSchema from "../entities/Message.js";
 
 dotenv.config();
 
+const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
+const sslEnabled = process.env.DB_SSL === "true" || process.env.NODE_ENV === "production";
+
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT || 5432),
-  username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "senacrs",
-  database: process.env.DB_NAME || "arcanjo",
+  url: databaseUrl || undefined,
+  host: databaseUrl ? undefined : process.env.DB_HOST || "localhost",
+  port: databaseUrl ? undefined : Number(process.env.DB_PORT || 5432),
+  username: databaseUrl ? undefined : process.env.DB_USER || "postgres",
+  password: databaseUrl ? undefined : process.env.DB_PASSWORD || "senacrs",
+  database: databaseUrl ? undefined : process.env.DB_NAME || "arcanjo",
+  ssl: sslEnabled ? { rejectUnauthorized: false } : false,
   synchronize: false, // Desabilitado para evitar queries simultâneas
   logging: false,
   entities: [UserSchema, ProjectSchema, LikeSchema, CommentSchema, FollowSchema, NotificationSchema, StorySchema, SaveSchema, MessageSchema],
