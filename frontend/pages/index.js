@@ -1,7 +1,8 @@
 
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { setToken, setUser, getToken } from '../utils/auth';
 
 export default function LoginPage() {
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const api = useApiFetch();
 
   useEffect(() => {
     if (getToken()) {
@@ -21,7 +23,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const data = await apiFetch('/auth/login', {
+      const data = await api('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       });
@@ -51,7 +53,7 @@ export default function LoginPage() {
         </form>
         {error && <div className="alert">{error}</div>}
         <p style={{ marginTop: '1rem' }}>
-          Não tem conta? <a href="/register">Crie agora</a>
+          Não tem conta? <Link href="/register">Crie agora</Link>
         </p>
       </div>
     </div>

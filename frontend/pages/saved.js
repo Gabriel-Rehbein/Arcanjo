@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/saved.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { getUser } from '../utils/auth';
 
@@ -16,6 +17,7 @@ export default function Saved() {
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const api = useApiFetch();
 
   const filters = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
 
@@ -30,7 +32,7 @@ export default function Saved() {
       setError('');
 
       const url = filter === 'all' ? '/projects/saved' : `/projects/saved?category=${filter}`;
-      const data = await apiFetch(url);
+      const data = await api(url);
 
       setProjects(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -44,7 +46,7 @@ export default function Saved() {
     if (!confirm('Deseja excluir esta publicação?')) return;
 
     try {
-      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      await api(`/projects/${projectId}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
     } catch (err) {
       alert(err.message || 'Erro ao excluir publicação.');
@@ -113,7 +115,7 @@ export default function Saved() {
           {!loading && !error && filteredProjects.length === 0 && (
             <div className={styles.empty}>
               <p>Nenhum projeto salvo encontrado.</p>
-              <a href="/explore">Explorar projetos →</a>
+              <Link href="/explore">Explorar projetos →</Link>
             </div>
           )}
 

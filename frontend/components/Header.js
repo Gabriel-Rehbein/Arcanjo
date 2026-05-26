@@ -75,12 +75,12 @@ export default function Header() {
         <button
           type="button"
           className={styles.profileBtn}
-          onClick={() => router.push('/profile')}
+          onClick={() => router.push(username ? `/profile?username=${username}` : '/profile')}
         >
           <img
             src="/img/logoaba.png"
             alt={username || 'Perfil'}
-            onError={(e) => (e.target.src = "/img/logoaba.png")}
+            onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
           />
           <span>{username || 'Perfil'}</span>
         </button>

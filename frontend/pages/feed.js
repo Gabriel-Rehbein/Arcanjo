@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import StoryBar from '../components/StoryBar';
 import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/feed.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { getUser } from '../utils/auth';
 
 export default function Feed() {
@@ -14,6 +14,7 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const api = useApiFetch();
 
   useEffect(() => {
     loadFeed();
@@ -26,8 +27,8 @@ export default function Feed() {
       setError('');
 
       const [projectsData, storiesData] = await Promise.all([
-        apiFetch('/projects/feed'),
-        apiFetch('/stories/feed'),
+        api('/projects/feed'),
+        api('/stories/feed'),
       ]);
 
       setProjects(Array.isArray(projectsData) ? projectsData : []);
@@ -41,7 +42,7 @@ export default function Feed() {
 
   async function handleLike(projectId) {
     try {
-      await apiFetch(`/projects/${projectId}/like`, { method: 'POST' });
+      await api(`/projects/${projectId}/like`, { method: 'POST' });
 
       setProjects((prev) =>
         prev.map((project) =>
@@ -63,7 +64,7 @@ export default function Feed() {
 
   async function handleSave(projectId) {
     try {
-      await apiFetch(`/projects/${projectId}/save`, { method: 'POST' });
+      await api(`/projects/${projectId}/save`, { method: 'POST' });
 
       setProjects((prev) =>
         prev.map((project) =>
@@ -81,7 +82,7 @@ export default function Feed() {
     if (!confirm('Deseja excluir esta publicação?')) return;
 
     try {
-      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      await api(`/projects/${projectId}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
     } catch (err) {
       alert(err.message || 'Erro ao excluir publicação.');

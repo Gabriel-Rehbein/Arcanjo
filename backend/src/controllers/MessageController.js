@@ -41,3 +41,32 @@ export async function sendMessage(req, res, next) {
     next(err);
   }
 }
+
+export async function editMessage(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Autenticação necessária" });
+
+    const messageId = Number(req.params.messageId);
+    const { content } = req.body || {};
+
+    const message = await messageService.editMessage(userId, messageId, String(content || "").trim());
+    res.json(message);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteMessage(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Autenticação necessária" });
+
+    const messageId = Number(req.params.messageId);
+
+    await messageService.deleteMessage(userId, messageId);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}

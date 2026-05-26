@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import styles from '../styles/components/storyBar.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 
 export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [storyData, setStoryData] = useState({ image_url: '', content: '' });
   const [selectedStory, setSelectedStory] = useState(null);
   const [loading, setLoading] = useState(false);
+  const api = useApiFetch();
+  const router = useRouter();
 
   const fallbackStories = [
     {
@@ -41,7 +44,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
 
     setLoading(true);
     try {
-      await apiFetch('/stories', {
+await api('/stories', {
         method: 'POST',
         body: JSON.stringify(storyData),
       });
@@ -77,9 +80,32 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
               />
             </div>
 
-            <span>
-              {story.username || story.user?.full_name || story.user?.username || 'Usuário'}
-            </span>
+            <div className={styles.storyInfo}>
+              <span>
+                {story.username || story.user?.full_name || story.user?.username || 'Usuário'}
+              </span>
+              {!story.isCreate && (
+                <span
+                  className={styles.storyProfileButton}
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const userToView = story.user?.username || story.username;
+                    if (userToView) router.push(`/profile?username=${userToView}`);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      const userToView = story.user?.username || story.username;
+                      if (userToView) router.push(`/profile?username=${userToView}`);
+                    }
+                  }}
+                >
+                  Perfil
+                </span>
+              )}
+            </div>
           </button>
         ))}
       </section>

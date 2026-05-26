@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar';
 import ProjectCard from '../components/ProjectCard';
 import UserCard from '../components/UserCard';
 import styles from '../styles/pages/explore.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { getUser } from '../utils/auth';
 
@@ -24,6 +24,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const api = useApiFetch();
 
   const categories = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
 
@@ -52,16 +53,16 @@ export default function Explore() {
       if (search) {
         const query = encodeURIComponent(search);
         [projectsData, usersData] = await Promise.all([
-          apiFetch(`/projects/search?q=${query}`),
-          apiFetch(`/users/search?q=${query}`),
+          api(`/projects/search?q=${query}`),
+          api(`/users/search?q=${query}`),
         ]);
       } else if (filter === 'users') {
         // show all users when on the Users tab and no search
-        usersData = await apiFetch('/users');
+        usersData = await api('/users');
       } else if (selectedCategory !== 'all') {
-        projectsData = await apiFetch(`/projects/category/${selectedCategory}`);
+        projectsData = await api(`/projects/category/${selectedCategory}`);
       } else {
-        projectsData = await apiFetch('/projects/explore');
+        projectsData = await api('/projects/explore');
       }
 
       setProjects(Array.isArray(projectsData) ? projectsData : []);
@@ -82,7 +83,7 @@ export default function Explore() {
     if (!confirm('Deseja excluir esta publicação?')) return;
 
     try {
-      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      await api(`/projects/${projectId}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
     } catch (err) {
       alert(err.message || 'Erro ao excluir publicação.');

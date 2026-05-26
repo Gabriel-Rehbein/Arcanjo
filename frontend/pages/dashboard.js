@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import FooterNav from '../components/FooterNav';
 import { getUser, getToken } from '../utils/auth';
 import { useRouter } from 'next/router';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import styles from '../styles/pages/dashboard.module.css';
 
 export default function DashboardPage() {
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const api = useApiFetch();
 
   useEffect(() => {
     if (!getToken()) {
@@ -39,8 +40,8 @@ export default function DashboardPage() {
       setError('');
 
       const [profileData, projectsData] = await Promise.all([
-        apiFetch(`/users/${username}`),
-        apiFetch(`/users/${username}/projects`),
+        api(`/users/${username}`),
+        api(`/users/${username}/projects`),
       ]);
 
       setProfile(profileData);

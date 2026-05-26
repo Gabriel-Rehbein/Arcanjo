@@ -10,6 +10,7 @@ function sanitizeUser(user) {
   if (!user) return null;
 
   const { password, ...safeUser } = user;
+  void password;
 
   return {
     id: safeUser.id,

@@ -19,8 +19,57 @@ export async function getMessages(userId, otherUserId) {
   const messages = await repo.findMessagesBetween(userId, otherUserId);
   return messages.map((message) => ({
     ...message,
+    content: message.is_deleted ? '[Mensagem removida]' : message.content,
     is_own: message.sender_id === userId,
   }));
+}
+
+export async function editMessage(userId, messageId, content) {
+  if (!userId) {
+    throw { status: 401, message: 'Sem token' };
+  }
+
+  if (!messageId || !content || !content.trim()) {
+    throw { status: 400, message: 'Conteúdo de mensagem inválido' };
+  }
+
+  const message = await repo.findById(messageId);
+  if (!message) {
+    throw { status: 404, message: 'Mensagem não encontrada' };
+  }
+
+  if (message.sender_id !== userId) {
+    throw { status: 403, message: 'Ação não autorizada' };
+  }
+
+  if (message.is_deleted) {
+    throw { status: 400, message: 'Não é possível editar uma mensagem removida' };
+  }
+
+  await repo.editMessageContent(messageId, content);
+
+  return repo.findById(messageId);
+}
+
+export async function deleteMessage(userId, messageId) {
+  if (!userId) {
+    throw { status: 401, message: 'Sem token' };
+  }
+
+  if (!messageId) {
+    throw { status: 400, message: 'ID de mensagem inválido' };
+  }
+
+  const message = await repo.findById(messageId);
+  if (!message) {
+    throw { status: 404, message: 'Mensagem não encontrada' };
+  }
+
+  if (message.sender_id !== userId) {
+    throw { status: 403, message: 'Ação não autorizada' };
+  }
+
+  return repo.softDeleteMessage(messageId);
 }
 
 export async function sendMessage(senderId, receiverId, content) {

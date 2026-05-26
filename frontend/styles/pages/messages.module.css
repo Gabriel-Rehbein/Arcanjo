@@ -258,6 +258,99 @@
   animation: slideIn 0.3s ease;
 }
 
+.editBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editInput {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  resize: vertical;
+}
+
+.editActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancelBtn,
+.saveBtn,
+.iconBtn {
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.saveBtn {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.cancelBtn:hover,
+.saveBtn:hover,
+.iconBtn:hover {
+  opacity: 0.9;
+}
+
+.messageMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.messageActions {
+  display: flex;
+  gap: 6px;
+}
+
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  background: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+}
+
+.emojiPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.emojiButton {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.emojiButton:hover {
+  background: #f8fafc;
+  border-color: #6366f1;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;

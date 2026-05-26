@@ -29,7 +29,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [UserSchema, ProjectSchema, LikeSchema, CommentSchema, FollowSchema, NotificationSchema, StorySchema, SaveSchema, MessageSchema],
   extra: {
-    max: 1, // Limitar a 1 conexão para evitar queries simultâneas
+    max: 10, // Permite conexões concorrentes em carga moderada
   },
 });
 

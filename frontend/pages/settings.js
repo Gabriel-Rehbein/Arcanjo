@@ -51,7 +51,7 @@ export default function SettingsPage() {
             </select>
           </label>
 
-          <button type="button" onClick={() => router.push("/profile")}>
+<button type="button" onClick={() => router.push(`/profile?username=${username}`)}>
             Ver perfil
           </button>
 

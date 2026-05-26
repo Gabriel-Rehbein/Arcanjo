@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/notifications.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function Notifications() {
@@ -12,6 +12,7 @@ export default function Notifications() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const api = useApiFetch();
 
   const filters = [
     { value: 'all', label: 'Tudo' },
@@ -36,7 +37,7 @@ export default function Notifications() {
       setError('');
 
       const url = filter === 'all' ? '/notifications' : `/notifications?type=${filter}`;
-      const data = await apiFetch(url);
+      const data = await api(url);
 
       setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -48,7 +49,7 @@ export default function Notifications() {
 
   async function markAsRead(notifId) {
     try {
-      await apiFetch(`/notifications/${notifId}/read`, { method: 'PUT' });
+      await api(`/notifications/${notifId}/read`, { method: 'PUT' });
 
       setNotifications((prev) =>
         prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n))
@@ -60,7 +61,7 @@ export default function Notifications() {
 
   async function markAllAsRead() {
     try {
-      await apiFetch('/notifications/read-all', { method: 'PUT' });
+      await api('/notifications/read-all', { method: 'PUT' });
 
       setNotifications((prev) =>
         prev.map((notification) => ({ ...notification, is_read: true }))

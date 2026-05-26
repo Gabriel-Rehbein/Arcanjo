@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 
 export default function CreateProject() {
 
@@ -20,6 +20,7 @@ export default function CreateProject() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const api = useApiFetch();
 
   const categories = [
     'design',
@@ -83,7 +84,7 @@ export default function CreateProject() {
           .filter(Boolean),
       };
 
-      await apiFetch('/projects', {
+      await api('/projects', {
         method: 'POST',
         body: JSON.stringify(payload),
       });

@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ProjectCard from "../components/ProjectCard";
 import styles from "../styles/pages/profile.module.css";
-import { apiFetch } from "../utils/api";
+import { useApiFetch } from "../utils/api";
 import { getUser } from "../utils/auth";
 
 export default function Profile() {
@@ -19,6 +19,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("projects");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const api = useApiFetch();
 
   const galleryProjects = useMemo(() => {
     return projects.filter((project) => project.image_url);
@@ -49,8 +50,8 @@ export default function Profile() {
       setError("");
 
       const [userData, projectsData] = await Promise.all([
-        apiFetch(`/users/${targetUsername}`),
-        apiFetch(`/users/${targetUsername}/projects`),
+        api(`/users/${targetUsername}`),
+        api(`/users/${targetUsername}/projects`),
       ]);
 
       setUserData(userData);
@@ -71,7 +72,7 @@ export default function Profile() {
         ? `/users/${user.id}/unfollow`
         : `/users/${user.id}/follow`;
 
-      await apiFetch(endpoint, { method: "POST" });
+      await api(endpoint, { method: "POST" });
 
       setIsFollowing((prev) => !prev);
 
@@ -90,7 +91,7 @@ export default function Profile() {
     if (!confirm("Deseja excluir esta publicação?")) return;
 
     try {
-      await apiFetch(`/projects/${projectId}`, {
+      await api(`/projects/${projectId}`, {
         method: "DELETE",
       });
 

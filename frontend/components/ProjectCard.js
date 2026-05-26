@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import Link from 'next/link';
 import styles from "../styles/components/projectCard.module.css";
-import { apiFetch } from "../utils/api";
+import { apiFetch, useApiFetch } from "../utils/api";
 import { getUser, getToken } from "../utils/auth";
 
 export default function ProjectCard({ project, onLike, onSave, onDelete }) {
@@ -35,6 +36,8 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
     project?.author?.full_name ||
     username;
 
+  const api = useApiFetch();
+
   async function handleLikeClick() {
     setLikedAnimation(true);
     setTimeout(() => setLikedAnimation(false), 750);
@@ -47,7 +50,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   async function loadComments() {
     try {
       setLoadingComments(true);
-      const data = await apiFetch(`/projects/${project.id}/comments`);
+      const data = await api(`/projects/${project.id}/comments`);
       const list = Array.isArray(data) ? data : [];
       setComments(list);
       setCommentsCount(list.length || project?.comments_count || 0);
@@ -78,7 +81,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
 
     try {
       setSendingComment(true);
-      const newComment = await apiFetch(`/projects/${project.id}/comments`, {
+      const newComment = await api(`/projects/${project.id}/comments`, {
         method: "POST",
         body: JSON.stringify({ content }),
       });
@@ -99,16 +102,24 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
       <article className={styles.card}>
         <header className={styles.header}>
           <div className={styles.userButton}>
-            <img
-              className={styles.avatar}
-              src={avatar}
-              alt={username}
-              onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
-            />
+            <Link href={`/profile?username=${username}`} legacyBehavior>
+              <a className={styles.userLink} onClick={(e) => e.stopPropagation()}>
+                <img
+                  className={styles.avatar}
+                  src={avatar}
+                  alt={username}
+                  onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+                />
+              </a>
+            </Link>
 
             <div>
-              <strong>{displayName}</strong>
-              <span>@{username}</span>
+              <Link href={`/profile?username=${username}`} legacyBehavior>
+                <a className={styles.nameLink} onClick={(e) => e.stopPropagation()}>
+                  <strong>{displayName}</strong>
+                  <span>@{username}</span>
+                </a>
+              </Link>
             </div>
           </div>
 
@@ -253,9 +264,15 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
 
                   <div>
                     <strong>
-                      {comment?.user?.username
-                        ? `@${comment.user.username}`
-                        : comment?.user?.full_name || "Usuário"}
+                      {comment?.user?.username ? (
+                        <Link href={`/profile?username=${comment.user.username}`} legacyBehavior>
+                          <a className={styles.commentAuthorLink} onClick={(e) => e.stopPropagation()}>
+                            @{comment.user.username}
+                          </a>
+                        </Link>
+                      ) : (
+                        comment?.user?.full_name || "Usuário"
+                      )}
                     </strong>
                     <p>{comment.content}</p>
                   </div>

@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/trending.module.css';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { getUser } from '../utils/auth';
 
@@ -15,6 +15,7 @@ export default function Trending() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const api = useApiFetch();
 
   const filters = [
     { value: 'today', label: 'Hoje' },
@@ -33,7 +34,7 @@ export default function Trending() {
       setLoading(true);
       setError('');
 
-      const data = await apiFetch(`/projects/trending?period=${filter}`);
+      const data = await api(`/projects/trending?period=${filter}`);
       setProjects(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || 'Erro ao carregar tendências.');
@@ -46,7 +47,7 @@ export default function Trending() {
     if (!confirm('Deseja excluir esta publicação?')) return;
 
     try {
-      await apiFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      await api(`/projects/${projectId}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
     } catch (err) {
       alert(err.message || 'Erro ao excluir publicação.');

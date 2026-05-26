@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { apiFetch } from '../utils/api';
+import { useApiFetch } from '../utils/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const api = useApiFetch();
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -56,7 +57,7 @@ export default function RegisterPage() {
     try {
       setLoading(true);
 
-      await apiFetch('/auth/register', {
+      await api('/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           username: form.username.trim(),

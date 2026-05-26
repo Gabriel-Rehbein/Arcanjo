@@ -6,6 +6,42 @@ export async function create(message) {
   return repository.save(message);
 }
 
+export async function findById(messageId) {
+  const repository = await getRepository(MessageSchema);
+  return repository.findOneBy({ id: messageId });
+}
+
+export async function updateMessage(messageId, update) {
+  const repository = await getRepository(MessageSchema);
+  await repository.update({ id: messageId }, update);
+  return repository.findOneBy({ id: messageId });
+}
+
+export async function editMessageContent(messageId, content) {
+  const repository = await getRepository(MessageSchema);
+  await repository.query(
+    `UPDATE messages
+     SET content = $1,
+         edited_at = CURRENT_TIMESTAMP
+     WHERE id = $2`,
+    [content, messageId]
+  );
+  return repository.findOneBy({ id: messageId });
+}
+
+export async function softDeleteMessage(messageId) {
+  const repository = await getRepository(MessageSchema);
+  await repository.query(
+    `UPDATE messages
+     SET content = $1,
+         is_deleted = true,
+         deleted_at = CURRENT_TIMESTAMP
+     WHERE id = $2`,
+    ['[Mensagem removida]', messageId]
+  );
+  return repository.findOneBy({ id: messageId });
+}
+
 export async function findMessagesBetween(userId, otherUserId) {
   const repository = await getRepository(MessageSchema);
   return repository.query(
@@ -30,7 +66,7 @@ export async function findConversations(userId) {
         u.username,
         u.full_name,
         u.avatar_url,
-        MAX(created_at) AS last_at,
+        MAX(convo.created_at) AS last_at,
         SUBSTRING(MAX(content) FROM 1 FOR 100) AS last_message
       FROM (
         SELECT

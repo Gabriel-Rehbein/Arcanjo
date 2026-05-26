@@ -26,6 +26,20 @@ O Arcanjo surge como uma plataforma onde:
 
 O principal objetivo do Arcanjo é criar um ambiente digital onde criatividade, tecnologia e inovação possam ser compartilhadas de maneira acessível e inspiradora.
 
+---
+
+## 🧰 Tecnologias usadas
+
+- Node.js + Express
+- Next.js + React
+- TypeORM + PostgreSQL
+- JWT + bcrypt
+- CORS + dotenv
+- ESLint + Prettier
+- express-rate-limit
+- Nodemon (desenvolvimento)
+
+
 A plataforma busca:
 
 - Incentivar novos desenvolvedores
@@ -175,6 +189,40 @@ O projeto Arcanjo representa a ideia de transformar criatividade e desenvolvimen
 🚧 Projeto em desenvolvimento contínuo.
 
 Novas funcionalidades, melhorias visuais e recursos estão sendo implementados constantemente.
+
+---
+
+## 🚀 Como rodar localmente
+
+### Backend
+
+1. Copie `backend/.env.example` para `backend/.env`
+2. Ajuste as credenciais do banco conforme seu ambiente
+3. No diretório `backend`, execute:
+   - `npm install`
+   - `npm run dev`
+
+### Frontend
+
+1. Copie `frontend/.env.example` para `frontend/.env.local`
+2. No diretório `frontend`, execute:
+   - `npm install`
+   - `npm run dev`
+
+> O frontend deve iniciar em `http://localhost:3001` e o backend em `http://localhost:3000`.
+
+---
+
+## ✨ Melhorias aplicadas
+
+- CORS restrito ao frontend configurado via `FRONTEND_URL`
+- Rate limiting no backend com `express-rate-limit`
+- JWT protegido por `JWT_SECRET` e expirando em `JWT_EXPIRES_IN`
+- `RUN_SEED=false` padrão para evitar seed automático em produção
+- Pool de conexões PostgreSQL aumentado para até 10 conexões
+- API `apiFetch` melhorada para aceitar `FormData` e usar env vars
+- Scripts de lint e formatação adicionados em backend e frontend
+- Arquivos de configuração adicionados: `.eslintrc.json`, `.prettierrc`, `.eslintignore`, `.prettierignore`
 
 ---
 

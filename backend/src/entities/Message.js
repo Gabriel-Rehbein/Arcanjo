@@ -26,5 +26,17 @@ export default new EntitySchema({
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
+    edited_at: {
+      type: "timestamp",
+      nullable: true,
+    },
+    deleted_at: {
+      type: "timestamp",
+      nullable: true,
+    },
+    is_deleted: {
+      type: Boolean,
+      default: false,
+    },
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/components/sidebar.module.css';
+import { getUser } from '../utils/auth';
 
 const menuItems = [
   { href: '/feed', label: 'Feed', icon: '🏠' },
@@ -16,6 +17,7 @@ const menuItems = [
 
 export default function Sidebar() {
   const router = useRouter();
+  const currentUser = getUser();
 
   function isActive(href) {
     return router.pathname === href;
@@ -29,7 +31,7 @@ export default function Sidebar() {
             key={item.href}
             type="button"
             className={`${styles.navItem} ${isActive(item.href) ? styles.active : ''}`}
-            onClick={() => router.push(item.href)}
+            onClick={() => router.push(item.href === '/profile' && currentUser ? `/profile?username=${currentUser}` : item.href)}
           >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.label}>{item.label}</span>

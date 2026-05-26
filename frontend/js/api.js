@@ -1,12 +1,15 @@
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = window.API_BASE_URL || "http://localhost:3000";
 
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem("arcanjo_token");
 
   const headers = {
-    "Content-Type": "application/json",
     ...(options.headers || {})
   };
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;

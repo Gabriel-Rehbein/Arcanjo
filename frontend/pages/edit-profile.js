@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import FooterNav from "../components/FooterNav";
 import { getUser, getToken } from "../utils/auth";
 import { useRouter } from "next/router";
-import { apiFetch } from "../utils/api";
+import { useApiFetch } from "../utils/api";
 import styles from "../styles/pages/edit-profile.module.css";
 
 function readFileAsDataURL(file) {
@@ -26,6 +26,7 @@ export default function EditProfile() {
   const [bannerFile, setBannerFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
+  const api = useApiFetch();
 
   useEffect(() => {
     if (!getToken()) {
@@ -41,7 +42,7 @@ export default function EditProfile() {
 
     (async () => {
       try {
-        const u = await apiFetch(`/users/${username}`);
+        const u = await api(`/users/${username}`);
         setUserData(u);
         setFullName(u.full_name || "");
         setBio(u.bio || "");
@@ -93,7 +94,7 @@ export default function EditProfile() {
       }
 
       const username = getUser();
-      await apiFetch(`/users/${username}`, {
+      await api(`/users/${username}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       });
