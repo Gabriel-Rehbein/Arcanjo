@@ -181,6 +181,14 @@ export async function createTablesIfNotExist() {
       )
     `);
 
+    // Adicionar colunas faltantes na tabela messages
+    await AppDataSource.query(`
+      ALTER TABLE messages
+      ADD COLUMN IF NOT EXISTS edited_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT false
+    `);
+
     // Adicionar colunas faltantes na tabela projects
     await AppDataSource.query(`
       ALTER TABLE projects
