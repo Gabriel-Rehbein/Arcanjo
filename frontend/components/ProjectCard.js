@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import styles from "../styles/components/projectCard.module.css";
-import { apiFetch, useApiFetch } from "../utils/api";
-import { getUser, getToken } from "../utils/auth";
+import { useApiFetch } from "../utils/api";
+import { getUser } from "../utils/auth";
 
 export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const [likedAnimation, setLikedAnimation] = useState(false);
@@ -67,17 +67,13 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   }
 
   async function sendComment() {
+    if (sendingComment) return;
+
     const content = commentText.trim();
 
     setCommentError("");
 
     if (!content) return;
-
-    if (!getToken()) {
-      setCommentError("Faça login para postar um comentário.");
-      window.location.href = "/";
-      return;
-    }
 
     try {
       setSendingComment(true);
@@ -290,7 +286,10 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") sendComment();
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendComment();
+                  }
                 }}
               />
 

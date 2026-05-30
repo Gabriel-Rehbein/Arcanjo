@@ -88,7 +88,10 @@ export async function createTablesIfNotExist() {
         link VARCHAR(255),
         likes_count INTEGER DEFAULT 0,
         comments_count INTEGER DEFAULT 0,
+        views_count INTEGER DEFAULT 0,
         is_featured BOOLEAN DEFAULT false,
+        scheduled_at TIMESTAMP,
+        status VARCHAR(50) DEFAULT 'published',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -198,8 +201,11 @@ export async function createTablesIfNotExist() {
       ADD COLUMN IF NOT EXISTS link VARCHAR(255),
       ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0,
       ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS views_count INTEGER DEFAULT 0,
       ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false,
       ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT true,
+      ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'published',
       ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     `);
 

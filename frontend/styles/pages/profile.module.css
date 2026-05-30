@@ -115,13 +115,22 @@
   margin: 1.5rem 0;
 }
 
-.stats div {
+.stats button {
   padding: 1.3rem;
   border-radius: 22px;
   text-align: center;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats button:hover,
+.stats button.statActive {
+  transform: translateY(-2px);
+  border-color: #2563eb;
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.16);
 }
 
 .stats strong {
@@ -238,6 +247,61 @@
   color: #93c5fd;
   font-size: 0.8rem;
   font-weight: 700;
+}
+
+.socialList {
+  display: grid;
+  gap: 1rem;
+}
+
+.socialItem {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.socialItem:hover {
+  transform: translateY(-2px);
+  border-color: #2563eb;
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+}
+
+.socialItem img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e2e8f0;
+}
+
+.socialItem strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.socialItem span {
+  display: block;
+  margin-top: 0.15rem;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.socialItem p {
+  margin: 0.45rem 0 0;
+  color: #64748b;
+  line-height: 1.45;
 }
 
 .empty,

@@ -4,20 +4,28 @@ import ProjectSchema from "../entities/Project.js";
 export async function findAll() {
   const repository = await getRepository(ProjectSchema);
 
-  return repository.find({
-    relations: ["user"],
-    order: { created_at: "DESC" },
-  });
+  return repository
+    .createQueryBuilder("project")
+    .leftJoinAndSelect("project.user", "user")
+    .where("project.is_public = true")
+    .orWhere("project.scheduled_at IS NOT NULL AND project.scheduled_at <= NOW()")
+    .orderBy("project.created_at", "DESC")
+    .getMany();
 }
 
-export async function findByUserId(userId) {
+export async function findByUserId(userId, includeScheduled = false) {
   const repository = await getRepository(ProjectSchema);
 
-  return repository.find({
-    where: { user_id: userId },
-    relations: ["user"],
-    order: { created_at: "DESC" },
-  });
+  const query = repository
+    .createQueryBuilder("project")
+    .leftJoinAndSelect("project.user", "user")
+    .where("project.user_id = :userId", { userId });
+
+  if (!includeScheduled) {
+    query.andWhere("(project.is_public = true OR project.scheduled_at <= NOW())");
+  }
+
+  return query.orderBy("project.created_at", "DESC").getMany();
 }
 
 export async function findById(projectId) {
@@ -48,11 +56,13 @@ export async function remove(id) {
 export async function findByCategory(category) {
   const repository = await getRepository(ProjectSchema);
 
-  return repository.find({
-    where: { category },
-    relations: ["user"],
-    order: { created_at: "DESC" },
-  });
+  return repository
+    .createQueryBuilder("project")
+    .leftJoinAndSelect("project.user", "user")
+    .where("project.category = :category", { category })
+    .andWhere("(project.is_public = true OR project.scheduled_at <= NOW())")
+    .orderBy("project.created_at", "DESC")
+    .getMany();
 }
 
 export async function searchProjects(query) {
@@ -61,10 +71,21 @@ export async function searchProjects(query) {
   return repository
     .createQueryBuilder("project")
     .leftJoinAndSelect("project.user", "user")
-    .where("project.title ILIKE :q", { q: `%${query}%` })
-    .orWhere("project.description ILIKE :q", { q: `%${query}%` })
-    .orWhere("project.tags ILIKE :q", { q: `%${query}%` })
+    .where("(project.is_public = true OR project.scheduled_at <= NOW())")
+    .andWhere("(project.title ILIKE :q OR project.description ILIKE :q OR project.tags ILIKE :q)", { q: `%${query}%` })
     .orderBy("project.created_at", "DESC")
+    .getMany();
+}
+
+export async function findScheduledByUserId(userId) {
+  const repository = await getRepository(ProjectSchema);
+
+  return repository
+    .createQueryBuilder("project")
+    .leftJoinAndSelect("project.user", "user")
+    .where("project.user_id = :userId", { userId })
+    .andWhere("project.scheduled_at IS NOT NULL")
+    .orderBy("project.scheduled_at", "ASC")
     .getMany();
 }
 

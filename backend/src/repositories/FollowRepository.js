@@ -1,5 +1,6 @@
 import { getRepository } from "../config/db.js";
 import FollowSchema from "../entities/Follow.js";
+import UserSchema from "../entities/User.js";
 
 export async function find(followerId, followingId) {
   const repository = await getRepository(FollowSchema);
@@ -26,4 +27,26 @@ export async function countFollowers(userId) {
 export async function countFollowing(userId) {
   const repository = await getRepository(FollowSchema);
   return repository.count({ where: { follower_id: userId } });
+}
+
+export async function listFollowers(userId) {
+  const userRepository = await getRepository(UserSchema);
+
+  return userRepository
+    .createQueryBuilder("user")
+    .innerJoin("follows", "follow", "follow.follower_id = user.id")
+    .where("follow.following_id = :userId", { userId })
+    .orderBy("follow.created_at", "DESC")
+    .getMany();
+}
+
+export async function listFollowing(userId) {
+  const userRepository = await getRepository(UserSchema);
+
+  return userRepository
+    .createQueryBuilder("user")
+    .innerJoin("follows", "follow", "follow.following_id = user.id")
+    .where("follow.follower_id = :userId", { userId })
+    .orderBy("follow.created_at", "DESC")
+    .getMany();
 }

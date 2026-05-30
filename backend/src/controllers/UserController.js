@@ -1,6 +1,7 @@
 import * as userRepo from "../repositories/UserRepository.js";
 import * as projectService from "../services/ProjectService.js";
 import * as followService from "../services/FollowService.js";
+import { assertSafeContent } from "../utils/contentSafety.js";
 import fs from "fs";
 import path from "path";
 
@@ -141,6 +142,62 @@ export async function getUserProjects(req, res, next) {
   }
 }
 
+async function enrichUserForList(user, viewerId) {
+  const safe = sanitizeUser(user);
+  const followers_count = await followService.getFollowerCount(user.id);
+  const following_count = await followService.getFollowingCount(user.id);
+  const is_following = viewerId ? await followService.isFollowing(viewerId, user.id) : false;
+
+  return {
+    ...safe,
+    followers_count,
+    following_count,
+    is_following,
+  };
+}
+
+export async function getUserFollowers(req, res, next) {
+  try {
+    const { username } = req.params;
+    const user = await userRepo.findByUsername(username);
+
+    if (!user) {
+      return res.status(404).json({ message: "UsuÃ¡rio nÃ£o encontrado" });
+    }
+
+    const followers = await followService.listFollowers(user.id);
+    const viewerId = req.user?.id;
+    const enriched = await Promise.all(
+      followers.map((follower) => enrichUserForList(follower, viewerId))
+    );
+
+    res.json(enriched);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getUserFollowing(req, res, next) {
+  try {
+    const { username } = req.params;
+    const user = await userRepo.findByUsername(username);
+
+    if (!user) {
+      return res.status(404).json({ message: "UsuÃ¡rio nÃ£o encontrado" });
+    }
+
+    const following = await followService.listFollowing(user.id);
+    const viewerId = req.user?.id;
+    const enriched = await Promise.all(
+      following.map((followedUser) => enrichUserForList(followedUser, viewerId))
+    );
+
+    res.json(enriched);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function searchUsers(req, res, next) {
   try {
     const query = String(req.query.q || "").trim();
@@ -198,6 +255,12 @@ export async function updateUserByUsername(req, res, next) {
     const { full_name, bio, email, avatar_base64, banner_base64 } = req.body || {};
 
     const updates = {};
+
+    assertSafeContent({
+      nome: full_name,
+      bio,
+      email,
+    });
 
     if (full_name !== undefined) updates.full_name = String(full_name).slice(0, 255);
     if (bio !== undefined) updates.bio = String(bio).slice(0, 1000);

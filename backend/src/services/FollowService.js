@@ -42,3 +42,11 @@ export async function getFollowerCount(userId) {
 export async function getFollowingCount(userId) {
   return await repo.countFollowing(userId);
 }
+
+export async function listFollowers(userId) {
+  return await repo.listFollowers(userId);
+}
+
+export async function listFollowing(userId) {
+  return await repo.listFollowing(userId);
+}

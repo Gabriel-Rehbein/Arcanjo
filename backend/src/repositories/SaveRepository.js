@@ -37,3 +37,18 @@ export async function findSavedByUserId(userId, category) {
 
   return repository.query(query, params);
 }
+
+export async function countSavesForProjectOwner(userId) {
+  const repository = await getRepository(SaveSchema);
+  const result = await repository.query(
+    `
+      SELECT COUNT(*)::int AS total
+      FROM saves s
+      JOIN projects p ON p.id = s.project_id
+      WHERE p.user_id = $1
+    `,
+    [userId]
+  );
+
+  return Number(result?.[0]?.total || 0);
+}

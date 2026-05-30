@@ -3,6 +3,7 @@ import * as likeRepo from "../repositories/LikeRepository.js";
 import * as saveRepo from "../repositories/SaveRepository.js";
 import { getCache, setCache } from "../utils/cache.js";
 import * as commentRepo from "../repositories/CommentRepository.js";
+import { assertSafeContent, assertSafeImageUrl, assertSafeUrl } from "../utils/contentSafety.js";
 
 const TEST_USER_ID = 1;
 
@@ -34,14 +35,37 @@ function parseTags(tags) {
 function normalizeProject(project) {
   if (!project) return null;
 
+  const scheduledAt = project.scheduled_at ? new Date(project.scheduled_at) : null;
+  const isScheduled = scheduledAt && scheduledAt > new Date();
+
   return {
     ...project,
     tags: parseTags(project.tags),
+    status: isScheduled ? "scheduled" : project.status || "published",
+    is_scheduled: Boolean(isScheduled),
   };
 }
 
 function normalizeProjects(projects) {
   return Array.isArray(projects) ? projects.map(normalizeProject) : [];
+}
+
+function sanitizeComment(comment) {
+  if (!comment) return comment;
+
+  const { user, ...safeComment } = comment;
+
+  if (!user) {
+    return safeComment;
+  }
+
+  const { password, ...safeUser } = user;
+  void password;
+
+  return {
+    ...safeComment,
+    user: safeUser,
+  };
 }
 
 export async function getAll() {
@@ -65,10 +89,36 @@ export async function create(data, userId = TEST_USER_ID) {
     throw { status: 400, message: "Título obrigatório" };
   }
 
+  const tags = parseTags(data.tags);
+  const title = data.title.trim();
+  const description = String(data.description || "").trim();
+
+  assertSafeContent({
+    titulo: title,
+    descricao: description,
+    categoria: data.category,
+    tags,
+  });
+
+  const imageUrl = assertSafeImageUrl(data.image_url, "URL da imagem");
+  const projectLink = assertSafeUrl(data.link, "Link do projeto");
+  const scheduledAt = data.scheduled_at ? new Date(data.scheduled_at) : null;
+  const isScheduled = scheduledAt && !Number.isNaN(scheduledAt.getTime()) && scheduledAt > new Date();
+
+  if (data.scheduled_at && Number.isNaN(scheduledAt.getTime())) {
+    throw { status: 400, message: "Data de agendamento invalida" };
+  }
+
   const createdProject = await repo.create({
     ...data,
-    title: data.title.trim(),
-    tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : data.tags,
+    title,
+    description,
+    image_url: imageUrl || null,
+    link: projectLink || null,
+    tags: JSON.stringify(tags),
+    scheduled_at: scheduledAt || null,
+    is_public: !isScheduled,
+    status: isScheduled ? "scheduled" : "published",
     user_id: userId || TEST_USER_ID,
   });
 
@@ -94,6 +144,42 @@ export async function getByUserId(userId = TEST_USER_ID) {
   const data = await repo.findByUserId(userId || TEST_USER_ID);
 
   return normalizeProjects(data);
+}
+
+export async function getScheduledByUserId(userId = TEST_USER_ID) {
+  const data = await repo.findScheduledByUserId(userId || TEST_USER_ID);
+
+  return normalizeProjects(data);
+}
+
+export async function getProfileStats(userId = TEST_USER_ID) {
+  const projects = await repo.findByUserId(userId || TEST_USER_ID, true);
+  const normalized = normalizeProjects(projects);
+  const saves_count = await saveRepo.countSavesForProjectOwner(userId || TEST_USER_ID);
+
+  const totals = normalized.reduce(
+    (acc, project) => ({
+      projects_count: acc.projects_count + 1,
+      scheduled_count: acc.scheduled_count + (project.is_scheduled ? 1 : 0),
+      published_count: acc.published_count + (project.is_scheduled ? 0 : 1),
+      likes_count: acc.likes_count + Number(project.likes_count || 0),
+      comments_count: acc.comments_count + Number(project.comments_count || 0),
+      views_count: acc.views_count + Number(project.views_count || 0),
+    }),
+    {
+      projects_count: 0,
+      scheduled_count: 0,
+      published_count: 0,
+      likes_count: 0,
+      comments_count: 0,
+      views_count: 0,
+    }
+  );
+
+  return {
+    ...totals,
+    saves_count,
+  };
 }
 
 export async function getByCategory(category) {
@@ -243,7 +329,7 @@ export async function deleteProject(projectId, userId = TEST_USER_ID) {
 
 export async function getProjectComments(projectId) {
   const comments = await commentRepo.findByProjectId(projectId);
-  return Array.isArray(comments) ? comments : [];
+  return Array.isArray(comments) ? comments.map(sanitizeComment) : [];
 }
 
 export async function createProjectComment(projectId, data, userId = TEST_USER_ID) {
@@ -258,6 +344,8 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
   if (!content) {
     throw { status: 400, message: "Comentário obrigatório" };
   }
+
+  assertSafeContent({ comentario: content });
 
   const project = await repo.findById(fixedProjectId);
   if (!project) {
@@ -277,5 +365,5 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
   setCache("feed", null);
 
   const createdComment = await commentRepo.findById(comment.id);
-  return createdComment || comment;
+  return sanitizeComment(createdComment || comment);
 }

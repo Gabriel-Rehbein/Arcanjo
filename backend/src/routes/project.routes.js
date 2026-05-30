@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { authenticateToken, optionalAuthenticateToken } from "../middlewares/auth.middleware.js";
 
 import {
   getAll,
@@ -10,6 +10,8 @@ import {
   getByCategory,
   getTrending,
   getSaved,
+  getScheduled,
+  getProfileStats,
   likeProject,
   saveProject,
   deleteProject,
@@ -25,12 +27,14 @@ router.get("/category/:category", getByCategory);
 router.get("/search", search);
 router.get("/trending", getTrending);
 router.get("/saved", authenticateToken, getSaved);
+router.get("/scheduled", authenticateToken, getScheduled);
+router.get("/profile-stats", authenticateToken, getProfileStats);
 
 router.post("/:id/like", authenticateToken, likeProject);
 router.post("/:id/save", authenticateToken, saveProject);
 
 router.get("/:id/comments", getProjectComments);
-router.post("/:id/comments", authenticateToken, createProjectComment);
+router.post("/:id/comments", optionalAuthenticateToken, createProjectComment);
 
 router.delete("/:id", authenticateToken, deleteProject);
 

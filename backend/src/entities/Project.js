@@ -40,11 +40,23 @@ export default new EntitySchema({
       type: Boolean,
       default: true,
     },
+    scheduled_at: {
+      type: "timestamp",
+      nullable: true,
+    },
+    status: {
+      type: String,
+      default: "published",
+    },
     likes_count: {
       type: Number,
       default: 0,
     },
     comments_count: {
+      type: Number,
+      default: 0,
+    },
+    views_count: {
       type: Number,
       default: 0,
     },

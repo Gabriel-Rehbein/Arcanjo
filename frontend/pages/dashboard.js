@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [user, setUserName] = useState('');
   const [profile, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [profileStats, setProfileStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const api = useApiFetch();
@@ -39,13 +40,15 @@ export default function DashboardPage() {
       setLoading(true);
       setError('');
 
-      const [profileData, projectsData] = await Promise.all([
+      const [profileData, projectsData, statsData] = await Promise.all([
         api(`/users/${username}`),
         api(`/users/${username}/projects`),
+        api('/projects/profile-stats'),
       ]);
 
       setProfile(profileData);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
+      setProfileStats(statsData || null);
     } catch (err) {
       setError(err.message || 'Erro ao carregar dashboard.');
     } finally {
@@ -121,6 +124,56 @@ export default function DashboardPage() {
                   <div className={styles.statCard}>
                     <strong>{profile?.following_count || 0}</strong>
                     <span>Seguindo</span>
+                  </div>
+                </div>
+
+                <div className={styles.analyticsPanel}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Estatísticas do perfil</h3>
+                    <button type="button" onClick={() => router.push('/calendar')}>
+                      Programar publicação
+                    </button>
+                  </div>
+
+                  <div className={styles.analyticsGrid}>
+                    {[
+                      { label: 'Visualizações', value: profileStats?.views_count || 0, tone: 'blue' },
+                      { label: 'Curtidas', value: profileStats?.likes_count || 0, tone: 'red' },
+                      { label: 'Comentários', value: profileStats?.comments_count || 0, tone: 'green' },
+                      { label: 'Salvamentos', value: profileStats?.saves_count || 0, tone: 'amber' },
+                    ].map((item) => {
+                      const maxValue = Math.max(
+                        profileStats?.views_count || 0,
+                        profileStats?.likes_count || 0,
+                        profileStats?.comments_count || 0,
+                        profileStats?.saves_count || 0,
+                        1
+                      );
+                      const width = `${Math.max((item.value / maxValue) * 100, item.value ? 12 : 4)}%`;
+
+                      return (
+                        <div key={item.label} className={styles.analyticsCard}>
+                          <div>
+                            <span>{item.label}</span>
+                            <strong>{item.value}</strong>
+                          </div>
+                          <div className={styles.barTrack}>
+                            <span className={`${styles.barFill} ${styles[item.tone]}`} style={{ width }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className={styles.breakdownGrid}>
+                    <div>
+                      <strong>{profileStats?.published_count || 0}</strong>
+                      <span>Publicadas</span>
+                    </div>
+                    <div>
+                      <strong>{profileStats?.scheduled_count || 0}</strong>
+                      <span>Programadas</span>
+                    </div>
                   </div>
                 </div>
 

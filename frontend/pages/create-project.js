@@ -4,6 +4,12 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
 import { useApiFetch } from '../utils/api';
+import {
+  GUIDELINE_MESSAGE,
+  validateSafeImageUrl,
+  validateSafeText,
+  validateSafeUrl,
+} from '../utils/contentSafety';
 
 export default function CreateProject() {
 
@@ -49,12 +55,17 @@ export default function CreateProject() {
       return 'A descrição precisa ter pelo menos 10 caracteres.';
     }
 
-    if (formData.image_url && !formData.image_url.startsWith('http')) {
-      return 'A URL da imagem precisa começar com http ou https.';
-    }
+    const safetyChecks = [
+      validateSafeText(formData.title, 'titulo'),
+      validateSafeText(formData.description, 'descricao'),
+      validateSafeText(formData.category, 'categoria'),
+      validateSafeText(formData.tags, 'tags'),
+      validateSafeImageUrl(formData.image_url, 'URL da imagem'),
+      validateSafeUrl(formData.link, 'Link do projeto'),
+    ].filter(Boolean);
 
-    if (formData.link && !formData.link.startsWith('http')) {
-      return 'O link do projeto precisa começar com http ou https.';
+    if (safetyChecks.length) {
+      return safetyChecks[0];
     }
 
     return '';
@@ -108,6 +119,10 @@ export default function CreateProject() {
           <div className={styles.formContainer}>
             <h1>Novo Projeto</h1>
             <p>Publique um projeto para aparecer no feed da rede social.</p>
+
+            <div className={styles.guidelines}>
+              {GUIDELINE_MESSAGE}
+            </div>
 
             {error && <div className={styles.error}>{error}</div>}
 
@@ -177,7 +192,13 @@ export default function CreateProject() {
 
               {formData.image_url && (
                 <div className={styles.preview}>
-                  <img src={formData.image_url} alt="Prévia do projeto" />
+                  {validateSafeImageUrl(formData.image_url, 'URL da imagem') ? (
+                    <div className={styles.previewBlocked}>
+                      Imagem bloqueada pelas diretrizes.
+                    </div>
+                  ) : (
+                    <img src={formData.image_url} alt="Prévia do projeto" />
+                  )}
                 </div>
               )}
 

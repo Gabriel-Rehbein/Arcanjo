@@ -116,10 +116,124 @@
   gap: 1rem;
 }
 
-.projectPreview h3 {
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sectionHeader button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: #eef2ff;
+  color: #3730a3;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.projectPreview h3,
+.analyticsPanel h3 {
   margin: 0;
   color: #0f172a;
   font-size: 1.25rem;
+}
+
+.analyticsPanel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  background: #ffffff;
+}
+
+.analyticsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 1rem;
+}
+
+.analyticsCard {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.analyticsCard div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.analyticsCard span {
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.analyticsCard strong {
+  color: #0f172a;
+  font-size: 1.55rem;
+}
+
+.barTrack {
+  height: 9px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.blue {
+  background: #2563eb;
+}
+
+.red {
+  background: #dc2626;
+}
+
+.green {
+  background: #16a34a;
+}
+
+.amber {
+  background: #d97706;
+}
+
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.breakdownGrid div {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #eef2ff;
+  color: #3730a3;
+  text-align: center;
+}
+
+.breakdownGrid strong {
+  display: block;
+  font-size: 1.5rem;
+}
+
+.breakdownGrid span {
+  display: block;
+  margin-top: 0.25rem;
+  font-weight: 800;
 }
 
 .previewGrid {
@@ -189,6 +303,11 @@
 
 @media (max-width: 640px) {
   .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .analyticsGrid,
+  .breakdownGrid {
     grid-template-columns: 1fr;
   }
 

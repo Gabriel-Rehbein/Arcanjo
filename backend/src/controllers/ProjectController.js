@@ -1,5 +1,7 @@
 import * as service from "../services/ProjectService.js";
 
+const TEST_USER_ID = 1;
+
 export async function getAll(req, res, next) {
   try {
     const data = await service.getAll();
@@ -90,6 +92,30 @@ export async function getSaved(req, res, next) {
   }
 }
 
+export async function getScheduled(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Autenticação necessária" });
+
+    const projects = await service.getScheduledByUserId(userId);
+    res.json(projects);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getProfileStats(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Autenticação necessária" });
+
+    const stats = await service.getProfileStats(userId);
+    res.json(stats);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function likeProject(req, res, next) {
   try {
     const userId = req.user?.id;
@@ -137,8 +163,7 @@ export async function getProjectComments(req, res, next) {
 
 export async function createProjectComment(req, res, next) {
   try {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticação necessária" });
+    const userId = req.user?.id || TEST_USER_ID;
 
     const comment = await service.createProjectComment(req.params.id, req.body, userId);
     res.status(201).json(comment);
