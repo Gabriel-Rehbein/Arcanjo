@@ -1,53 +1,3 @@
-const GUIDELINE_MESSAGE =
-  "Este conteudo viola as diretrizes da comunidade. Nao publique links, imagens ou textos ofensivos, sexuais, ilegais ou que ataquem outras pessoas.";
-
-const blockedTerms = [
-  "porn",
-  "porno",
-  "pornografia",
-  "nude",
-  "nudes",
-  "sexo",
-  "sexual",
-  "sex",
-  "xxx",
-  "hentai",
-  "onlyfans",
-  "escort",
-  "prostitu",
-  "estupro",
-  "racista",
-  "racismo",
-  "nazismo",
-  "terrorismo",
-  "pedof",
-  "child porn",
-  "morte",
-  "ameaca",
-  "humilhar",
-  "idiota",
-  "burro",
-  "lixo",
-];
-
-const suspiciousUrlTerms = [
-  "porn",
-  "porno",
-  "nude",
-  "nudes",
-  "xxx",
-  "hentai",
-  "onlyfans",
-  "escort",
-  "sex",
-  "warez",
-  "crack",
-  "piracy",
-  "pirata",
-  "malware",
-  "phishing",
-];
-
 const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"];
 const imageHostsWithoutExtension = [
   "picsum.photos",
@@ -55,18 +5,6 @@ const imageHostsWithoutExtension = [
   "source.unsplash.com",
   "randomuser.me",
 ];
-
-function normalize(value) {
-  return String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function hasBlockedTerm(value, terms = blockedTerms) {
-  const normalized = normalize(value);
-  return terms.some((term) => normalized.includes(normalize(term)));
-}
 
 function parseUrl(value, fieldLabel) {
   const trimmed = String(value || "").trim();
@@ -100,28 +38,9 @@ function parseUrl(value, fieldLabel) {
   return parsed;
 }
 
-function assertSafeText(value, fieldLabel) {
-  if (!value) return;
-
-  if (hasBlockedTerm(value)) {
-    throw {
-      status: 400,
-      message: `${GUIDELINE_MESSAGE} Campo bloqueado: ${fieldLabel}.`,
-    };
-  }
-}
-
 export function assertSafeUrl(value, fieldLabel = "Link") {
   const parsed = parseUrl(value, fieldLabel);
   if (!parsed) return "";
-
-  const combined = `${parsed.hostname} ${parsed.pathname} ${parsed.search}`;
-  if (hasBlockedTerm(combined, suspiciousUrlTerms)) {
-    throw {
-      status: 400,
-      message: `${GUIDELINE_MESSAGE} Link bloqueado: ${fieldLabel}.`,
-    };
-  }
 
   return parsed.toString();
 }
@@ -147,16 +66,9 @@ export function assertSafeImageUrl(value, fieldLabel = "Imagem") {
 }
 
 export function assertSafeContent(fields) {
-  Object.entries(fields || {}).forEach(([fieldLabel, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((item) => assertSafeText(item, fieldLabel));
-      return;
-    }
-
-    assertSafeText(value, fieldLabel);
-  });
+  void fields;
 }
 
 export function getGuidelineMessage() {
-  return GUIDELINE_MESSAGE;
+  return "";
 }

@@ -1,6 +1,5 @@
 import * as repo from "../repositories/MessageRepository.js";
 import * as notificationService from "./NotificationService.js";
-import { assertSafeContent } from "../utils/contentSafety.js";
 
 export async function getConversations(userId) {
   const conversations = await repo.findConversations(userId);
@@ -47,8 +46,6 @@ export async function editMessage(userId, messageId, content) {
     throw { status: 400, message: 'Não é possível editar uma mensagem removida' };
   }
 
-  assertSafeContent({ mensagem: content });
-
   await repo.editMessageContent(messageId, content);
 
   return repo.findById(messageId);
@@ -83,8 +80,6 @@ export async function sendMessage(senderId, receiverId, content) {
   if (!receiverId || !content) {
     throw { status: 400, message: "Dados de mensagem inválidos" };
   }
-
-  assertSafeContent({ mensagem: content });
 
   const message = await repo.create({
     sender_id: senderId,

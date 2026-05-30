@@ -1,7 +1,6 @@
 import * as userRepo from "../repositories/UserRepository.js";
 import * as projectService from "../services/ProjectService.js";
 import * as followService from "../services/FollowService.js";
-import { assertSafeContent } from "../utils/contentSafety.js";
 import fs from "fs";
 import path from "path";
 
@@ -255,12 +254,6 @@ export async function updateUserByUsername(req, res, next) {
     const { full_name, bio, email, avatar_base64, banner_base64 } = req.body || {};
 
     const updates = {};
-
-    assertSafeContent({
-      nome: full_name,
-      bio,
-      email,
-    });
 
     if (full_name !== undefined) updates.full_name = String(full_name).slice(0, 255);
     if (bio !== undefined) updates.bio = String(bio).slice(0, 1000);

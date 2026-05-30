@@ -4,12 +4,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
 import { useApiFetch } from '../utils/api';
-import {
-  GUIDELINE_MESSAGE,
-  validateSafeImageUrl,
-  validateSafeText,
-  validateSafeUrl,
-} from '../utils/contentSafety';
+import { validateSafeImageUrl, validateSafeUrl } from '../utils/contentSafety';
 
 export default function CreateProject() {
 
@@ -56,10 +51,6 @@ export default function CreateProject() {
     }
 
     const safetyChecks = [
-      validateSafeText(formData.title, 'titulo'),
-      validateSafeText(formData.description, 'descricao'),
-      validateSafeText(formData.category, 'categoria'),
-      validateSafeText(formData.tags, 'tags'),
       validateSafeImageUrl(formData.image_url, 'URL da imagem'),
       validateSafeUrl(formData.link, 'Link do projeto'),
     ].filter(Boolean);
@@ -119,10 +110,6 @@ export default function CreateProject() {
           <div className={styles.formContainer}>
             <h1>Novo Projeto</h1>
             <p>Publique um projeto para aparecer no feed da rede social.</p>
-
-            <div className={styles.guidelines}>
-              {GUIDELINE_MESSAGE}
-            </div>
 
             {error && <div className={styles.error}>{error}</div>}
 
@@ -194,7 +181,7 @@ export default function CreateProject() {
                 <div className={styles.preview}>
                   {validateSafeImageUrl(formData.image_url, 'URL da imagem') ? (
                     <div className={styles.previewBlocked}>
-                      Imagem bloqueada pelas diretrizes.
+                      A previa precisa de um link direto de imagem.
                     </div>
                   ) : (
                     <img src={formData.image_url} alt="Prévia do projeto" />

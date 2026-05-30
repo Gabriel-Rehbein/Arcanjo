@@ -3,7 +3,7 @@ import * as likeRepo from "../repositories/LikeRepository.js";
 import * as saveRepo from "../repositories/SaveRepository.js";
 import { getCache, setCache } from "../utils/cache.js";
 import * as commentRepo from "../repositories/CommentRepository.js";
-import { assertSafeContent, assertSafeImageUrl, assertSafeUrl } from "../utils/contentSafety.js";
+import { assertSafeImageUrl, assertSafeUrl } from "../utils/contentSafety.js";
 
 const TEST_USER_ID = 1;
 
@@ -92,13 +92,6 @@ export async function create(data, userId = TEST_USER_ID) {
   const tags = parseTags(data.tags);
   const title = data.title.trim();
   const description = String(data.description || "").trim();
-
-  assertSafeContent({
-    titulo: title,
-    descricao: description,
-    categoria: data.category,
-    tags,
-  });
 
   const imageUrl = assertSafeImageUrl(data.image_url, "URL da imagem");
   const projectLink = assertSafeUrl(data.link, "Link do projeto");
@@ -344,8 +337,6 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
   if (!content) {
     throw { status: 400, message: "Comentário obrigatório" };
   }
-
-  assertSafeContent({ comentario: content });
 
   const project = await repo.findById(fixedProjectId);
   if (!project) {

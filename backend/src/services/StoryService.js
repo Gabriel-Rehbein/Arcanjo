@@ -1,5 +1,5 @@
 import * as repo from "../repositories/StoryRepository.js";
-import { assertSafeContent, assertSafeImageUrl } from "../utils/contentSafety.js";
+import { assertSafeImageUrl } from "../utils/contentSafety.js";
 
 export async function getAll() {
   return await repo.findAll();
@@ -14,7 +14,6 @@ export async function create(data, userId) {
     throw { status: 400, message: "Imagem obrigatoria" };
   }
 
-  assertSafeContent({ story: data.content });
   const imageUrl = assertSafeImageUrl(data.image_url, "Imagem da story");
 
   const expiresAt = new Date();

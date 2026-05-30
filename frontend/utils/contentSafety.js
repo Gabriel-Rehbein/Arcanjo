@@ -1,51 +1,4 @@
-export const GUIDELINE_MESSAGE =
-  'Este conteudo viola as diretrizes da comunidade. Nao publique links, imagens ou textos ofensivos, sexuais, ilegais ou que ataquem outras pessoas.';
-
-const blockedTerms = [
-  'porn',
-  'porno',
-  'pornografia',
-  'nude',
-  'nudes',
-  'sexo',
-  'sexual',
-  'sex',
-  'xxx',
-  'hentai',
-  'onlyfans',
-  'escort',
-  'prostitu',
-  'estupro',
-  'racista',
-  'racismo',
-  'nazismo',
-  'terrorismo',
-  'pedof',
-  'child porn',
-  'ameaca',
-  'humilhar',
-  'idiota',
-  'burro',
-  'lixo',
-];
-
-const suspiciousUrlTerms = [
-  'porn',
-  'porno',
-  'nude',
-  'nudes',
-  'xxx',
-  'hentai',
-  'onlyfans',
-  'escort',
-  'sex',
-  'warez',
-  'crack',
-  'piracy',
-  'pirata',
-  'malware',
-  'phishing',
-];
+export const GUIDELINE_MESSAGE = '';
 
 const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
 const imageHostsWithoutExtension = [
@@ -54,18 +7,6 @@ const imageHostsWithoutExtension = [
   'source.unsplash.com',
   'randomuser.me',
 ];
-
-function normalize(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-}
-
-function includesBlockedTerm(value, terms = blockedTerms) {
-  const normalized = normalize(value);
-  return terms.some((term) => normalized.includes(normalize(term)));
-}
 
 function parseUrl(value, label) {
   const trimmed = String(value || '').trim();
@@ -88,9 +29,8 @@ function parseUrl(value, label) {
 }
 
 export function validateSafeText(value, label) {
-  if (value && includesBlockedTerm(value)) {
-    return `${GUIDELINE_MESSAGE} Campo bloqueado: ${label}.`;
-  }
+  void value;
+  void label;
 
   return '';
 }
@@ -98,11 +38,6 @@ export function validateSafeText(value, label) {
 export function validateSafeUrl(value, label) {
   const parsed = parseUrl(value, label);
   if (!parsed || typeof parsed === 'string') return parsed || '';
-
-  const combined = `${parsed.hostname} ${parsed.pathname} ${parsed.search}`;
-  if (includesBlockedTerm(combined, suspiciousUrlTerms)) {
-    return `${GUIDELINE_MESSAGE} Link bloqueado: ${label}.`;
-  }
 
   return '';
 }

@@ -5,12 +5,7 @@ import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/calendar.module.css';
 import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
-import {
-  GUIDELINE_MESSAGE,
-  validateSafeImageUrl,
-  validateSafeText,
-  validateSafeUrl,
-} from '../utils/contentSafety';
+import { validateSafeImageUrl, validateSafeUrl } from '../utils/contentSafety';
 
 function toDateTimeLocal(date) {
   const pad = (value) => String(value).padStart(2, '0');
@@ -127,10 +122,6 @@ export default function CalendarPage() {
     }
 
     const safetyChecks = [
-      validateSafeText(formData.title, 'titulo'),
-      validateSafeText(formData.description, 'descricao'),
-      validateSafeText(formData.category, 'categoria'),
-      validateSafeText(formData.tags, 'tags'),
       validateSafeImageUrl(formData.image_url, 'URL da imagem'),
       validateSafeUrl(formData.link, 'Link do projeto'),
     ].filter(Boolean);
@@ -252,8 +243,6 @@ export default function CalendarPage() {
 
             <section className={styles.panel}>
               <h2>Nova publicação agendada</h2>
-              <div className={styles.guidelines}>{GUIDELINE_MESSAGE}</div>
-
               {error && <div className={styles.error}>{error}</div>}
               {success && <div className={styles.success}>{success}</div>}
 
