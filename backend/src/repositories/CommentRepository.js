@@ -10,7 +10,7 @@ export async function findByProjectId(projectId) {
   const repository = await getRepository(CommentSchema);
 
   return repository.find({
-    where: { project: { id: Number(projectId) } },
+    where: { project_id: Number(projectId) },
     relations: ["user"],
     order: { created_at: "DESC" },
   });

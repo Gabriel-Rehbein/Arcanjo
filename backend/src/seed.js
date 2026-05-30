@@ -459,7 +459,7 @@ export async function seedDatabase() {
       user_id: user.id,
       image_url: profile.story.image_url,
       content: profile.story.content,
-      expires_at: addDays(1),
+      expires_at: addDays(30),
     });
 
     createdUsers.push(user);
@@ -499,8 +499,8 @@ export async function seedDatabase() {
     const commentUser = createdUsers[(index + 3) % createdUsers.length];
     await commentRepo.create({
       content: `Adorei seu projeto "${firstProject.title}"!`,
-      user: { id: commentUser.id },
-      project: { id: firstProject.id },
+      user_id: commentUser.id,
+      project_id: firstProject.id,
     });
     firstProject.comments_count = (firstProject.comments_count || 0) + 1;
     await projectRepo.save(firstProject);

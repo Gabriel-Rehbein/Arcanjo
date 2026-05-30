@@ -1,7 +1,89 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import styles from '../styles/components/storyBar.module.css';
 import { useApiFetch } from '../utils/api';
+
+const botStories = [
+  {
+    id: 'bot-luna-dev',
+    image_url: 'https://picsum.photos/seed/story1/800/1200',
+    content: 'Planejando um novo evento para a comunidade UX.',
+    user: {
+      username: 'luna.dev',
+      full_name: 'Luna Carvalho',
+      avatar_url: 'https://randomuser.me/api/portraits/women/68.jpg',
+    },
+  },
+  {
+    id: 'bot-bruno-code',
+    image_url: 'https://picsum.photos/seed/story2/800/1200',
+    content: 'Lancando uma nova funcionalidade de metas financeiras.',
+    user: {
+      username: 'bruno.code',
+      full_name: 'Bruno Azevedo',
+      avatar_url: 'https://randomuser.me/api/portraits/men/56.jpg',
+    },
+  },
+  {
+    id: 'bot-camila-art',
+    image_url: 'https://picsum.photos/seed/story3/800/1200',
+    content: 'Mostrando meu processo de ilustracao para a semana.',
+    user: {
+      username: 'camila.art',
+      full_name: 'Camila Martins',
+      avatar_url: 'https://randomuser.me/api/portraits/women/65.jpg',
+    },
+  },
+  {
+    id: 'bot-diego-tech',
+    image_url: 'https://picsum.photos/seed/story4/800/1200',
+    content: 'Convidando a comunidade para nosso proximo meetup.',
+    user: {
+      username: 'diego.tech',
+      full_name: 'Diego Ferreira',
+      avatar_url: 'https://randomuser.me/api/portraits/men/28.jpg',
+    },
+  },
+  {
+    id: 'bot-elisa-music',
+    image_url: 'https://picsum.photos/seed/story5/800/1200',
+    content: 'Testando uma integracao com novas trilhas sonoras.',
+    user: {
+      username: 'elisa.music',
+      full_name: 'Elisa Souza',
+      avatar_url: 'https://randomuser.me/api/portraits/women/12.jpg',
+    },
+  },
+  {
+    id: 'bot-felipe-gamer',
+    image_url: 'https://picsum.photos/seed/story6/800/1200',
+    content: 'Lancando uma demo do jogo nesta semana.',
+    user: {
+      username: 'felipe.gamer',
+      full_name: 'Felipe Lima',
+      avatar_url: 'https://randomuser.me/api/portraits/men/33.jpg',
+    },
+  },
+  {
+    id: 'bot-gabriela-bio',
+    image_url: 'https://picsum.photos/seed/story7/800/1200',
+    content: 'Compartilhando novas iniciativas para a semana.',
+    user: {
+      username: 'gabriela.bio',
+      full_name: 'Gabriela Costa',
+      avatar_url: 'https://randomuser.me/api/portraits/women/47.jpg',
+    },
+  },
+  {
+    id: 'bot-hugo-ux',
+    image_url: 'https://picsum.photos/seed/story8/800/1200',
+    content: 'Revisando padroes de acessibilidade para meu novo projeto.',
+    user: {
+      username: 'hugo.ux',
+      full_name: 'Hugo Pereira',
+      avatar_url: 'https://randomuser.me/api/portraits/men/39.jpg',
+    },
+  },
+];
 
 export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -9,7 +91,6 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
   const [selectedStory, setSelectedStory] = useState(null);
   const [loading, setLoading] = useState(false);
   const api = useApiFetch();
-  const router = useRouter();
 
   const fallbackStories = [
     {
@@ -20,7 +101,8 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
     },
   ];
 
-  const storyList = stories.length > 0 ? [...fallbackStories, ...stories] : fallbackStories;
+  const visibleStories = stories.length > 0 ? stories : botStories;
+  const storyList = [...fallbackStories, ...visibleStories];
 
   function handleClick(story) {
     if (story.isCreate) {
@@ -44,7 +126,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
 
     setLoading(true);
     try {
-await api('/stories', {
+      await api('/stories', {
         method: 'POST',
         body: JSON.stringify(storyData),
       });
@@ -78,33 +160,6 @@ await api('/stories', {
                   e.currentTarget.src = '/img/logoaba.png';
                 }}
               />
-            </div>
-
-            <div className={styles.storyInfo}>
-              <span>
-                {story.username || story.user?.full_name || story.user?.username || 'Usuário'}
-              </span>
-              {!story.isCreate && (
-                <span
-                  className={styles.storyProfileButton}
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const userToView = story.user?.username || story.username;
-                    if (userToView) router.push(`/profile?username=${userToView}`);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      const userToView = story.user?.username || story.username;
-                      if (userToView) router.push(`/profile?username=${userToView}`);
-                    }
-                  }}
-                >
-                  Perfil
-                </span>
-              )}
             </div>
           </button>
         ))}

@@ -266,8 +266,8 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
 
   const comment = await commentRepo.create({
     content,
-    user: { id: fixedUserId },
-    project: { id: fixedProjectId },
+    user_id: fixedUserId,
+    project_id: fixedProjectId,
   });
 
   project.comments_count = (project.comments_count || 0) + 1;

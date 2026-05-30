@@ -12,6 +12,12 @@ export default new EntitySchema({
     content: {
       type: String,
     },
+    user_id: {
+      type: Number,
+    },
+    project_id: {
+      type: Number,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
