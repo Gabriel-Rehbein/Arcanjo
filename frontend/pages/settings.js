@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import Layout from "../components/Layout";
-import FooterNav from "../components/FooterNav";
-import { getUser, getToken, logout } from "../utils/auth";
 import { useRouter } from "next/router";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { getUser, getToken, logout } from "../utils/auth";
+import styles from "../styles/pages/settings.module.css";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -32,40 +33,46 @@ export default function SettingsPage() {
   }
 
   return (
-    <Layout title="Configurações">
-      <div className="card">
-        <h2>Configurações</h2>
-        <p>Gerencie sua conta, tema, privacidade e preferências.</p>
+    <div className={styles.container}>
+      <Header />
 
-        <div className="input-group">
-          <label>
-            Usuário logado
-            <input value={username} disabled />
-          </label>
+      <div className={styles.main}>
+        <Sidebar />
 
-          <label>
-            Tema
-            <select value={theme} onChange={(e) => handleThemeChange(e.target.value)}>
-              <option value="dark">Escuro</option>
-              <option value="light">Claro</option>
-            </select>
-          </label>
+        <main className={styles.settings}>
+          <section className={styles.card}>
+            <h2>Configurações</h2>
+            <p>Gerencie sua conta, tema, privacidade e preferências.</p>
 
-<button type="button" onClick={() => router.push(`/profile?username=${username}`)}>
-            Ver perfil
-          </button>
+            <div className={styles.form}>
+              <label>
+                Usuário logado
+                <input value={username} disabled />
+              </label>
 
-          <button type="button" onClick={() => router.push("/saiba-mais")}>
-            Saiba mais sobre privacidade e LGPD
-          </button>
+              <label>
+                Tema
+                <select value={theme} onChange={(e) => handleThemeChange(e.target.value)}>
+                  <option value="dark">Escuro</option>
+                  <option value="light">Claro</option>
+                </select>
+              </label>
 
-          <button type="button" onClick={handleLogout}>
-            Sair da conta
-          </button>
-        </div>
+              <button type="button" onClick={() => router.push(`/profile?username=${username}`)}>
+                Ver perfil
+              </button>
+
+              <button type="button" onClick={() => router.push("/saiba-mais")}>
+                Saiba mais sobre privacidade e LGPD
+              </button>
+
+              <button type="button" className={styles.logout} onClick={handleLogout}>
+                Sair da conta
+              </button>
+            </div>
+          </section>
+        </main>
       </div>
-
-      <FooterNav />
-    </Layout>
+    </div>
   );
 }

@@ -9,13 +9,17 @@
 .main {
   display: flex;
   flex: 1;
+  width: 100%;
+  margin: 0;
   gap: 20px;
-  padding: 20px;
+  padding: 18px 24px 24px 12px;
+  align-items: flex-start;
 }
 
 .messagesContainer {
   display: flex;
   flex: 1;
+  min-width: 0;
   background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
@@ -500,7 +504,7 @@
 /* Desktop - Large Screens */
 @media (max-width: 1440px) {
   .main {
-    gap: 16px;
+    gap: 20px;
   }
 
   .messagesContainer {
@@ -519,8 +523,8 @@
   }
 
   .main {
-    gap: 12px;
-    padding: 12px;
+    gap: 16px;
+    padding: 16px;
   }
 
   .messagesContainer {
@@ -547,8 +551,8 @@
 @media (max-width: 768px) {
   .main {
     flex-direction: column;
-    gap: 0;
-    padding: 0;
+    gap: 16px;
+    padding: 16px;
   }
 
   .messagesContainer {
@@ -642,8 +646,8 @@
 /* Mobile - Small Screens */
 @media (max-width: 480px) {
   .main {
-    gap: 0;
-    padding: 0;
+    gap: 10px;
+    padding: 10px;
   }
 
   .messagesContainer {

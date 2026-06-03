@@ -16,13 +16,13 @@ npm install;
 
 ### Backend
 ```powershell
-cd C:\Users\gabri\Documents\Arcanjo\backend
+cd backend
 npm run dev
 ```
 
 ### Frontend
 ```powershell
-cd C:\Users\gabri\Documents\Arcanjo\frontend
+cd frontend
 npm run dev
 ```
 

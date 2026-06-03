@@ -9,6 +9,11 @@
 .main {
   display: flex;
   flex: 1;
+  width: 100%;
+  margin: 0;
+  gap: 20px;
+  padding: 18px 24px 24px 12px;
+  align-items: flex-start;
 }
 
 .notifications {
@@ -16,8 +21,18 @@
   background: #ffffff;
   border-left: 1px solid #e2e8f0;
   border-right: 1px solid #e2e8f0;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .main {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
 }
 
 .header {
@@ -98,18 +113,22 @@
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 12px;
+  padding: 16px;
 }
 
 .notifItem {
   display: flex;
   gap: 12px;
   padding: 15px 20px;
-  border-bottom: 1px solid #f1f5f9;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
   cursor: pointer;
   transition: background 0.2s;
   align-items: flex-start;
+  background: #ffffff;
 }
 
 .notifItem:hover {
@@ -179,6 +198,11 @@
     padding: 12px 15px;
   }
 
+  .list {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
   .notifItem img {
     width: 40px;
     height: 40px;
@@ -198,6 +222,10 @@
 }
 
 @media (max-width: 480px) {
+  .main {
+    padding: 10px;
+  }
+
   .header h2 {
     font-size: 18px;
   }

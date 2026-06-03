@@ -9,6 +9,11 @@
 .main {
   display: flex;
   flex: 1;
+  width: 100%;
+  margin: 0;
+  gap: 20px;
+  padding: 18px 24px 24px 12px;
+  align-items: flex-start;
 }
 
 .trending {
@@ -16,8 +21,18 @@
   background: #ffffff;
   border-left: 1px solid #e2e8f0;
   border-right: 1px solid #e2e8f0;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .main {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
 }
 
 .header {
@@ -85,8 +100,10 @@
 }
 
 .projectsList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
 .trendingItem {
@@ -110,6 +127,12 @@
 @media (max-width: 768px) {
   .trending {
     border: none;
+  }
+
+  .projectsList {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
   }
 
   .header {
@@ -141,6 +164,10 @@
 }
 
 @media (max-width: 480px) {
+  .main {
+    padding: 10px;
+  }
+
   .header h1 {
     font-size: 20px;
   }
