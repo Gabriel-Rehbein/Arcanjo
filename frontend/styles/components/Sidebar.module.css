@@ -67,12 +67,10 @@
   margin-top: auto;
   padding: 18px;
   border-radius: 16px;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 40%),
-    #0f172a;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  color: #f8fafc;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
 }
 
 .card h3 {
@@ -92,7 +90,7 @@
   border: 0;
   border-radius: 14px;
   padding: 11px 14px;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   color: #fff;
   cursor: pointer;
   font-weight: 900;

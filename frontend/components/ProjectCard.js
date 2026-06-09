@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
-import styles from "../styles/components/projectCard.module.css";
+import { useRouter } from "next/router";
+import styles from "../styles/components/ProjectCard.module.css";
 import { useApiFetch } from "../utils/api";
-import { getUser } from "../utils/auth";
+import { getToken, getUser } from "../utils/auth";
+import { getPublicationTypeLabel } from "../utils/publicationTypes";
 
 export default function ProjectCard({ project, onLike, onSave, onDelete }) {
+  const router = useRouter();
   const [likedAnimation, setLikedAnimation] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [comments, setComments] = useState([]);
@@ -16,8 +19,12 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const [showMenu, setShowMenu] = useState(false);
 
   const currentUser = getUser();
+  const isAuthenticated = Boolean(getToken());
   const ownerUsername = project?.user?.username || project?.author?.username || project?.username || null;
+  const ownerId = project?.user?.id || project?.author?.id || project?.user_id || null;
   const isOwnProject = currentUser && ownerUsername === currentUser;
+  const hasOwnerActions = isOwnProject && onDelete;
+  const hasVisitorActions = !isOwnProject;
 
   const image = project?.image_url || "/img/logoaba.png";
   const avatar =
@@ -35,6 +42,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
     project?.user?.full_name ||
     project?.author?.full_name ||
     username;
+  const postTypeLabel = project?.post_type_label || getPublicationTypeLabel(project?.post_type);
 
   const api = useApiFetch();
 
@@ -62,8 +70,35 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   }
 
   async function openComments() {
+    setCommentError("");
     setShowCommentsModal(true);
     await loadComments();
+  }
+
+  async function openTechnicalFeedback() {
+    setShowMenu(false);
+    setCommentText((current) => current || "Feedback técnico: ");
+    await openComments();
+  }
+
+  function openGithub() {
+    if (!project?.link) return;
+
+    setShowMenu(false);
+    window.open(project.link, "_blank", "noopener,noreferrer");
+  }
+
+  function requestCollaboration() {
+    setShowMenu(false);
+
+    if (ownerId) {
+      router.push(`/messages?user=${ownerId}`);
+      return;
+    }
+
+    if (ownerUsername) {
+      router.push(`/profile?username=${ownerUsername}`);
+    }
   }
 
   async function sendComment() {
@@ -75,6 +110,16 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
 
     if (!content) return;
 
+    if (!isAuthenticated) {
+      setCommentError("Entre na sua conta para comentar.");
+      return;
+    }
+
+    if (content.length > 500) {
+      setCommentError("O comentário pode ter no máximo 500 caracteres.");
+      return;
+    }
+
     try {
       setSendingComment(true);
       const newComment = await api(`/projects/${project.id}/comments`, {
@@ -85,6 +130,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
       setComments((prev) => [newComment, ...prev]);
       setCommentsCount((c) => Number(c || 0) + 1);
       setCommentText("");
+      setCommentError("");
     } catch (err) {
       console.error("Erro ao comentar:", err);
       setCommentError(err.message || "Erro ao enviar comentário.");
@@ -119,18 +165,20 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
             </div>
           </div>
 
-          {isOwnProject && onDelete && (
+          {(hasOwnerActions || hasVisitorActions) && (
             <div className={styles.moreMenuWrapper}>
               <button
                 type="button"
                 className={styles.moreButton}
                 onClick={() => setShowMenu((prev) => !prev)}
+                aria-label="Mais opções"
               >
                 •••
               </button>
 
               {showMenu && (
                 <div className={styles.moreMenu}>
+                  {hasOwnerActions ? (
                   <button
                     type="button"
                     className={styles.deleteMenuItem}
@@ -141,6 +189,35 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
                   >
                     Excluir publicação
                   </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={openGithub}
+                        disabled={!project?.link}
+                      >
+                        Ver GitHub
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={requestCollaboration}
+                        disabled={!ownerId && !ownerUsername}
+                      >
+                        Pedir colaboração
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={openTechnicalFeedback}
+                      >
+                        Dar feedback técnico
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -215,9 +292,13 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
             {project?.description || "Sem descrição disponível."}
           </p>
 
-          {project?.category && (
-            <span className={styles.category}>{project.category}</span>
-          )}
+          <div className={styles.metaBadges}>
+            <span className={styles.postType}>{postTypeLabel}</span>
+
+            {project?.category && (
+              <span className={styles.category}>{project.category}</span>
+            )}
+          </div>
         </section>
       </article>
 
@@ -280,26 +361,35 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
               {commentError && (
                 <p className={styles.commentError}>{commentError}</p>
               )}
-              <input
-                type="text"
+              <textarea
                 placeholder="Adicione um comentário..."
                 value={commentText}
+                maxLength={500}
+                rows={2}
+                disabled={!isAuthenticated}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     sendComment();
                   }
                 }}
               />
+              <small className={styles.commentCounter}>{commentText.length}/500</small>
 
-              <button
-                type="button"
-                onClick={sendComment}
-                disabled={sendingComment || !commentText.trim()}
-              >
-                {sendingComment ? "Enviando..." : "Publicar"}
-              </button>
+              {!isAuthenticated ? (
+                <button type="button" onClick={() => router.push("/")}>
+                  Entrar
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={sendComment}
+                  disabled={sendingComment || !commentText.trim()}
+                >
+                  {sendingComment ? "Enviando..." : "Publicar"}
+                </button>
+              )}
             </div>
           </div>
         </div>

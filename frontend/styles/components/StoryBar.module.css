@@ -6,8 +6,8 @@
   padding: 14px;
   margin-bottom: 18px;
   border-radius: 24px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   scrollbar-width: thin;
 }
 
@@ -15,7 +15,7 @@
   min-width: 76px;
   border: 0;
   background: transparent;
-  color: #f8fafc;
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -25,15 +25,19 @@
 }
 
 .story:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.01);
 }
 
 .avatarRing {
   width: 68px;
   height: 68px;
-  padding: 3px;
+  padding: 4px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--color-border);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .avatarRing img {
@@ -41,8 +45,8 @@
   height: 100%;
   object-fit: cover;
   border-radius: inherit;
-  border: 3px solid #0f172a;
-  background: #020617;
+  border: 2px solid var(--color-surface);
+  background: var(--color-surface);
 }
 
 .story span {
@@ -50,13 +54,35 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #cbd5e1;
+  color: var(--color-text);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
+.story:focus-within .avatarRing,
+.story:hover .avatarRing {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
 .createStory .avatarRing {
-  background: linear-gradient(135deg, #22c55e, #2563eb);
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--color-border);
+}
+
+.createStory .avatarRing::after {
+  content: "+";
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 900;
 }
 
 @media (max-width: 560px) {
@@ -90,7 +116,7 @@
 }
 
 .modal {
-  background: #0f172a;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 24px;
   max-width: 400px;
@@ -100,12 +126,57 @@
 
 .modal h2 {
   margin: 0 0 20px 0;
-  color: #f8fafc;
+  color: var(--color-text);
   font-size: 1.5rem;
 }
 
 .modal div {
   margin-bottom: 16px;
+}
+
+/* Create form layout */
+.createForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fieldGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.previewBox {
+  width: 120px;
+  height: 160px;
+  border-radius: 12px;
+  border: 1px dashed var(--color-border);
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-strong);
+  overflow: hidden;
+}
+
+.previewBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewPlaceholder {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  padding: 8px;
+  text-align: center;
 }
 
 .modal label {
@@ -121,8 +192,8 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 8px;
-  background: #1e293b;
-  color: #f8fafc;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 1rem;
 }
 
@@ -157,12 +228,12 @@
 }
 
 .modalActions button:last-child {
-  background: #2563eb;
-  color: #f8fafc;
+  background: var(--color-primary);
+  color: var(--color-text, #fff);
 }
 
 .modalActions button:last-child:hover {
-  background: #1d4ed8;
+  background: var(--color-primary-hover);
 }
 
 .modalActions button:disabled {
@@ -173,15 +244,45 @@
 .storyViewer {
   position: relative;
   width: min(560px, 90%);
-  background: #0f172a;
+  background: var(--color-surface);
   border-radius: 18px;
   padding: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
   gap: 18px;
   align-items: center;
+}
+
+.storyTimer {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding-right: 48px;
+}
+
+.storyTimer strong {
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.timerTrack {
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-surface-strong);
+}
+
+.timerTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(91,140,133,0.95), rgba(91,140,133,0.7));
+  transition: width 1s linear;
 }
 
 .storyViewer img {
@@ -190,12 +291,12 @@
   border-radius: 16px;
   object-fit: cover;
   max-height: 420px;
-  background: #020617;
+  background: var(--color-surface);
 }
 
 .storyMeta {
   width: 100%;
-  color: #f8fafc;
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -216,17 +317,18 @@
   top: 12px;
   right: 12px;
   border: none;
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 1.4rem;
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 1.25rem;
   cursor: pointer;
   display: grid;
   place-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 
 .closeButton:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
 }

@@ -22,6 +22,14 @@ export default function EditProfile() {
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [technologies, setTechnologies] = useState("");
+  const [availableForWork, setAvailableForWork] = useState(false);
+  const [githubUrl, setGithubUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [portfolioUrl, setPortfolioUrl] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [selos, setSelos] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -47,6 +55,14 @@ export default function EditProfile() {
         setFullName(u.full_name || "");
         setBio(u.bio || "");
         setEmail(u.email || "");
+        setRole(u.role || "");
+        setTechnologies(Array.isArray(u.technologies) ? u.technologies.join(", ") : "");
+        setAvailableForWork(Boolean(u.available_for_work));
+        setGithubUrl(u.github_url || "");
+        setLinkedinUrl(u.linkedin_url || "");
+        setPortfolioUrl(u.portfolio_url || "");
+        setResumeUrl(u.resume_url || "");
+        setSelos(Array.isArray(u.selos) ? u.selos.map(formatSeloInput).join(", ") : "");
       } catch (err) {
         console.error(err);
       } finally {
@@ -83,7 +99,25 @@ export default function EditProfile() {
     try {
       setLoading(true);
 
-      const payload = { full_name: fullName, bio, email };
+      const payload = {
+        full_name: fullName,
+        bio,
+        email,
+        role,
+        technologies: technologies
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        available_for_work: availableForWork,
+        github_url: githubUrl,
+        linkedin_url: linkedinUrl,
+        portfolio_url: portfolioUrl,
+        resume_url: resumeUrl,
+        selos: selos
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      };
 
       if (avatarFile) {
         payload.avatar_base64 = await readFileAsDataURL(avatarFile);
@@ -134,8 +168,50 @@ export default function EditProfile() {
           </label>
 
           <label className={styles.label}>
+            <span>Cargo</span>
+            <input className={styles.input} value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ex: Desenvolvedor Front-end" />
+          </label>
+
+          <label className={styles.label}>
+            <span>Tecnologias</span>
+            <input className={styles.input} value={technologies} onChange={(e) => setTechnologies(e.target.value)} placeholder="React, Node.js, PostgreSQL" />
+          </label>
+
+          <label className={styles.checkboxLabel}>
+            <input type="checkbox" checked={availableForWork} onChange={(e) => setAvailableForWork(e.target.checked)} />
+            <span>Disponível para trabalho</span>
+          </label>
+
+          <label className={styles.label}>
             <span>Email</span>
             <input className={styles.input} value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+
+          <div className={styles.fieldGrid}>
+            <label className={styles.label}>
+              <span>GitHub</span>
+              <input className={styles.input} type="url" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/seu-user" />
+            </label>
+
+            <label className={styles.label}>
+              <span>LinkedIn</span>
+              <input className={styles.input} type="url" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/seu-user" />
+            </label>
+
+            <label className={styles.label}>
+              <span>Portfólio</span>
+              <input className={styles.input} type="url" value={portfolioUrl} onChange={(e) => setPortfolioUrl(e.target.value)} placeholder="https://seusite.com" />
+            </label>
+
+            <label className={styles.label}>
+              <span>Currículo</span>
+              <input className={styles.input} type="url" value={resumeUrl} onChange={(e) => setResumeUrl(e.target.value)} placeholder="https://drive.google.com/..." />
+            </label>
+          </div>
+
+          <label className={styles.label}>
+            <span>Selos</span>
+            <input className={styles.input} value={selos} onChange={(e) => setSelos(e.target.value)} placeholder="✨ Novo membro, 🧪 Tester, 🤝 Colaborador" />
           </label>
 
           <label className={styles.labelFile}>
@@ -158,4 +234,12 @@ export default function EditProfile() {
       <FooterNav />
     </Layout>
   );
+}
+
+function formatSeloInput(selo) {
+  if (!selo) return "";
+
+  if (typeof selo === "string") return selo;
+
+  return `${selo.symbol || "◆"} ${selo.label || ""}`.trim();
 }

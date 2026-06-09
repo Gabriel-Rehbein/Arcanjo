@@ -2,6 +2,8 @@ import * as repo from "../repositories/UserRepository.js";
 import { hashPassword, comparePassword } from "../utils/hash.js";
 import { generateToken } from "../utils/jwt.js";
 
+const DEFAULT_USER_SEALS = [{ symbol: "✨", label: "Novo membro" }];
+
 export async function register(data) {
   if (!data.username || !data.password) {
     throw { status: 400, message: "Dados inválidos" };
@@ -13,7 +15,12 @@ export async function register(data) {
   }
 
   const hashed = await hashPassword(data.password);
-  const user = await repo.create({ username: data.username, password: hashed });
+  const user = await repo.create({
+    username: data.username,
+    password: hashed,
+    selos: JSON.stringify(DEFAULT_USER_SEALS),
+    badges: JSON.stringify(DEFAULT_USER_SEALS),
+  });
 
   return user;
 }

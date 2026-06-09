@@ -37,6 +37,26 @@ export async function getAll(limit = 100, offset = 0) {
   });
 }
 
+export async function findBots(limit = 50) {
+  const repository = await getRepository(UserSchema);
+  return repository.find({
+    where: { is_bot: true },
+    take: Number(limit),
+    order: { created_at: "DESC" },
+  });
+}
+
+export async function markArcanjoSeedUsersAsBots() {
+  const repository = await getRepository(UserSchema);
+
+  return repository
+    .createQueryBuilder()
+    .update()
+    .set({ is_bot: true })
+    .where("email ILIKE :email", { email: "%@arcanjo.com" })
+    .execute();
+}
+
 export async function update(id, fields) {
   const repository = await getRepository(UserSchema);
   const user = await repository.findOneBy({ id: Number(id) });

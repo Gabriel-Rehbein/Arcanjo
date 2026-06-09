@@ -414,9 +414,24 @@ const seedUsers = [
   },
 ];
 
-function addDays(days) {
-  return new Date(Date.now() + Math.max(1, days) * 24 * 60 * 60 * 1000).toISOString();
+function addHours(hours) {
+  return new Date(Date.now() + Math.max(1, hours) * 60 * 60 * 1000).toISOString();
 }
+
+const seedPublicationTypes = [
+  "projeto",
+  "ideia",
+  "prototipo",
+  "design",
+  "codigo",
+  "print",
+  "video-curto",
+  "atualizacao",
+  "bug-corrigido",
+  "antes-e-depois",
+  "pedido-feedback",
+  "vaga-freela",
+];
 
 export async function seedDatabase() {
   await initializeDatabase();
@@ -433,7 +448,7 @@ export async function seedDatabase() {
   const createdUsers = [];
   const createdProjects = [];
 
-  for (const profile of seedUsers) {
+  for (const [index, profile] of seedUsers.entries()) {
     const user = await userRepo.create({
       username: profile.username,
       password: hashedPassword,
@@ -443,6 +458,9 @@ export async function seedDatabase() {
       avatar_url: profile.avatar_url,
       banner_url: profile.banner_url,
       is_private: false,
+      is_bot: true,
+      selos: JSON.stringify([{ symbol: "🤖", label: "Bot da comunidade" }]),
+      badges: JSON.stringify([{ symbol: "🤖", label: "Bot da comunidade" }]),
     });
 
     const project = await projectRepo.create({
@@ -451,6 +469,7 @@ export async function seedDatabase() {
       user_id: user.id,
       image_url: profile.project.image_url,
       category: profile.project.category,
+      post_type: seedPublicationTypes[index % seedPublicationTypes.length],
       tags: JSON.stringify(profile.project.tags),
       link: profile.project.link,
     });
@@ -459,7 +478,7 @@ export async function seedDatabase() {
       user_id: user.id,
       image_url: profile.story.image_url,
       content: profile.story.content,
-      expires_at: addDays(30),
+      expires_at: addHours(20),
     });
 
     createdUsers.push(user);

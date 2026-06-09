@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import styles from '../styles/components/storyBar.module.css';
+import React, { useEffect, useMemo, useState } from 'react';
+import styles from '../styles/components/StoryBar.module.css';
 import { useApiFetch } from '../utils/api';
+
+const STORY_TTL_MS = 20 * 60 * 60 * 1000;
 
 const botStories = [
   {
@@ -89,6 +91,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [storyData, setStoryData] = useState({ image_url: '', content: '' });
   const [selectedStory, setSelectedStory] = useState(null);
+  const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(false);
   const api = useApiFetch();
 
@@ -103,6 +106,25 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
 
   const visibleStories = stories.length > 0 ? stories : botStories;
   const storyList = [...fallbackStories, ...visibleStories];
+  const selectedStoryTime = useMemo(() => getStoryTime(selectedStory, now), [selectedStory, now]);
+
+  useEffect(() => {
+    if (!selectedStory) return undefined;
+
+    setNow(Date.now());
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [selectedStory]);
+
+  useEffect(() => {
+    if (!selectedStory || selectedStoryTime.remainingMs > 0) return;
+
+    setSelectedStory(null);
+  }, [selectedStory, selectedStoryTime.remainingMs]);
 
   function handleClick(story) {
     if (story.isCreate) {
@@ -110,7 +132,10 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
       return;
     }
 
-    setSelectedStory(story);
+    setSelectedStory({
+      ...story,
+      viewed_at: new Date().toISOString(),
+    });
 
     if (onOpenStory) {
       onOpenStory(story);
@@ -168,6 +193,13 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
       {selectedStory && (
         <div className={styles.modalOverlay} onClick={() => setSelectedStory(null)}>
           <div className={styles.storyViewer} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.storyTimer}>
+              <div className={styles.timerTrack}>
+                <span style={{ width: `${selectedStoryTime.progress}%` }} />
+              </div>
+              <strong>{selectedStoryTime.label}</strong>
+            </div>
+
             <button
               type="button"
               className={styles.closeButton}
@@ -191,18 +223,31 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
         <div className={styles.modalOverlay} onClick={() => setIsCreateModalOpen(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2>Criar Story</h2>
-            <form onSubmit={handleCreateStory}>
-              <div>
-                <label htmlFor="image_url">URL da Imagem:</label>
-                <input
-                  type="url"
-                  id="image_url"
-                  value={storyData.image_url}
-                  onChange={(e) => setStoryData({ ...storyData, image_url: e.target.value })}
-                  required
-                />
+            <form onSubmit={handleCreateStory} className={styles.createForm}>
+              <div className={styles.formRow}>
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="image_url">URL da Imagem:</label>
+                  <input
+                    type="url"
+                    id="image_url"
+                    placeholder="https://.../imagem.jpg"
+                    value={storyData.image_url}
+                    onChange={(e) => setStoryData({ ...storyData, image_url: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className={styles.previewBox} aria-hidden={!storyData.image_url}>
+                  {storyData.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={storyData.image_url} alt="Preview" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  ) : (
+                    <div className={styles.previewPlaceholder}>Pré-visualização</div>
+                  )}
+                </div>
               </div>
-              <div>
+
+              <div className={styles.fieldGroup}>
                 <label htmlFor="content">Conteúdo (opcional):</label>
                 <textarea
                   id="content"
@@ -211,6 +256,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
                   rows={3}
                 />
               </div>
+
               <div className={styles.modalActions}>
                 <button type="button" onClick={() => setIsCreateModalOpen(false)}>
                   Cancelar
@@ -225,4 +271,40 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
       )}
     </>
   );
+}
+
+function getStoryTime(story, currentTime) {
+  if (!story) {
+    return {
+      remainingMs: 0,
+      progress: 0,
+      label: '00:00:00',
+    };
+  }
+
+  const createdAt = story.created_at
+    ? new Date(story.created_at).getTime()
+    : new Date(story.viewed_at || currentTime).getTime();
+  const expiresAt = story.expires_at
+    ? new Date(story.expires_at).getTime()
+    : createdAt + STORY_TTL_MS;
+  const totalMs = Math.max(expiresAt - createdAt, STORY_TTL_MS);
+  const remainingMs = Math.max(expiresAt - currentTime, 0);
+
+  return {
+    remainingMs,
+    progress: Math.max(Math.min((remainingMs / totalMs) * 100, 100), 0),
+    label: formatRemainingTime(remainingMs),
+  };
+}
+
+function formatRemainingTime(milliseconds) {
+  const totalSeconds = Math.max(Math.ceil(milliseconds / 1000), 0);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':');
 }

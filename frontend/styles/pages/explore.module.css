@@ -83,6 +83,11 @@
   padding-bottom: 10px;
 }
 
+.filterGroups {
+  display: grid;
+  gap: 8px;
+}
+
 .categories button {
   padding: 8px 16px;
   background: #f1f5f9;

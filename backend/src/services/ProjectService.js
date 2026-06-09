@@ -3,7 +3,9 @@ import * as likeRepo from "../repositories/LikeRepository.js";
 import * as saveRepo from "../repositories/SaveRepository.js";
 import { getCache, setCache } from "../utils/cache.js";
 import * as commentRepo from "../repositories/CommentRepository.js";
+import * as notificationService from "./NotificationService.js";
 import { assertSafeImageUrl, assertSafeUrl } from "../utils/contentSafety.js";
+import { getPublicationTypeLabel, normalizePublicationType } from "../utils/publicationTypes.js";
 
 const TEST_USER_ID = 1;
 
@@ -41,6 +43,8 @@ function normalizeProject(project) {
   return {
     ...project,
     tags: parseTags(project.tags),
+    post_type: normalizePublicationType(project.post_type || project.type),
+    post_type_label: getPublicationTypeLabel(project.post_type || project.type),
     status: isScheduled ? "scheduled" : project.status || "published",
     is_scheduled: Boolean(isScheduled),
   };
@@ -92,6 +96,7 @@ export async function create(data, userId = TEST_USER_ID) {
   const tags = parseTags(data.tags);
   const title = data.title.trim();
   const description = String(data.description || "").trim();
+  const postType = normalizePublicationType(data.post_type || data.type);
 
   const imageUrl = assertSafeImageUrl(data.image_url, "URL da imagem");
   const projectLink = assertSafeUrl(data.link, "Link do projeto");
@@ -106,6 +111,7 @@ export async function create(data, userId = TEST_USER_ID) {
     ...data,
     title,
     description,
+    post_type: postType,
     image_url: imageUrl || null,
     link: projectLink || null,
     tags: JSON.stringify(tags),
@@ -181,6 +187,13 @@ export async function getByCategory(category) {
   return normalizeProjects(data);
 }
 
+export async function getByPublicationType(postType) {
+  const normalizedType = normalizePublicationType(postType);
+  const data = await repo.findByPublicationType(normalizedType);
+
+  return normalizeProjects(data);
+}
+
 export async function getSaved(userId = TEST_USER_ID, category) {
   const data = await saveRepo.findSavedByUserId(
     userId || TEST_USER_ID,
@@ -197,6 +210,8 @@ export async function getSaved(userId = TEST_USER_ID, category) {
       banner_url: project.banner_url,
     },
     tags: parseTags(project.tags),
+    post_type: normalizePublicationType(project.post_type || project.type),
+    post_type_label: getPublicationTypeLabel(project.post_type || project.type),
   }));
 }
 
@@ -325,10 +340,18 @@ export async function getProjectComments(projectId) {
   return Array.isArray(comments) ? comments.map(sanitizeComment) : [];
 }
 
-export async function createProjectComment(projectId, data, userId = TEST_USER_ID) {
+export async function createProjectComment(projectId, data, userId) {
   const fixedProjectId = Number(projectId);
-  const fixedUserId = userId || TEST_USER_ID;
+  const fixedUserId = Number(userId);
   const content = String(data.content || "").trim();
+
+  if (!fixedUserId) {
+    throw { status: 401, message: "Autenticacao necessaria" };
+  }
+
+  if (content.length > 500) {
+    throw { status: 400, message: "Comentario deve ter no maximo 500 caracteres" };
+  }
 
   if (!fixedProjectId) {
     throw { status: 400, message: "ID do projeto inválido" };
@@ -351,6 +374,16 @@ export async function createProjectComment(projectId, data, userId = TEST_USER_I
 
   project.comments_count = (project.comments_count || 0) + 1;
   await repo.save(project);
+
+  if (project.user_id && Number(project.user_id) !== Number(fixedUserId)) {
+    await notificationService.createNotification({
+      user_id: project.user_id,
+      from_user_id: fixedUserId,
+      type: "comment",
+      project_id: fixedProjectId,
+      message: "Comentou na sua publicação.",
+    });
+  }
 
   setCache("projects", null);
   setCache("feed", null);

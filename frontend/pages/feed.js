@@ -110,8 +110,8 @@ export default function Feed() {
 
           {!loading && !error && projects.length === 0 && (
             <div className={styles.empty}>
-              <h3>Nenhum projeto encontrado</h3>
-              <p>Siga outros usuários ou explore novos projetos.</p>
+              <h3>Nenhuma publicação encontrada</h3>
+              <p>Siga outros usuários ou explore novas publicações.</p>
             </div>
           )}
 

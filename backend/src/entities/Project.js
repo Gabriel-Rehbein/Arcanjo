@@ -28,6 +28,10 @@ export default new EntitySchema({
       type: String,
       nullable: true,
     },
+    post_type: {
+      type: String,
+      default: "projeto",
+    },
     tags: {
       type: String,
       nullable: true, // JSON string de tags

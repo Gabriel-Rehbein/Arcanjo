@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/createProject.module.css';
 import { useApiFetch } from '../utils/api';
 import { validateSafeImageUrl, validateSafeUrl } from '../utils/contentSafety';
+import { DEFAULT_PUBLICATION_TYPE, PUBLICATION_TYPES } from '../utils/publicationTypes';
 
 export default function CreateProject() {
 
@@ -13,6 +14,7 @@ export default function CreateProject() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    post_type: DEFAULT_PUBLICATION_TYPE,
     category: 'desenvolvimento',
     tags: '',
     image_url: '',
@@ -108,12 +110,27 @@ export default function CreateProject() {
 
         <main className={styles.createProject}>
           <div className={styles.formContainer}>
-            <h1>Novo Projeto</h1>
-            <p>Publique um projeto para aparecer no feed da rede social.</p>
+            <h1>Nova publicação</h1>
+            <p>Publique progresso, ideias, protótipos e oportunidades no feed.</p>
 
             {error && <div className={styles.error}>{error}</div>}
 
             <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label>Tipo de publicação</label>
+                <select
+                  name="post_type"
+                  value={formData.post_type}
+                  onChange={handleChange}
+                >
+                  {PUBLICATION_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className={styles.formGroup}>
                 <label>Título *</label>
                 <input
@@ -190,7 +207,7 @@ export default function CreateProject() {
               )}
 
               <div className={styles.formGroup}>
-                <label>Link do Projeto</label>
+                <label>Link relacionado</label>
                 <input
                   type="url"
                   name="link"
@@ -202,7 +219,7 @@ export default function CreateProject() {
 
               <div className={styles.actions}>
                 <button type="submit" className={styles.submitBtn} disabled={loading}>
-                  {loading ? 'Publicando...' : 'Publicar Projeto'}
+                  {loading ? 'Publicando...' : 'Publicar'}
                 </button>
 
                 <button

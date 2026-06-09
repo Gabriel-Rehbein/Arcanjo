@@ -8,6 +8,7 @@ import styles from '../styles/pages/explore.module.css';
 import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { getUser } from '../utils/auth';
+import { PUBLICATION_TYPES } from '../utils/publicationTypes';
 
 export default function Explore() {
   useAuthGuard();
@@ -20,6 +21,7 @@ export default function Explore() {
   const [filter, setFilter] = useState('projects');
   const [recentSearches, setRecentSearches] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
   const [orderBy, setOrderBy] = useState('recent');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,11 +29,12 @@ export default function Explore() {
   const api = useApiFetch();
 
   const categories = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
+  const publicationTypes = [{ value: 'all', label: 'Tudo' }, ...PUBLICATION_TYPES];
 
   useEffect(() => {
     setCurrentUser(getUser());
     loadExplore();
-  }, [search, selectedCategory, filter]);
+  }, [search, selectedCategory, selectedType, filter]);
 
   useEffect(() => {
     try {
@@ -59,6 +62,8 @@ export default function Explore() {
       } else if (filter === 'users') {
         // show all users when on the Users tab and no search
         usersData = await api('/users');
+      } else if (selectedType !== 'all') {
+        projectsData = await api(`/projects/type/${selectedType}`);
       } else if (selectedCategory !== 'all') {
         projectsData = await api(`/projects/category/${selectedCategory}`);
       } else {
@@ -119,7 +124,7 @@ export default function Explore() {
                 className={filter === 'projects' ? styles.active : ''}
                 onClick={() => setFilter('projects')}
               >
-                Projetos
+                Publicações
               </button>
 
               <button
@@ -132,17 +137,38 @@ export default function Explore() {
             </div>
 
             {filter === 'projects' && !search && (
-              <div className={styles.categories}>
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={selectedCategory === cat ? styles.active : ''}
-                    onClick={() => setSelectedCategory(cat)}
-                  >
-                    {cat === 'all' ? 'Tudo' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </button>
-                ))}
+              <div className={styles.filterGroups}>
+                <div className={styles.categories}>
+                  {publicationTypes.map((type) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      className={selectedType === type.value ? styles.active : ''}
+                      onClick={() => {
+                        setSelectedType(type.value);
+                        if (type.value !== 'all') setSelectedCategory('all');
+                      }}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.categories}>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      className={selectedCategory === cat ? styles.active : ''}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        if (cat !== 'all') setSelectedType('all');
+                      }}
+                    >
+                      {cat === 'all' ? 'Todas categorias' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

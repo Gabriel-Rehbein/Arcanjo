@@ -36,7 +36,7 @@ export default function Saved() {
 
       setProjects(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || 'Erro ao carregar projetos salvos.');
+      setError(err.message || 'Erro ao carregar publicações salvas.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export default function Saved() {
         <main className={styles.saved}>
           <div className={styles.header}>
             <h1>Salvos</h1>
-            <p>Seus projetos favoritos para acessar depois.</p>
+            <p>Suas publicações favoritas para acessar depois.</p>
           </div>
 
           <input
@@ -114,8 +114,8 @@ export default function Saved() {
 
           {!loading && !error && filteredProjects.length === 0 && (
             <div className={styles.empty}>
-              <p>Nenhum projeto salvo encontrado.</p>
-              <Link href="/explore">Explorar projetos →</Link>
+              <p>Nenhuma publicação salva encontrada.</p>
+              <Link href="/explore">Explorar publicações →</Link>
             </div>
           )}
 

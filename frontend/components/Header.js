@@ -49,7 +49,7 @@ export default function Header() {
       <form className={styles.searchBox} onSubmit={handleSearch}>
         <input
           type="text"
-          placeholder="Buscar projetos, usuários ou tags..."
+          placeholder="Buscar publicações, usuários ou tags..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

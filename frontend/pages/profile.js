@@ -28,6 +28,25 @@ export default function Profile() {
     return projects.filter((project) => project.image_url);
   }, [projects]);
 
+  const featuredProjects = useMemo(() => {
+    const featured = projects.filter((project) => project.is_featured);
+
+    if (featured.length) {
+      return featured;
+    }
+
+    return [...projects]
+      .sort((a, b) => {
+        const scoreA = Number(a.likes_count || 0) + Number(a.comments_count || 0);
+        const scoreB = Number(b.likes_count || 0) + Number(b.comments_count || 0);
+        return scoreB - scoreA;
+      })
+      .slice(0, 3);
+  }, [projects]);
+
+  const recentProjects = useMemo(() => projects.slice(0, 8), [projects]);
+  const profileLinks = useMemo(() => getProfileLinks(user), [user]);
+
   useEffect(() => {
     const currentUser = getUser();
     const targetUsername = username || currentUser;
@@ -177,10 +196,36 @@ export default function Profile() {
                 <h1>{user.full_name || user.username}</h1>
                 <span className={styles.username}>@{user.username}</span>
 
+                {user.is_bot && <span className={styles.botBadge}>BOT</span>}
+
+                {user.role && <strong className={styles.role}>{user.role}</strong>}
+
+                {user.available_for_work && (
+                  <span className={styles.workStatus}>Disponível para trabalho</span>
+                )}
+
                 <p className={styles.bio}>
                   {user.bio || "Este usuário ainda não adicionou uma bio."}
                 </p>
               </div>
+
+              {user.technologies?.length > 0 && (
+                <div className={styles.techList}>
+                  {user.technologies.map((technology) => (
+                    <span key={technology}>{technology}</span>
+                  ))}
+                </div>
+              )}
+
+              {profileLinks.length > 0 && (
+                <div className={styles.profileLinks}>
+                  {profileLinks.map((link) => (
+                    <a key={link.label} href={link.href} target="_blank" rel="noreferrer">
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              )}
 
               <div className={styles.actions}>
                 {isOwnProfile ? (
@@ -190,7 +235,7 @@ export default function Profile() {
                     </button>
 
                     <button onClick={() => router.push("/create-project")}>
-                      Novo projeto
+                      Nova publicação
                     </button>
 
                     <button onClick={() => router.push("/calendar")}>
@@ -222,7 +267,7 @@ export default function Profile() {
               onClick={() => setActiveTab("projects")}
             >
               <strong>{projects.length}</strong>
-              <span>Projetos</span>
+              <span>Publicações</span>
             </button>
 
             <button
@@ -242,14 +287,48 @@ export default function Profile() {
               <strong>{user.following_count || 0}</strong>
               <span>Seguindo</span>
             </button>
+
+            <button
+              type="button"
+              className={activeTab === "reputation" ? styles.statActive : ""}
+              onClick={() => setActiveTab("reputation")}
+            >
+              <strong>{user.reputation || 0}</strong>
+              <span>Reputação</span>
+            </button>
+          </section>
+
+          <section className={styles.profilePanels}>
+            <article>
+              <span>Reputação</span>
+              <strong>{user.reputation || 0}</strong>
+            </article>
+
+            <article>
+              <span>Selos</span>
+              <div className={styles.selos}>
+                {user.selos?.length ? (
+                  user.selos.map((selo) => <Selo key={`${selo.symbol}-${selo.label}`} selo={selo} />)
+                ) : (
+                  <small>Nenhum selo ainda</small>
+                )}
+              </div>
+            </article>
           </section>
 
           <nav className={styles.tabs}>
             <button
+              className={activeTab === "featured" ? styles.active : ""}
+              onClick={() => setActiveTab("featured")}
+            >
+              Destaques
+            </button>
+
+            <button
               className={activeTab === "projects" ? styles.active : ""}
               onClick={() => setActiveTab("projects")}
             >
-              Projetos
+              Publicações
             </button>
 
             <button
@@ -273,6 +352,13 @@ export default function Profile() {
               Seguindo
             </button>
 
+            <button
+              className={activeTab === "reputation" ? styles.active : ""}
+              onClick={() => setActiveTab("reputation")}
+            >
+              Reputação
+            </button>
+
             {isOwnProfile && (
               <button onClick={() => router.push("/saved")}>
                 Salvos
@@ -281,22 +367,48 @@ export default function Profile() {
           </nav>
 
           <section className={styles.content}>
-            {activeTab === "projects" && (
-              projects.length ? (
-                <div className={styles.projectsList}>
-                  {projects.map((project) => (
-                    <div key={project.id} className={styles.projectWrapper}>
-                      <ProjectCard
-                        project={project}
-                        onDelete={() => handleDeleteProject(project.id)}
-                      />
-                    </div>
-                  ))}
-                </div>
+            {activeTab === "featured" && (
+              featuredProjects.length ? (
+                <>
+                  <h2 className={styles.sectionTitle}>Projetos em destaque</h2>
+                  <div className={styles.projectsList}>
+                    {featuredProjects.map((project) => (
+                      <div key={project.id} className={styles.projectWrapper}>
+                        <ProjectCard
+                          project={project}
+                          onDelete={() => handleDeleteProject(project.id)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className={styles.empty}>
-                  <h3>Nenhum projeto publicado</h3>
-                  <p>Quando houver projetos, eles aparecerão aqui.</p>
+                  <h3>Nenhum destaque ainda</h3>
+                  <p>Projetos em destaque aparecerão aqui.</p>
+                </div>
+              )
+            )}
+
+            {activeTab === "projects" && (
+              recentProjects.length ? (
+                <>
+                  <h2 className={styles.sectionTitle}>Posts recentes</h2>
+                  <div className={styles.projectsList}>
+                    {recentProjects.map((project) => (
+                      <div key={project.id} className={styles.projectWrapper}>
+                        <ProjectCard
+                          project={project}
+                          onDelete={() => handleDeleteProject(project.id)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className={styles.empty}>
+                  <h3>Nenhuma publicação ainda</h3>
+                  <p>Ideias, protótipos e projetos aparecerão aqui.</p>
                 </div>
               )
             )}
@@ -313,7 +425,7 @@ export default function Profile() {
                       <img src={project.image_url} alt={project.title} />
                       <div>
                         <strong>{project.title}</strong>
-                        <span>{project.category || "Projeto"}</span>
+                        <span>{project.post_type_label || project.category || "Publicação"}</span>
                       </div>
                     </button>
                   ))}
@@ -321,9 +433,25 @@ export default function Profile() {
               ) : (
                 <div className={styles.empty}>
                   <h3>Galeria vazia</h3>
-                  <p>Publique projetos com imagem para aparecerem aqui.</p>
+                  <p>Publique qualquer progresso com imagem para aparecer aqui.</p>
                 </div>
               )
+            )}
+
+            {activeTab === "reputation" && (
+              <div className={styles.reputationPanel}>
+                <h3>Reputação</h3>
+                <strong>{user.reputation || 0}</strong>
+                <p>Calculada a partir de seguidores, curtidas, comentários e visualizações das publicações.</p>
+
+                <div className={styles.selos}>
+                  {user.selos?.length ? (
+                    user.selos.map((selo) => <Selo key={`${selo.symbol}-${selo.label}`} selo={selo} />)
+                  ) : (
+                    <small>Nenhum selo ainda</small>
+                  )}
+                </div>
+              </div>
             )}
 
             {activeTab === "followers" && (
@@ -389,5 +517,27 @@ function SocialList({ users, loading, emptyTitle, emptyText, onOpenProfile }) {
         </button>
       ))}
     </div>
+  );
+}
+
+function getProfileLinks(user) {
+  if (!user) return [];
+
+  return [
+    { label: "GitHub", href: user.github_url },
+    { label: "LinkedIn", href: user.linkedin_url },
+    { label: "Portfólio", href: user.portfolio_url },
+    { label: "Currículo", href: user.resume_url },
+  ].filter((link) => link.href);
+}
+
+function Selo({ selo }) {
+  const normalized = typeof selo === "string" ? { symbol: "◆", label: selo } : selo;
+
+  return (
+    <em>
+      <span>{normalized.symbol || "◆"}</span>
+      {normalized.label}
+    </em>
   );
 }

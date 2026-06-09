@@ -6,6 +6,7 @@ import styles from '../styles/pages/calendar.module.css';
 import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { validateSafeImageUrl, validateSafeUrl } from '../utils/contentSafety';
+import { DEFAULT_PUBLICATION_TYPE, PUBLICATION_TYPES, getPublicationTypeLabel } from '../utils/publicationTypes';
 
 function toDateTimeLocal(date) {
   const pad = (value) => String(value).padStart(2, '0');
@@ -61,6 +62,7 @@ export default function CalendarPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    post_type: DEFAULT_PUBLICATION_TYPE,
     category: 'desenvolvimento',
     tags: '',
     image_url: '',
@@ -260,6 +262,17 @@ export default function CalendarPage() {
                 </label>
 
                 <label>
+                  <span>Tipo de publicacao</span>
+                  <select name="post_type" value={formData.post_type} onChange={handleChange}>
+                    {PUBLICATION_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
                   <span>Titulo</span>
                   <input
                     type="text"
@@ -351,6 +364,7 @@ export default function CalendarPage() {
                   <article key={project.id} className={styles.scheduleItem}>
                     <div>
                       <strong>{project.title}</strong>
+                      <small>{project.post_type_label || getPublicationTypeLabel(project.post_type)}</small>
                       <span>
                         {new Date(project.scheduled_at).toLocaleString('pt-BR', {
                           dateStyle: 'short',

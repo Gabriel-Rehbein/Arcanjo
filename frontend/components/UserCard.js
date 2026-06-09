@@ -58,7 +58,10 @@ export default function UserCard({ user, onFollow }) {
       <div className={styles.info}>
         <Link href={`/profile?username=${username}`} legacyBehavior>
           <a className={styles.nameLink} onClick={(e) => e.stopPropagation()}>
-            <h3>{fullName}</h3>
+            <h3>
+              {fullName}
+              {user?.is_bot && <em className={styles.botBadge}>BOT</em>}
+            </h3>
             <span>@{username}</span>
           </a>
         </Link>

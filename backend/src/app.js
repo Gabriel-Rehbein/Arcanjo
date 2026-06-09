@@ -13,6 +13,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import rateLimit from "./middlewares/rateLimit.middleware.js";
 import { testConnection } from "./config/db.js";
 import { seedDatabase } from "./seed.js";
+import { startBotSimulation, stopBotSimulation } from "./services/BotService.js";
 
 dotenv.config();
 
@@ -44,12 +45,24 @@ const server = app.listen(PORT, async () => {
     if (process.env.RUN_SEED === "true") {
       await seedDatabase();
     }
+
+    await startBotSimulation();
   } catch (err) {
     console.error("❌ Erro banco:", err.message || err);
     process.exit(1);
   }
 
   console.log(`🚀 Backend rodando em http://localhost:${PORT}`);
+});
+
+process.on("SIGINT", () => {
+  stopBotSimulation();
+  server.close(() => process.exit(0));
+});
+
+process.on("SIGTERM", () => {
+  stopBotSimulation();
+  server.close(() => process.exit(0));
 });
 
 server.on("error", (err) => {

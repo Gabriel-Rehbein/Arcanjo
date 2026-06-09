@@ -65,6 +65,18 @@ export async function findByCategory(category) {
     .getMany();
 }
 
+export async function findByPublicationType(postType) {
+  const repository = await getRepository(ProjectSchema);
+
+  return repository
+    .createQueryBuilder("project")
+    .leftJoinAndSelect("project.user", "user")
+    .where("project.post_type = :postType", { postType })
+    .andWhere("(project.is_public = true OR project.scheduled_at <= NOW())")
+    .orderBy("project.created_at", "DESC")
+    .getMany();
+}
+
 export async function searchProjects(query) {
   const repository = await getRepository(ProjectSchema);
 
@@ -72,7 +84,7 @@ export async function searchProjects(query) {
     .createQueryBuilder("project")
     .leftJoinAndSelect("project.user", "user")
     .where("(project.is_public = true OR project.scheduled_at <= NOW())")
-    .andWhere("(project.title ILIKE :q OR project.description ILIKE :q OR project.tags ILIKE :q)", { q: `%${query}%` })
+    .andWhere("(project.title ILIKE :q OR project.description ILIKE :q OR project.tags ILIKE :q OR project.post_type ILIKE :q)", { q: `%${query}%` })
     .orderBy("project.created_at", "DESC")
     .getMany();
 }

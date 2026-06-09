@@ -40,11 +40,10 @@ export default function Sidebar() {
       </nav>
 
       <div className={styles.card}>
-        <h3>Arcanjo</h3>
-        <p>Publique projetos, conecte-se com devs e construa seu portfólio social.</p>
+        <p>Publique progresso, conecte-se com devs e construa seu portfólio social.</p>
 
         <button type="button" onClick={() => router.push('/create-project')}>
-          Novo Projeto
+          Nova publicação
         </button>
       </div>
     </aside>

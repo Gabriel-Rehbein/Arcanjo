@@ -6,6 +6,14 @@ export async function create(comment) {
   return repository.save(comment);
 }
 
+export async function findByUserAndProject(userId, projectId) {
+  const repository = await getRepository(CommentSchema);
+  return repository.findOneBy({
+    user_id: Number(userId),
+    project_id: Number(projectId),
+  });
+}
+
 export async function findByProjectId(projectId) {
   const repository = await getRepository(CommentSchema);
 

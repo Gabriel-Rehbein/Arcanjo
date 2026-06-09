@@ -28,6 +28,46 @@ export default new EntitySchema({
       type: String,
       nullable: true,
     },
+    role: {
+      type: String,
+      nullable: true,
+    },
+    technologies: {
+      type: String,
+      nullable: true,
+    },
+    available_for_work: {
+      type: Boolean,
+      default: false,
+    },
+    github_url: {
+      type: String,
+      nullable: true,
+    },
+    linkedin_url: {
+      type: String,
+      nullable: true,
+    },
+    portfolio_url: {
+      type: String,
+      nullable: true,
+    },
+    resume_url: {
+      type: String,
+      nullable: true,
+    },
+    reputation: {
+      type: Number,
+      default: 0,
+    },
+    badges: {
+      type: String,
+      nullable: true,
+    },
+    selos: {
+      type: String,
+      nullable: true,
+    },
     avatar_url: {
       type: String,
       nullable: true,
@@ -37,6 +77,10 @@ export default new EntitySchema({
       nullable: true,
     },
     is_private: {
+      type: Boolean,
+      default: false,
+    },
+    is_bot: {
       type: Boolean,
       default: false,
     },

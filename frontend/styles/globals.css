@@ -5,14 +5,141 @@
   box-sizing: border-box;
 }
 
+:root {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-strong: #f1f5f9;
+  --color-card: #ffffff;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] {
+  --color-bg: #020617;
+  --color-surface: #0f172a;
+  --color-surface-strong: #1e293b;
+  --color-card: #111827;
+  --color-text: #f8fafc;
+  --color-muted: #cbd5e1;
+  --color-border: rgba(148, 163, 184, 0.22);
+  --color-primary: #38bdf8;
+  --color-primary-hover: #0284c7;
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="midnight"] {
+  --color-bg: #030712;
+  --color-surface: #111827;
+  --color-surface-strong: #1f2937;
+  --color-card: #0b1120;
+  --color-text: #f9fafb;
+  --color-muted: #d1d5db;
+  --color-border: rgba(148, 163, 184, 0.22);
+  --color-primary: #22d3ee;
+  --color-primary-hover: #0891b2;
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="forest"] {
+  --color-bg: #052e16;
+  --color-surface: #064e3b;
+  --color-surface-strong: #065f46;
+  --color-card: #063f32;
+  --color-text: #ecfdf5;
+  --color-muted: #bbf7d0;
+  --color-border: rgba(167, 243, 208, 0.22);
+  --color-primary: #34d399;
+  --color-primary-hover: #059669;
+  --shadow-soft: 0 18px 45px rgba(1, 45, 28, 0.34);
+}
+
+[data-theme="sunset"] {
+  --color-bg: #451a03;
+  --color-surface: #7c2d12;
+  --color-surface-strong: #9a3412;
+  --color-card: #5f250f;
+  --color-text: #fff7ed;
+  --color-muted: #fed7aa;
+  --color-border: rgba(253, 186, 116, 0.24);
+  --color-primary: #fb923c;
+  --color-primary-hover: #ea580c;
+  --shadow-soft: 0 18px 45px rgba(67, 20, 7, 0.36);
+}
+
+[data-theme="rose"] {
+  --color-bg: #4a044e;
+  --color-surface: #831843;
+  --color-surface-strong: #9d174d;
+  --color-card: #701a45;
+  --color-text: #fdf2f8;
+  --color-muted: #fbcfe8;
+  --color-border: rgba(251, 207, 232, 0.24);
+  --color-primary: #f472b6;
+  --color-primary-hover: #db2777;
+  --shadow-soft: 0 18px 45px rgba(74, 4, 78, 0.34);
+}
+
+/* Tema Suave - limpo, sem molduras nem sombras, fácil para os olhos */
+[data-theme="suave"] {
+  --color-bg: #f7faf7;
+  --color-surface: #ffffff;
+  --color-surface-strong: #f5f7f5;
+  --color-card: #ffffff;
+  --color-text: #0b1220;
+  --color-muted: #6b7280;
+  --color-border: transparent;
+  --color-primary: #5b8c85;
+  --color-primary-hover: #4d7b72;
+  --shadow-soft: none;
+}
+
+/* Remover bordas e sombras em componentes de superfície para o tema suave */
+[data-theme="suave"] .card,
+[data-theme="suave"] [class*="card"],
+[data-theme="suave"] [class*="Card"],
+[data-theme="suave"] [class*="panel"],
+[data-theme="suave"] [class*="Panel"],
+[data-theme="suave"] [class*="modal"],
+[data-theme="suave"] [class*="formContainer"],
+[data-theme="suave"] [class*="filterBar"] {
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--color-card) !important;
+}
+
+[data-theme="suave"] input,
+[data-theme="suave"] textarea,
+[data-theme="suave"] select {
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="suave"] button {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="suave"] input:focus,
+[data-theme="suave"] button:focus {
+  outline: 2px solid rgba(91,140,133,0.18);
+  outline-offset: 2px;
+}
+
 html,
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--color-bg);
+  color: var(--color-text);
   line-height: 1.6;
 }
 
@@ -29,6 +156,76 @@ input,
 textarea,
 select {
   font-family: inherit;
+}
+
+[data-theme] body,
+[data-theme] .page-shell,
+[data-theme] [class*="container"],
+[data-theme] [class*="main"] {
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme] .card,
+[data-theme] [class*="card"],
+[data-theme] [class*="Card"],
+[data-theme] [class*="panel"],
+[data-theme] [class*="Panel"],
+[data-theme] [class*="formContainer"],
+[data-theme] [class*="filterBar"],
+[data-theme] [class*="empty"],
+[data-theme] [class*="modal"] {
+  background: var(--color-card) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+[data-theme] h1,
+[data-theme] h2,
+[data-theme] h3,
+[data-theme] h4,
+[data-theme] strong,
+[data-theme] label {
+  color: var(--color-text);
+}
+
+[data-theme] p,
+[data-theme] span,
+[data-theme] small {
+  color: inherit;
+}
+
+[data-theme] input,
+[data-theme] textarea,
+[data-theme] select {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme] input:disabled,
+[data-theme] textarea:disabled,
+[data-theme] select:disabled {
+  background: var(--color-surface-strong) !important;
+  color: var(--color-muted) !important;
+}
+
+[data-theme] button {
+  /* background: var(--color-primary); */
+  /* color: #ffffff; */
+}
+
+[data-theme] button:hover {
+  background: var(--color-primary-hover);
+}
+
+[data-theme] [class*="logout"] {
+  background: var(--color-danger) !important;
+}
+
+[data-theme] [class*="logout"]:hover {
+  background: var(--color-danger-hover) !important;
 }
 
 /* Scrollbar Global */

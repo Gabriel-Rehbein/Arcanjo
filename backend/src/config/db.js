@@ -57,9 +57,20 @@ export async function createTablesIfNotExist() {
         email VARCHAR(255),
         full_name VARCHAR(255),
         bio TEXT,
+        role VARCHAR(255),
+        technologies TEXT,
+        available_for_work BOOLEAN DEFAULT false,
+        github_url VARCHAR(255),
+        linkedin_url VARCHAR(255),
+        portfolio_url VARCHAR(255),
+        resume_url VARCHAR(255),
+        reputation INTEGER DEFAULT 0,
+        badges TEXT,
+        selos TEXT,
         avatar_url VARCHAR(255),
         banner_url VARCHAR(255),
         is_private BOOLEAN DEFAULT false,
+        is_bot BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -69,9 +80,20 @@ export async function createTablesIfNotExist() {
       ADD COLUMN IF NOT EXISTS email VARCHAR(255),
       ADD COLUMN IF NOT EXISTS full_name VARCHAR(255),
       ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS role VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS technologies TEXT,
+      ADD COLUMN IF NOT EXISTS available_for_work BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS github_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS portfolio_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS resume_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS reputation INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS badges TEXT,
+      ADD COLUMN IF NOT EXISTS selos TEXT,
       ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(255),
       ADD COLUMN IF NOT EXISTS banner_url VARCHAR(255),
       ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS is_bot BOOLEAN DEFAULT false,
       ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     `);
 
@@ -84,6 +106,7 @@ export async function createTablesIfNotExist() {
         user_id INTEGER,
         image_url VARCHAR(255),
         category VARCHAR(100),
+        post_type VARCHAR(50) DEFAULT 'projeto',
         tags TEXT,
         link VARCHAR(255),
         likes_count INTEGER DEFAULT 0,
@@ -197,6 +220,7 @@ export async function createTablesIfNotExist() {
       ALTER TABLE projects
       ADD COLUMN IF NOT EXISTS image_url VARCHAR(255),
       ADD COLUMN IF NOT EXISTS category VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS post_type VARCHAR(50) DEFAULT 'projeto',
       ADD COLUMN IF NOT EXISTS tags TEXT,
       ADD COLUMN IF NOT EXISTS link VARCHAR(255),
       ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0,
