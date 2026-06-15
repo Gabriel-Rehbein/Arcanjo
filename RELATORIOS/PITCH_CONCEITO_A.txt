@@ -1,0 +1,73 @@
+PITCH ARCANJO - 10 A 12 MINUTOS
+
+SLIDE 1 - PROBLEMA E PROPOSTA (45s)
+- Dificuldade de profissionais em apresentar projetos e criar conexoes.
+- Arcanjo: rede social focada em projetos, portfolio e descoberta de talentos.
+
+SLIDE 2 - EXPERIENCIA DO USUARIO (60s)
+- Demonstrar splash, feed responsivo, exploracao e perfil.
+- Destacar design consistente, temas e navegacao mobile.
+
+SLIDE 3 - FRONTEND E RENDERIZACAO (75s)
+- Next.js 16 + React 19.
+- SSR em feed, explore, trending e perfil.
+- Hidratacao para curtidas, comentarios, filtros e navegacao.
+- SPA nas telas intensamente interativas.
+
+SLIDE 4 - PUBLICACAO PROGRAMADA (75s)
+- Demonstrar clique no dia, modal, filtros e cards.
+- Demonstrar edicao e drag-and-drop.
+- Explicar estado otimista, rollback e rascunhos locais.
+
+SLIDE 5 - REGRAS ALEM DE CRUD (60s)
+- Curtidas unicas, seguidores, feed, notificacoes, mensagens e stories.
+- Autorizacao por propriedade e expiracao de conteudo.
+
+SLIDE 6 - ARQUITETURA (60s)
+- Fluxo: Route -> Middleware -> Controller -> Service -> Repository -> PostgreSQL.
+- Separacao entre regras de negocio e persistencia.
+- App Express separado do processo servidor para testabilidade.
+
+SLIDE 7 - SEGURANCA EM PROFUNDIDADE (120s)
+- Bcrypt 12 rounds.
+- JWT com segredo forte, expiracao, issuer e audience.
+- Zod para body, params e query.
+- Helmet e headers no Next.
+- CORS allowlist.
+- Rate limiting geral e de autenticacao.
+- Controle de acesso por usuario/proprietario.
+- Limite de payload e URLs seguras.
+- Mostrar backend com audit zerado e frontend sem alertas altos ou criticos.
+
+SLIDE 8 - PERFORMANCE (75s)
+- SSR reduz tela vazia e melhora primeira resposta.
+- Compressao HTTP.
+- Cache TTL com invalidacao.
+- Indices PostgreSQL e pool de conexoes.
+- Deduplicacao de GET e consultas paralelas.
+
+SLIDE 9 - ERROS E QUALIDADE (60s)
+- Envelope global de erro e Request ID.
+- Mensagens internas ocultas em producao.
+- Vitest + Supertest, lint e build.
+- Mostrar os dez testes passando.
+
+SLIDE 10 - DEPLOY E CI/CD (60s)
+- Docker multi-stage, usuarios sem privilegios e health checks.
+- Compose com PostgreSQL, backend e frontend.
+- GitHub Actions: install, audit, lint, test e build.
+
+SLIDE 11 - RESULTADOS E EVOLUCAO (45s)
+- Sistema funcional, seguro, testavel e reproduzivel.
+- Proximos passos: Redis distribuido, observabilidade e testes E2E.
+
+SLIDE 12 - ENCERRAMENTO (30s)
+- Reforcar: produto completo, regras reais, seguranca comprovada e performance mensuravel.
+- Abrir para perguntas.
+
+DEMONSTRACAO RECOMENDADA
+1. Login e feed SSR.
+2. Curtir/comentar uma publicacao.
+3. Abrir calendario e reagendar um post.
+4. Mostrar resposta /health e headers.
+5. Mostrar npm test e npm audit.

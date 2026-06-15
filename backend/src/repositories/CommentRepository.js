@@ -1,5 +1,5 @@
-import { getRepository } from "../config/db.js";
-import CommentSchema from "../entities/Comment.js";
+import { getRepository } from '../config/db.js';
+import CommentSchema from '../entities/Comment.js';
 
 export async function create(comment) {
   const repository = await getRepository(CommentSchema);
@@ -19,8 +19,8 @@ export async function findByProjectId(projectId) {
 
   return repository.find({
     where: { project_id: Number(projectId) },
-    relations: ["user"],
-    order: { created_at: "DESC" },
+    relations: ['user'],
+    order: { created_at: 'DESC' },
   });
 }
 
@@ -28,6 +28,6 @@ export async function findById(id) {
   const repository = await getRepository(CommentSchema);
   return repository.findOne({
     where: { id: Number(id) },
-    relations: ["user"],
+    relations: ['user'],
   });
 }

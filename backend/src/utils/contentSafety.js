@@ -1,13 +1,13 @@
-const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"];
+const allowedImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
 const imageHostsWithoutExtension = [
-  "picsum.photos",
-  "images.unsplash.com",
-  "source.unsplash.com",
-  "randomuser.me",
+  'picsum.photos',
+  'images.unsplash.com',
+  'source.unsplash.com',
+  'randomuser.me',
 ];
 
 function parseUrl(value, fieldLabel) {
-  const trimmed = String(value || "").trim();
+  const trimmed = String(value || '').trim();
 
   if (!trimmed) return null;
 
@@ -21,7 +21,7 @@ function parseUrl(value, fieldLabel) {
     };
   }
 
-  if (!["http:", "https:"].includes(parsed.protocol)) {
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw {
       status: 400,
       message: `${fieldLabel} deve usar apenas http ou https.`,
@@ -38,22 +38,24 @@ function parseUrl(value, fieldLabel) {
   return parsed;
 }
 
-export function assertSafeUrl(value, fieldLabel = "Link") {
+export function assertSafeUrl(value, fieldLabel = 'Link') {
   const parsed = parseUrl(value, fieldLabel);
-  if (!parsed) return "";
+  if (!parsed) return '';
 
   return parsed.toString();
 }
 
-export function assertSafeImageUrl(value, fieldLabel = "Imagem") {
+export function assertSafeImageUrl(value, fieldLabel = 'Imagem') {
   const parsed = parseUrl(value, fieldLabel);
-  if (!parsed) return "";
+  if (!parsed) return '';
 
   const safeUrl = assertSafeUrl(value, fieldLabel);
   const hostname = parsed.hostname.toLowerCase();
   const pathname = parsed.pathname.toLowerCase();
   const hasAllowedExtension = allowedImageExtensions.some((ext) => pathname.endsWith(ext));
-  const isKnownImageHost = imageHostsWithoutExtension.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+  const isKnownImageHost = imageHostsWithoutExtension.some(
+    (host) => hostname === host || hostname.endsWith(`.${host}`)
+  );
 
   if (!hasAllowedExtension && !isKnownImageHost) {
     throw {
@@ -70,5 +72,5 @@ export function assertSafeContent(fields) {
 }
 
 export function getGuidelineMessage() {
-  return "";
+  return '';
 }

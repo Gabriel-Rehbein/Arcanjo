@@ -1,8 +1,8 @@
-﻿import { EntitySchema } from "typeorm";
+﻿import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Project",
-  tableName: "projects",
+  name: 'Project',
+  tableName: 'projects',
   columns: {
     id: {
       type: Number,
@@ -30,7 +30,7 @@ export default new EntitySchema({
     },
     post_type: {
       type: String,
-      default: "projeto",
+      default: 'projeto',
     },
     tags: {
       type: String,
@@ -45,12 +45,12 @@ export default new EntitySchema({
       default: true,
     },
     scheduled_at: {
-      type: "timestamp",
+      type: 'timestamp',
       nullable: true,
     },
     status: {
       type: String,
-      default: "published",
+      default: 'published',
     },
     likes_count: {
       type: Number,
@@ -69,20 +69,20 @@ export default new EntitySchema({
       default: false,
     },
     created_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
     updated_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
   },
   relations: {
     user: {
-      type: "many-to-one",
-      target: "User",
+      type: 'many-to-one',
+      target: 'User',
       joinColumn: {
-        name: "user_id",
+        name: 'user_id',
       },
       nullable: true,
     },

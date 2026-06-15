@@ -1,65 +1,37 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import CalendarView, { getDateKey } from '../components/calendar/CalendarView';
+import ScheduleCard from '../components/calendar/ScheduleCard';
+import ScheduleModal from '../components/calendar/ScheduleModal';
 import styles from '../styles/pages/calendar.module.css';
 import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
 import { validateSafeImageUrl, validateSafeUrl } from '../utils/contentSafety';
-import { DEFAULT_PUBLICATION_TYPE, PUBLICATION_TYPES, getPublicationTypeLabel } from '../utils/publicationTypes';
+import { DEFAULT_PUBLICATION_TYPE } from '../utils/publicationTypes';
+
+const DRAFTS_KEY = 'arcanjo_schedule_drafts';
 
 function toDateTimeLocal(date) {
-  const pad = (value) => String(value).padStart(2, '0');
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
 }
 
-function getInitialScheduleDate() {
-  const date = new Date();
-  date.setHours(date.getHours() + 1, 0, 0, 0);
-  return toDateTimeLocal(date);
+function dateForDay(date) {
+  const selected = new Date(date);
+  const now = new Date();
+  selected.setHours(
+    selected.toDateString() === now.toDateString() ? now.getHours() + 1 : 10,
+    0,
+    0,
+    0
+  );
+  return toDateTimeLocal(selected);
 }
 
-function getMonthDays(currentDate) {
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const startOffset = firstDay.getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = [];
-
-  for (let i = 0; i < startOffset; i += 1) {
-    cells.push(null);
-  }
-
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    cells.push(new Date(year, month, day));
-  }
-
-  return cells;
-}
-
-function getDateKey(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-export default function CalendarPage() {
-  useAuthGuard();
-
-  const router = useRouter();
-  const api = useApiFetch();
-  const [scheduledProjects, setScheduledProjects] = useState([]);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [formData, setFormData] = useState({
+function emptyForm(date = new Date()) {
+  return {
     title: '',
     description: '',
     post_type: DEFAULT_PUBLICATION_TYPE,
@@ -67,319 +39,424 @@ export default function CalendarPage() {
     tags: '',
     image_url: '',
     link: '',
-    scheduled_at: getInitialScheduleDate(),
-  });
+    scheduled_at: dateForDay(date),
+  };
+}
 
-  const categories = ['design', 'desenvolvimento', 'marketing', 'fotografia', 'arte', 'outro'];
+function getMonthDays(currentDate) {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const startOffset = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return [
+    ...Array.from({ length: startOffset }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, index) => new Date(year, month, index + 1)),
+  ];
+}
+
+function projectToForm(project) {
+  return {
+    title: project.title || '',
+    description: project.description || '',
+    post_type: project.post_type || DEFAULT_PUBLICATION_TYPE,
+    category: project.category || 'desenvolvimento',
+    tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags || '',
+    image_url: project.image_url || '',
+    link: project.link || '',
+    scheduled_at: toDateTimeLocal(new Date(project.scheduled_at)),
+  };
+}
+
+function normalizeProject(project) {
+  return {
+    ...project,
+    ui_status: project.ui_status || (project.status === 'failed' ? 'failed' : 'scheduled'),
+  };
+}
+
+function readDrafts() {
+  try {
+    const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+    return Array.isArray(drafts) ? drafts : [];
+  } catch {
+    localStorage.removeItem(DRAFTS_KEY);
+    return [];
+  }
+}
+
+export default function CalendarPage() {
+  useAuthGuard();
+  const router = useRouter();
+  const api = useApiFetch();
+  const [projects, setProjects] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [pageError, setPageError] = useState('');
+  const [modalError, setModalError] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [formData, setFormData] = useState(emptyForm());
+
   const monthCells = useMemo(() => getMonthDays(currentMonth), [currentMonth]);
+  const visibleProjects = useMemo(
+    () => projects.filter((project) => filter === 'all' || project.ui_status === filter),
+    [projects, filter]
+  );
+  const projectsByDate = useMemo(
+    () =>
+      visibleProjects.reduce((grouped, project) => {
+        if (!project.scheduled_at) return grouped;
+        const key = getDateKey(new Date(project.scheduled_at));
+        grouped[key] = [...(grouped[key] || []), project];
+        return grouped;
+      }, {}),
+    [visibleProjects]
+  );
+  const counters = useMemo(
+    () =>
+      projects.reduce(
+        (result, project) => ({
+          ...result,
+          [project.ui_status]: (result[project.ui_status] || 0) + 1,
+        }),
+        {}
+      ),
+    [projects]
+  );
 
-  const projectsByDate = useMemo(() => {
-    return scheduledProjects.reduce((acc, project) => {
-      if (!project.scheduled_at) return acc;
-
-      const key = getDateKey(new Date(project.scheduled_at));
-      acc[key] = acc[key] || [];
-      acc[key].push(project);
-      return acc;
-    }, {});
-  }, [scheduledProjects]);
-
-  useEffect(() => {
-    loadScheduledProjects();
-  }, []);
-
-  async function loadScheduledProjects() {
+  const loadProjects = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api('/projects/scheduled');
-      setScheduledProjects(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err.message || 'Erro ao carregar agendamentos.');
+      setPageError('');
+      const remote = await api('/projects/scheduled');
+      const drafts = readDrafts();
+      setProjects([...(Array.isArray(remote) ? remote.map(normalizeProject) : []), ...drafts]);
+    } catch (error) {
+      setPageError(error.message || 'Erro ao carregar agendamentos.');
     } finally {
       setLoading(false);
     }
+  }, [api]);
+
+  useEffect(() => {
+    loadProjects();
+    // A API hook is intentionally read only on mount to avoid refetching while its loading context changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function persistDrafts(nextProjects) {
+    localStorage.setItem(
+      DRAFTS_KEY,
+      JSON.stringify(nextProjects.filter((project) => project.ui_status === 'draft'))
+    );
+  }
+
+  function openCreate(date) {
+    setEditingProject(null);
+    setFormData(emptyForm(date));
+    setModalError('');
+    setModalOpen(true);
+  }
+
+  function openEdit(project) {
+    setEditingProject(project);
+    setFormData(projectToForm(project));
+    setModalError('');
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    if (saving) return;
+    setModalOpen(false);
+    setEditingProject(null);
+    setModalError('');
   }
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((current) => ({ ...current, [name]: value }));
   }
 
   function validateForm() {
-    if (formData.title.trim().length < 3) {
-      return 'O titulo precisa ter pelo menos 3 caracteres.';
-    }
-
-    if (formData.description.trim().length < 10) {
+    if (formData.title.trim().length < 3) return 'O titulo precisa ter pelo menos 3 caracteres.';
+    if (formData.description.trim().length < 10)
       return 'A descricao precisa ter pelo menos 10 caracteres.';
-    }
+    const scheduledAt = new Date(formData.scheduled_at);
+    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt <= new Date())
+      return 'Escolha uma data futura.';
+    return (
+      validateSafeImageUrl(formData.image_url, 'URL da imagem') ||
+      validateSafeUrl(formData.link, 'Link do projeto') ||
+      ''
+    );
+  }
 
-    const scheduledDate = new Date(formData.scheduled_at);
-    if (!formData.scheduled_at || Number.isNaN(scheduledDate.getTime())) {
-      return 'Escolha uma data e horario validos.';
-    }
-
-    if (scheduledDate <= new Date()) {
-      return 'Escolha uma data futura para programar a publicacao.';
-    }
-
-    const safetyChecks = [
-      validateSafeImageUrl(formData.image_url, 'URL da imagem'),
-      validateSafeUrl(formData.link, 'Link do projeto'),
-    ].filter(Boolean);
-
-    return safetyChecks[0] || '';
+  function payloadFromForm() {
+    return {
+      ...formData,
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      scheduled_at: new Date(formData.scheduled_at).toISOString(),
+      tags: formData.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    };
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      setSuccess('');
-      return;
-    }
+    if (validationError) return setModalError(validationError);
+
+    const payload = payloadFromForm();
+    const optimisticId = editingProject?.id || `pending-${Date.now()}`;
+    const optimistic = normalizeProject({
+      ...editingProject,
+      ...payload,
+      id: optimisticId,
+      ui_status: 'scheduled',
+    });
+    const previous = projects;
+
+    setProjects((current) => [
+      optimistic,
+      ...current.filter(
+        (project) => project.id !== optimisticId && project.id !== editingProject?.id
+      ),
+    ]);
+    setSaving(true);
+    setModalError('');
 
     try {
-      setSaving(true);
-      setError('');
-      setSuccess('');
-
-      await api('/projects', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...formData,
-          title: formData.title.trim(),
-          description: formData.description.trim(),
-          scheduled_at: new Date(formData.scheduled_at).toISOString(),
-          tags: formData.tags
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean),
-        }),
-      });
-
-      setSuccess('Publicacao programada com sucesso.');
-      setFormData((prev) => ({
-        ...prev,
-        title: '',
-        description: '',
-        tags: '',
-        image_url: '',
-        link: '',
-        scheduled_at: getInitialScheduleDate(),
-      }));
-      await loadScheduledProjects();
-    } catch (err) {
-      setError(err.message || 'Erro ao programar publicacao.');
+      const isRemoteEdit = editingProject && !String(editingProject.id).startsWith('draft-');
+      const saved = await api(
+        isRemoteEdit ? `/projects/${editingProject.id}/schedule` : '/projects',
+        {
+          method: isRemoteEdit ? 'PUT' : 'POST',
+          body: JSON.stringify(payload),
+        }
+      );
+      const nextProjects = [
+        normalizeProject(saved),
+        ...previous.filter((project) => project.id !== editingProject?.id),
+      ];
+      setProjects(nextProjects);
+      persistDrafts(nextProjects);
+      setSaving(false);
+      closeModal();
+    } catch (error) {
+      setProjects(previous);
+      setModalError(error.message || 'Nao foi possivel salvar a publicacao.');
     } finally {
       setSaving(false);
     }
   }
 
-  function changeMonth(offset) {
-    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + offset, 1));
+  function saveDraft() {
+    const draft = {
+      ...editingProject,
+      ...payloadFromForm(),
+      id: editingProject?.ui_status === 'draft' ? editingProject.id : `draft-${Date.now()}`,
+      ui_status: 'draft',
+      status: 'draft',
+    };
+    const nextProjects = [
+      draft,
+      ...projects.filter((project) => project.id !== editingProject?.id),
+    ];
+    setProjects(nextProjects);
+    persistDrafts(nextProjects);
+    closeModal();
   }
+
+  async function deleteProject(project) {
+    if (!window.confirm(`Cancelar "${project.title}"?`)) return;
+    const previous = projects;
+    const nextProjects = projects.filter((item) => item.id !== project.id);
+    setProjects(nextProjects);
+    persistDrafts(nextProjects);
+
+    if (project.ui_status === 'draft') return;
+
+    try {
+      await api(`/projects/${project.id}`, { method: 'DELETE' });
+    } catch (error) {
+      setProjects(previous);
+      setPageError(error.message || 'Nao foi possivel excluir o agendamento.');
+    }
+  }
+
+  async function moveProject(projectId, targetDate) {
+    const project = projects.find((item) => String(item.id) === String(projectId));
+    if (!project) return;
+    const originalDate = project.scheduled_at;
+    const nextDate = new Date(targetDate);
+    const oldDate = new Date(originalDate);
+    nextDate.setHours(oldDate.getHours(), oldDate.getMinutes(), 0, 0);
+    if (nextDate <= new Date()) return setPageError('Arraste para uma data futura.');
+
+    setProjects((current) =>
+      current.map((item) =>
+        item.id === project.id ? { ...item, scheduled_at: nextDate.toISOString() } : item
+      )
+    );
+    try {
+      await api(`/projects/${project.id}/schedule`, {
+        method: 'PUT',
+        body: JSON.stringify({ scheduled_at: nextDate.toISOString() }),
+      });
+    } catch (error) {
+      setProjects((current) =>
+        current.map((item) =>
+          item.id === project.id
+            ? { ...item, scheduled_at: originalDate, ui_status: 'failed' }
+            : item
+        )
+      );
+      setPageError(error.message || 'Falha ao remarcar. A data anterior foi restaurada.');
+    }
+  }
+
+  const filters = [
+    { value: 'all', label: 'Todos', count: projects.length },
+    { value: 'scheduled', label: 'Agendados', count: counters.scheduled || 0 },
+    { value: 'draft', label: 'Rascunhos', count: counters.draft || 0 },
+    { value: 'failed', label: 'Falharam', count: counters.failed || 0 },
+  ];
 
   return (
     <div className={styles.container}>
       <Header />
-
       <div className={styles.main}>
         <Sidebar />
-
         <main className={styles.calendarPage}>
           <section className={styles.headerPanel}>
             <div>
-              <h1>Programar publicação</h1>
-              <p>Escolha data e horario para publicar automaticamente no feed.</p>
+              <span className={styles.eyebrow}>Planejamento de conteudo</span>
+              <h1>Calendario de publicacoes</h1>
+              <p>Clique em um dia para criar ou arraste um card para remarcar.</p>
             </div>
+            <div className={styles.headerActions}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={() => router.push('/profile')}
+              >
+                Voltar
+              </button>
+              <button type="button" onClick={() => openCreate(new Date())}>
+                Nova publicacao
+              </button>
+            </div>
+          </section>
 
-            <button type="button" onClick={() => router.push('/profile')}>
-              Voltar ao perfil
+          <section className={styles.toolbar}>
+            <div className={styles.filters}>
+              {filters.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  className={filter === item.value ? styles.activeFilter : ''}
+                  onClick={() => setFilter(item.value)}
+                >
+                  {item.label}
+                  <span>{item.count}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={styles.todayButton}
+              onClick={() => setCurrentMonth(new Date())}
+            >
+              Hoje
             </button>
           </section>
 
-          <div className={styles.grid}>
-            <section className={styles.panel}>
-              <div className={styles.monthHeader}>
-                <button type="button" onClick={() => changeMonth(-1)}>‹</button>
-                <h2>
-                  {currentMonth.toLocaleDateString('pt-BR', {
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </h2>
-                <button type="button" onClick={() => changeMonth(1)}>›</button>
-              </div>
-
-              <div className={styles.weekDays}>
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((day) => (
-                  <span key={day}>{day}</span>
-                ))}
-              </div>
-
-              <div className={styles.monthGrid}>
-                {monthCells.map((date, index) => {
-                  const key = date ? getDateKey(date) : `empty-${index}`;
-                  const dayProjects = date ? projectsByDate[key] || [] : [];
-
-                  return (
-                    <div key={key} className={`${styles.dayCell} ${!date ? styles.emptyDay : ''}`}>
-                      {date && (
-                        <>
-                          <strong>{date.getDate()}</strong>
-                          {dayProjects.slice(0, 3).map((project) => (
-                            <span key={project.id} title={project.title}>
-                              {project.title}
-                            </span>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className={styles.panel}>
-              <h2>Nova publicação agendada</h2>
-              {error && <div className={styles.error}>{error}</div>}
-              {success && <div className={styles.success}>{success}</div>}
-
-              <form className={styles.form} onSubmit={handleSubmit}>
-                <label>
-                  <span>Data e horario</span>
-                  <input
-                    type="datetime-local"
-                    name="scheduled_at"
-                    value={formData.scheduled_at}
-                    min={toDateTimeLocal(new Date())}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span>Tipo de publicacao</span>
-                  <select name="post_type" value={formData.post_type} onChange={handleChange}>
-                    {PUBLICATION_TYPES.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span>Titulo</span>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="Ex: Novo portfolio"
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span>Descricao</span>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Explique o projeto..."
-                    rows="5"
-                    required
-                  />
-                </label>
-
-                <div className={styles.formRow}>
-                  <label>
-                    <span>Categoria</span>
-                    <select name="category" value={formData.category} onChange={handleChange}>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label>
-                    <span>Tags</span>
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleChange}
-                      placeholder="react, design"
-                    />
-                  </label>
-                </div>
-
-                <label>
-                  <span>URL da imagem</span>
-                  <input
-                    type="url"
-                    name="image_url"
-                    value={formData.image_url}
-                    onChange={handleChange}
-                    placeholder="https://site.com/imagem.png"
-                  />
-                </label>
-
-                <label>
-                  <span>Link do projeto</span>
-                  <input
-                    type="url"
-                    name="link"
-                    value={formData.link}
-                    onChange={handleChange}
-                    placeholder="https://github.com/seu-projeto"
-                  />
-                </label>
-
-                <button type="submit" disabled={saving}>
-                  {saving ? 'Programando...' : 'Programar publicação'}
-                </button>
-              </form>
-            </section>
-          </div>
+          {pageError && (
+            <div className={styles.error}>
+              {pageError}
+              <button type="button" onClick={() => setPageError('')}>
+                x
+              </button>
+            </div>
+          )}
 
           <section className={styles.panel}>
-            <h2>Agendamentos</h2>
-
-            {loading && <div className={styles.emptyState}>Carregando agendamentos...</div>}
-
-            {!loading && !scheduledProjects.length && (
-              <div className={styles.emptyState}>Nenhuma publicação programada ainda.</div>
+            <div className={styles.monthHeader}>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentMonth((date) => new Date(date.getFullYear(), date.getMonth() - 1, 1))
+                }
+              >
+                ‹
+              </button>
+              <h2>
+                {currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </h2>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentMonth((date) => new Date(date.getFullYear(), date.getMonth() + 1, 1))
+                }
+              >
+                ›
+              </button>
+            </div>
+            {loading ? (
+              <div className={styles.emptyState}>Carregando calendario...</div>
+            ) : (
+              <CalendarView
+                cells={monthCells}
+                projectsByDate={projectsByDate}
+                onSelectDate={openCreate}
+                onEdit={openEdit}
+                onDelete={deleteProject}
+                onMove={moveProject}
+              />
             )}
+          </section>
 
-            {!loading && scheduledProjects.length > 0 && (
+          <section className={styles.panel}>
+            <div className={styles.sectionHeader}>
+              <div>
+                <h2>Proximas publicacoes</h2>
+                <p>Edite ou cancele sem sair do calendario.</p>
+              </div>
+            </div>
+            {!loading && !visibleProjects.length ? (
+              <div className={styles.emptyState}>Nenhuma publicacao neste filtro.</div>
+            ) : (
               <div className={styles.scheduleList}>
-                {scheduledProjects.map((project) => (
-                  <article key={project.id} className={styles.scheduleItem}>
-                    <div>
-                      <strong>{project.title}</strong>
-                      <small>{project.post_type_label || getPublicationTypeLabel(project.post_type)}</small>
-                      <span>
-                        {new Date(project.scheduled_at).toLocaleString('pt-BR', {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
-                        })}
-                      </span>
-                    </div>
-                    <em>{project.is_scheduled ? 'Agendado' : 'Publicado'}</em>
-                  </article>
+                {visibleProjects.slice(0, 8).map((project) => (
+                  <ScheduleCard
+                    key={project.id}
+                    project={project}
+                    onEdit={openEdit}
+                    onDelete={deleteProject}
+                  />
                 ))}
               </div>
             )}
           </section>
         </main>
       </div>
+
+      <ScheduleModal
+        open={modalOpen}
+        mode={editingProject ? 'edit' : 'create'}
+        formData={formData}
+        error={modalError}
+        saving={saving}
+        onChange={handleChange}
+        onClose={closeModal}
+        onSubmit={handleSubmit}
+        onSaveDraft={saveDraft}
+      />
     </div>
   );
 }

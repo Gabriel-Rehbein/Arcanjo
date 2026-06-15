@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import styles from '../styles/components/userCard.module.css';
+import styles from '../styles/components/UserCard.module.css';
 import { useApiFetch } from '../utils/api';
 
 export default function UserCard({ user, onFollow }) {
@@ -48,22 +48,26 @@ export default function UserCard({ user, onFollow }) {
   return (
     <article className={styles.card} onClick={openProfile}>
       <div className={styles.avatarBox}>
-        <Link href={`/profile?username=${username}`} legacyBehavior>
-          <a className={styles.avatarLink} onClick={(e) => e.stopPropagation()}>
+        <Link
+          href={`/profile?username=${username}`}
+          className={styles.avatarLink}
+          onClick={(e) => e.stopPropagation()}
+        >
             <img src={avatar} alt={username} />
-          </a>
         </Link>
       </div>
 
       <div className={styles.info}>
-        <Link href={`/profile?username=${username}`} legacyBehavior>
-          <a className={styles.nameLink} onClick={(e) => e.stopPropagation()}>
+        <Link
+          href={`/profile?username=${username}`}
+          className={styles.nameLink}
+          onClick={(e) => e.stopPropagation()}
+        >
             <h3>
               {fullName}
               {user?.is_bot && <em className={styles.botBadge}>BOT</em>}
             </h3>
             <span>@{username}</span>
-          </a>
         </Link>
         <p>{bio}</p>
 

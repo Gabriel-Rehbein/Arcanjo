@@ -1,12 +1,12 @@
-import * as userRepo from "../repositories/UserRepository.js";
-import * as projectService from "../services/ProjectService.js";
-import * as followService from "../services/FollowService.js";
-import { assertSafeUrl } from "../utils/contentSafety.js";
-import fs from "fs";
-import path from "path";
+import * as userRepo from '../repositories/UserRepository.js';
+import * as projectService from '../services/ProjectService.js';
+import * as followService from '../services/FollowService.js';
+import { assertSafeUrl } from '../utils/contentSafety.js';
+import fs from 'fs';
+import path from 'path';
 
 const TEST_USER_ID = 1;
-const DEFAULT_SELOS = [{ symbol: "✨", label: "Novo membro" }];
+const DEFAULT_SELOS = [{ symbol: '✨', label: 'Novo membro' }];
 
 function parseList(value) {
   if (!value) return [];
@@ -15,7 +15,7 @@ function parseList(value) {
     return value.map((item) => String(item).trim()).filter(Boolean);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
@@ -23,7 +23,7 @@ function parseList(value) {
       }
     } catch {
       return value
-        .split(",")
+        .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
     }
@@ -33,15 +33,15 @@ function parseList(value) {
 }
 
 function parseSealList(value) {
-  const fallbackSymbol = "◆";
+  const fallbackSymbol = '◆';
 
   if (!value) return [];
 
   if (Array.isArray(value)) {
     return value
       .map((item) => {
-        if (item && typeof item === "object") {
-          const label = String(item.label || item.name || "").trim();
+        if (item && typeof item === 'object') {
+          const label = String(item.label || item.name || '').trim();
           const symbol = String(item.symbol || fallbackSymbol).trim() || fallbackSymbol;
           return label ? { symbol, label } : null;
         }
@@ -51,7 +51,7 @@ function parseSealList(value) {
       .filter(Boolean);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
@@ -59,7 +59,7 @@ function parseSealList(value) {
       }
     } catch {
       return value
-        .split(",")
+        .split(',')
         .map((item) => parseSealText(item, fallbackSymbol))
         .filter(Boolean);
     }
@@ -69,13 +69,13 @@ function parseSealList(value) {
 }
 
 function parseSealText(value, fallbackSymbol) {
-  const text = String(value || "").trim();
+  const text = String(value || '').trim();
   if (!text) return null;
 
   const [first, ...rest] = text.split(/\s+/);
   const hasExplicitSymbol = first && !/[a-zA-Z0-9À-ÿ]/.test(first);
   const symbol = hasExplicitSymbol ? first : fallbackSymbol;
-  const label = hasExplicitSymbol ? rest.join(" ").trim() : text;
+  const label = hasExplicitSymbol ? rest.join(' ').trim() : text;
 
   return label ? { symbol, label } : null;
 }
@@ -113,12 +113,12 @@ function sanitizeUser(user) {
 export async function getUserById(req, res, next) {
   try {
     const userId = Number(req.params.id);
-    if (!userId) return res.status(400).json({ message: "ID inválido" });
+    if (!userId) return res.status(400).json({ message: 'ID inválido' });
 
     const user = await userRepo.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     const [followers_count, following_count, userProjects] = await Promise.all([
@@ -150,11 +150,11 @@ export async function getUserByUsername(req, res, next) {
     const user = await userRepo.findByUsername(username);
 
     if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     const [followers_count, following_count, userProjects] = await Promise.all([
@@ -182,7 +182,7 @@ export async function getUserByUsername(req, res, next) {
 export async function followUser(req, res, next) {
   try {
     const targetId = parseInt(req.params.id, 10);
-    if (!targetId) return res.status(400).json({ message: "ID inválido" });
+    if (!targetId) return res.status(400).json({ message: 'ID inválido' });
 
     const followerId = req.user?.id || TEST_USER_ID;
 
@@ -201,7 +201,7 @@ export async function followUser(req, res, next) {
 export async function unfollowUser(req, res, next) {
   try {
     const targetId = parseInt(req.params.id, 10);
-    if (!targetId) return res.status(400).json({ message: "ID inválido" });
+    if (!targetId) return res.status(400).json({ message: 'ID inválido' });
 
     const followerId = req.user?.id || TEST_USER_ID;
 
@@ -224,7 +224,7 @@ export async function getUserProjects(req, res, next) {
     const user = await userRepo.findByUsername(username);
 
     if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
     const projects = await projectService.getByUserId(user.id);
@@ -255,7 +255,7 @@ export async function getUserFollowers(req, res, next) {
     const user = await userRepo.findByUsername(username);
 
     if (!user) {
-      return res.status(404).json({ message: "UsuÃ¡rio nÃ£o encontrado" });
+      return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado' });
     }
 
     const followers = await followService.listFollowers(user.id);
@@ -276,7 +276,7 @@ export async function getUserFollowing(req, res, next) {
     const user = await userRepo.findByUsername(username);
 
     if (!user) {
-      return res.status(404).json({ message: "UsuÃ¡rio nÃ£o encontrado" });
+      return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado' });
     }
 
     const following = await followService.listFollowing(user.id);
@@ -293,7 +293,7 @@ export async function getUserFollowing(req, res, next) {
 
 export async function searchUsers(req, res, next) {
   try {
-    const query = String(req.query.q || "").trim();
+    const query = String(req.query.q || '').trim();
 
     if (!query) {
       return res.json([]);
@@ -314,18 +314,20 @@ export async function listUsers(req, res, next) {
     const users = await userRepo.getAll(limit, offset);
 
     // enrich users with follower counts and is_following status
-    const enriched = await Promise.all(users.map(async (u) => {
-      const safe = sanitizeUser(u);
-      const followers_count = await followService.getFollowerCount(u.id);
-      const following_count = await followService.getFollowingCount(u.id);
-      const is_following = req.user ? await followService.isFollowing(req.user.id, u.id) : false;
-      return {
-        ...safe,
-        followers_count,
-        following_count,
-        is_following,
-      };
-    }));
+    const enriched = await Promise.all(
+      users.map(async (u) => {
+        const safe = sanitizeUser(u);
+        const followers_count = await followService.getFollowerCount(u.id);
+        const following_count = await followService.getFollowingCount(u.id);
+        const is_following = req.user ? await followService.isFollowing(req.user.id, u.id) : false;
+        return {
+          ...safe,
+          followers_count,
+          following_count,
+          is_following,
+        };
+      })
+    );
 
     res.json(enriched);
   } catch (err) {
@@ -338,11 +340,11 @@ export async function updateUserByUsername(req, res, next) {
     const { username } = req.params;
     const user = await userRepo.findByUsername(username);
 
-    if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
 
     const authUserId = req.user?.id;
     if (!authUserId || Number(authUserId) !== Number(user.id)) {
-      return res.status(403).json({ message: "Não autorizado a editar este usuário" });
+      return res.status(403).json({ message: 'Não autorizado a editar este usuário' });
     }
 
     const {
@@ -368,30 +370,34 @@ export async function updateUserByUsername(req, res, next) {
     if (bio !== undefined) updates.bio = String(bio).slice(0, 1000);
     if (email !== undefined) updates.email = String(email).slice(0, 255);
     if (role !== undefined) updates.role = String(role).slice(0, 255);
-    if (technologies !== undefined) updates.technologies = JSON.stringify(parseList(technologies).slice(0, 30));
+    if (technologies !== undefined)
+      updates.technologies = JSON.stringify(parseList(technologies).slice(0, 30));
     if (selos !== undefined || badges !== undefined) {
       const serializedSelos = JSON.stringify(parseSealList(selos ?? badges).slice(0, 20));
       updates.selos = serializedSelos;
       updates.badges = serializedSelos;
     }
     if (available_for_work !== undefined) updates.available_for_work = Boolean(available_for_work);
-    if (github_url !== undefined) updates.github_url = assertSafeUrl(github_url, "GitHub") || null;
-    if (linkedin_url !== undefined) updates.linkedin_url = assertSafeUrl(linkedin_url, "LinkedIn") || null;
-    if (portfolio_url !== undefined) updates.portfolio_url = assertSafeUrl(portfolio_url, "Portfolio") || null;
-    if (resume_url !== undefined) updates.resume_url = assertSafeUrl(resume_url, "Curriculo") || null;
+    if (github_url !== undefined) updates.github_url = assertSafeUrl(github_url, 'GitHub') || null;
+    if (linkedin_url !== undefined)
+      updates.linkedin_url = assertSafeUrl(linkedin_url, 'LinkedIn') || null;
+    if (portfolio_url !== undefined)
+      updates.portfolio_url = assertSafeUrl(portfolio_url, 'Portfolio') || null;
+    if (resume_url !== undefined)
+      updates.resume_url = assertSafeUrl(resume_url, 'Curriculo') || null;
 
     // handle base64 images
-    const uploadsDir = path.join(process.cwd(), "uploads");
+    const uploadsDir = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
     if (avatar_base64) {
       const matches = avatar_base64.match(/^data:(image\/\w+);base64,(.+)$/);
       if (matches) {
-        const ext = matches[1].split("/")[1] || "png";
+        const ext = matches[1].split('/')[1] || 'png';
         const data = matches[2];
         const filename = `avatar_${user.id}_${Date.now()}.${ext}`;
         const filepath = path.join(uploadsDir, filename);
-        await fs.promises.writeFile(filepath, Buffer.from(data, "base64"));
+        await fs.promises.writeFile(filepath, Buffer.from(data, 'base64'));
         updates.avatar_url = `/uploads/${filename}`;
       }
     }
@@ -399,11 +405,11 @@ export async function updateUserByUsername(req, res, next) {
     if (banner_base64) {
       const matches = banner_base64.match(/^data:(image\/\w+);base64,(.+)$/);
       if (matches) {
-        const ext = matches[1].split("/")[1] || "png";
+        const ext = matches[1].split('/')[1] || 'png';
         const data = matches[2];
         const filename = `banner_${user.id}_${Date.now()}.${ext}`;
         const filepath = path.join(uploadsDir, filename);
-        await fs.promises.writeFile(filepath, Buffer.from(data, "base64"));
+        await fs.promises.writeFile(filepath, Buffer.from(data, 'base64'));
         updates.banner_url = `/uploads/${filename}`;
       }
     }
@@ -425,7 +431,12 @@ function getProfileReputation(user, projects, followersCount) {
   if (user.reputation) return user.reputation;
 
   const projectScore = (projects || []).reduce((total, project) => {
-    return total + Number(project.likes_count || 0) * 2 + Number(project.comments_count || 0) * 3 + Number(project.views_count || 0);
+    return (
+      total +
+      Number(project.likes_count || 0) * 2 +
+      Number(project.comments_count || 0) * 3 +
+      Number(project.views_count || 0)
+    );
   }, 0);
 
   return Math.round(projectScore + Number(followersCount || 0) * 5);

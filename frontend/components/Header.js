@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import styles from '../styles/components/header.module.css';
+import styles from '../styles/components/Header.module.css';
 import { getUser } from '../utils/auth';
 
 export default function Header() {

@@ -144,23 +144,27 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
       <article className={styles.card}>
         <header className={styles.header}>
           <div className={styles.userButton}>
-            <Link href={`/profile?username=${username}`} legacyBehavior>
-              <a className={styles.userLink} onClick={(e) => e.stopPropagation()}>
+            <Link
+              href={`/profile?username=${username}`}
+              className={styles.userLink}
+              onClick={(e) => e.stopPropagation()}
+            >
                 <img
                   className={styles.avatar}
                   src={avatar}
                   alt={username}
                   onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
                 />
-              </a>
             </Link>
 
             <div>
-              <Link href={`/profile?username=${username}`} legacyBehavior>
-                <a className={styles.nameLink} onClick={(e) => e.stopPropagation()}>
+              <Link
+                href={`/profile?username=${username}`}
+                className={styles.nameLink}
+                onClick={(e) => e.stopPropagation()}
+              >
                   <strong>{displayName}</strong>
                   <span>@{username}</span>
-                </a>
               </Link>
             </div>
           </div>
@@ -342,10 +346,12 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
                   <div>
                     <strong>
                       {comment?.user?.username ? (
-                        <Link href={`/profile?username=${comment.user.username}`} legacyBehavior>
-                          <a className={styles.commentAuthorLink} onClick={(e) => e.stopPropagation()}>
+                        <Link
+                          href={`/profile?username=${comment.user.username}`}
+                          className={styles.commentAuthorLink}
+                          onClick={(e) => e.stopPropagation()}
+                        >
                             @{comment.user.username}
-                          </a>
                         </Link>
                       ) : (
                         comment?.user?.full_name || "Usuário"

@@ -1,5 +1,5 @@
-import { getRepository } from "../config/db.js";
-import NotificationSchema from "../entities/Notification.js";
+import { getRepository } from '../config/db.js';
+import NotificationSchema from '../entities/Notification.js';
 
 export async function create(notification) {
   const repository = await getRepository(NotificationSchema);
@@ -21,7 +21,7 @@ export async function findByUserId(userId, type) {
 
   const params = [userId];
 
-  if (type && type !== "all") {
+  if (type && type !== 'all') {
     query += ` AND n.type = $2`;
     params.push(type);
   }

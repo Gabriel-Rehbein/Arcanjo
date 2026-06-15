@@ -1,11 +1,11 @@
-import * as repo from "../repositories/ProjectRepository.js";
-import * as likeRepo from "../repositories/LikeRepository.js";
-import * as saveRepo from "../repositories/SaveRepository.js";
-import { getCache, setCache } from "../utils/cache.js";
-import * as commentRepo from "../repositories/CommentRepository.js";
-import * as notificationService from "./NotificationService.js";
-import { assertSafeImageUrl, assertSafeUrl } from "../utils/contentSafety.js";
-import { getPublicationTypeLabel, normalizePublicationType } from "../utils/publicationTypes.js";
+import * as repo from '../repositories/ProjectRepository.js';
+import * as likeRepo from '../repositories/LikeRepository.js';
+import * as saveRepo from '../repositories/SaveRepository.js';
+import { deleteCacheByPrefix, getCache, setCache } from '../utils/cache.js';
+import * as commentRepo from '../repositories/CommentRepository.js';
+import * as notificationService from './NotificationService.js';
+import { assertSafeImageUrl, assertSafeUrl } from '../utils/contentSafety.js';
+import { getPublicationTypeLabel, normalizePublicationType } from '../utils/publicationTypes.js';
 
 const TEST_USER_ID = 1;
 
@@ -16,7 +16,7 @@ function parseTags(tags) {
     return tags.filter(Boolean);
   }
 
-  if (typeof tags === "string") {
+  if (typeof tags === 'string') {
     try {
       const parsed = JSON.parse(tags);
 
@@ -25,7 +25,7 @@ function parseTags(tags) {
       }
     } catch {
       return tags
-        .split(",")
+        .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean);
     }
@@ -45,7 +45,7 @@ function normalizeProject(project) {
     tags: parseTags(project.tags),
     post_type: normalizePublicationType(project.post_type || project.type),
     post_type_label: getPublicationTypeLabel(project.post_type || project.type),
-    status: isScheduled ? "scheduled" : project.status || "published",
+    status: isScheduled ? 'scheduled' : project.status || 'published',
     is_scheduled: Boolean(isScheduled),
   };
 }
@@ -73,7 +73,7 @@ function sanitizeComment(comment) {
 }
 
 export async function getAll() {
-  const cached = getCache("projects");
+  const cached = getCache('projects');
 
   if (cached) {
     const hasUsers = Array.isArray(cached) && cached.every((p) => p.user || p.author || p.user_id);
@@ -83,28 +83,29 @@ export async function getAll() {
   const data = await repo.findAll();
   const normalized = normalizeProjects(data);
 
-  setCache("projects", normalized);
+  setCache('projects', normalized);
 
   return normalized;
 }
 
 export async function create(data, userId = TEST_USER_ID) {
   if (!data.title || !data.title.trim()) {
-    throw { status: 400, message: "Título obrigatório" };
+    throw { status: 400, message: 'Título obrigatório' };
   }
 
   const tags = parseTags(data.tags);
   const title = data.title.trim();
-  const description = String(data.description || "").trim();
+  const description = String(data.description || '').trim();
   const postType = normalizePublicationType(data.post_type || data.type);
 
-  const imageUrl = assertSafeImageUrl(data.image_url, "URL da imagem");
-  const projectLink = assertSafeUrl(data.link, "Link do projeto");
+  const imageUrl = assertSafeImageUrl(data.image_url, 'URL da imagem');
+  const projectLink = assertSafeUrl(data.link, 'Link do projeto');
   const scheduledAt = data.scheduled_at ? new Date(data.scheduled_at) : null;
-  const isScheduled = scheduledAt && !Number.isNaN(scheduledAt.getTime()) && scheduledAt > new Date();
+  const isScheduled =
+    scheduledAt && !Number.isNaN(scheduledAt.getTime()) && scheduledAt > new Date();
 
   if (data.scheduled_at && Number.isNaN(scheduledAt.getTime())) {
-    throw { status: 400, message: "Data de agendamento invalida" };
+    throw { status: 400, message: 'Data de agendamento invalida' };
   }
 
   const createdProject = await repo.create({
@@ -117,20 +118,77 @@ export async function create(data, userId = TEST_USER_ID) {
     tags: JSON.stringify(tags),
     scheduled_at: scheduledAt || null,
     is_public: !isScheduled,
-    status: isScheduled ? "scheduled" : "published",
+    status: isScheduled ? 'scheduled' : 'published',
     user_id: userId || TEST_USER_ID,
   });
 
   const normalized = normalizeProject(createdProject);
 
-  setCache("projects", null);
-  setCache("feed", null);
+  setCache('projects', null);
+  deleteCacheByPrefix('feed:');
 
   return normalized;
 }
 
+export async function updateScheduledProject(projectId, data, userId = TEST_USER_ID) {
+  const fixedProjectId = Number(projectId);
+  const fixedUserId = Number(userId);
+
+  if (!fixedProjectId) {
+    throw { status: 400, message: 'ID do projeto invalido' };
+  }
+
+  const project = await repo.findById(fixedProjectId);
+
+  if (!project) {
+    throw { status: 404, message: 'Projeto nao encontrado' };
+  }
+
+  if (Number(project.user_id) !== fixedUserId) {
+    throw { status: 403, message: 'Voce so pode editar suas proprias publicacoes' };
+  }
+
+  if (!project.scheduled_at) {
+    throw { status: 400, message: 'Apenas publicacoes agendadas podem ser editadas aqui' };
+  }
+
+  const scheduledAt = new Date(data.scheduled_at || project.scheduled_at);
+  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+    throw { status: 400, message: 'Escolha uma data futura para o agendamento' };
+  }
+
+  const title = String(data.title ?? project.title).trim();
+  const description = String(data.description ?? project.description ?? '').trim();
+
+  if (!title) {
+    throw { status: 400, message: 'Titulo obrigatorio' };
+  }
+
+  Object.assign(project, {
+    title,
+    description,
+    post_type: normalizePublicationType(data.post_type || project.post_type),
+    category: data.category ?? project.category,
+    tags: JSON.stringify(parseTags(data.tags ?? project.tags)),
+    image_url: assertSafeImageUrl(data.image_url ?? project.image_url, 'URL da imagem') || null,
+    link: assertSafeUrl(data.link ?? project.link, 'Link do projeto') || null,
+    scheduled_at: scheduledAt,
+    is_public: false,
+    status: 'scheduled',
+    updated_at: new Date(),
+  });
+
+  await repo.save(project);
+  const updated = await repo.findById(fixedProjectId);
+
+  setCache('projects', null);
+  deleteCacheByPrefix('feed:');
+
+  return normalizeProject(updated);
+}
+
 export async function search(query) {
-  if (!query || typeof query !== "string") {
+  if (!query || typeof query !== 'string') {
     return [];
   }
 
@@ -195,10 +253,7 @@ export async function getByPublicationType(postType) {
 }
 
 export async function getSaved(userId = TEST_USER_ID, category) {
-  const data = await saveRepo.findSavedByUserId(
-    userId || TEST_USER_ID,
-    category
-  );
+  const data = await saveRepo.findSavedByUserId(userId || TEST_USER_ID, category);
 
   return data.map((project) => ({
     ...project,
@@ -216,7 +271,8 @@ export async function getSaved(userId = TEST_USER_ID, category) {
 }
 
 export async function getFeed(userId = TEST_USER_ID) {
-  const cached = getCache("feed");
+  const cacheKey = `feed:${userId || TEST_USER_ID}`;
+  const cached = getCache(cacheKey);
 
   if (cached) {
     const hasUsers = Array.isArray(cached) && cached.every((p) => p.user || p.author || p.user_id);
@@ -226,7 +282,7 @@ export async function getFeed(userId = TEST_USER_ID) {
   const data = await repo.findAll(userId || TEST_USER_ID);
   const normalized = normalizeProjects(data);
 
-  setCache("feed", normalized);
+  setCache(cacheKey, normalized);
 
   return normalized;
 }
@@ -236,19 +292,16 @@ export async function likeProject(projectId, userId = TEST_USER_ID) {
   const fixedProjectId = Number(projectId);
 
   if (!fixedProjectId) {
-    throw { status: 400, message: "ID do projeto inválido" };
+    throw { status: 400, message: 'ID do projeto inválido' };
   }
 
   const project = await repo.findById(fixedProjectId);
 
   if (!project) {
-    throw { status: 404, message: "Projeto não encontrado" };
+    throw { status: 404, message: 'Projeto não encontrado' };
   }
 
-  const existingLike = await likeRepo.findByUserAndProject(
-    fixedUserId,
-    fixedProjectId
-  );
+  const existingLike = await likeRepo.findByUserAndProject(fixedUserId, fixedProjectId);
 
   if (existingLike) {
     await likeRepo.remove(fixedUserId, fixedProjectId);
@@ -260,8 +313,8 @@ export async function likeProject(projectId, userId = TEST_USER_ID) {
 
   await repo.save(project);
 
-  setCache("projects", null);
-  setCache("feed", null);
+  setCache('projects', null);
+  deleteCacheByPrefix('feed:');
 
   return {
     project_id: fixedProjectId,
@@ -275,19 +328,16 @@ export async function saveProject(projectId, userId = TEST_USER_ID) {
   const fixedProjectId = Number(projectId);
 
   if (!fixedProjectId) {
-    throw { status: 400, message: "ID do projeto inválido" };
+    throw { status: 400, message: 'ID do projeto inválido' };
   }
 
   const project = await repo.findById(fixedProjectId);
 
   if (!project) {
-    throw { status: 404, message: "Projeto não encontrado" };
+    throw { status: 404, message: 'Projeto não encontrado' };
   }
 
-  const existingSave = await saveRepo.findByUserAndProject(
-    fixedUserId,
-    fixedProjectId
-  );
+  const existingSave = await saveRepo.findByUserAndProject(fixedUserId, fixedProjectId);
 
   if (existingSave) {
     await saveRepo.remove(fixedUserId, fixedProjectId);
@@ -311,26 +361,26 @@ export async function deleteProject(projectId, userId = TEST_USER_ID) {
   const fixedUserId = userId || TEST_USER_ID;
 
   if (!fixedProjectId) {
-    throw { status: 400, message: "ID do projeto inválido" };
+    throw { status: 400, message: 'ID do projeto inválido' };
   }
 
   const project = await repo.findById(fixedProjectId);
 
   if (!project) {
-    throw { status: 404, message: "Projeto não encontrado" };
+    throw { status: 404, message: 'Projeto não encontrado' };
   }
 
   if (Number(project.user_id) !== Number(fixedUserId)) {
-    throw { status: 403, message: "Você só pode excluir suas próprias publicações" };
+    throw { status: 403, message: 'Você só pode excluir suas próprias publicações' };
   }
 
   await repo.remove(fixedProjectId);
 
-  setCache("projects", null);
-  setCache("feed", null);
+  setCache('projects', null);
+  deleteCacheByPrefix('feed:');
 
   return {
-    message: "Publicação excluída com sucesso",
+    message: 'Publicação excluída com sucesso',
     project_id: fixedProjectId,
   };
 }
@@ -343,27 +393,27 @@ export async function getProjectComments(projectId) {
 export async function createProjectComment(projectId, data, userId) {
   const fixedProjectId = Number(projectId);
   const fixedUserId = Number(userId);
-  const content = String(data.content || "").trim();
+  const content = String(data.content || '').trim();
 
   if (!fixedUserId) {
-    throw { status: 401, message: "Autenticacao necessaria" };
+    throw { status: 401, message: 'Autenticacao necessaria' };
   }
 
   if (content.length > 500) {
-    throw { status: 400, message: "Comentario deve ter no maximo 500 caracteres" };
+    throw { status: 400, message: 'Comentario deve ter no maximo 500 caracteres' };
   }
 
   if (!fixedProjectId) {
-    throw { status: 400, message: "ID do projeto inválido" };
+    throw { status: 400, message: 'ID do projeto inválido' };
   }
 
   if (!content) {
-    throw { status: 400, message: "Comentário obrigatório" };
+    throw { status: 400, message: 'Comentário obrigatório' };
   }
 
   const project = await repo.findById(fixedProjectId);
   if (!project) {
-    throw { status: 404, message: "Projeto não encontrado" };
+    throw { status: 404, message: 'Projeto não encontrado' };
   }
 
   const comment = await commentRepo.create({
@@ -379,14 +429,14 @@ export async function createProjectComment(projectId, data, userId) {
     await notificationService.createNotification({
       user_id: project.user_id,
       from_user_id: fixedUserId,
-      type: "comment",
+      type: 'comment',
       project_id: fixedProjectId,
-      message: "Comentou na sua publicação.",
+      message: 'Comentou na sua publicação.',
     });
   }
 
-  setCache("projects", null);
-  setCache("feed", null);
+  setCache('projects', null);
+  deleteCacheByPrefix('feed:');
 
   const createdComment = await commentRepo.findById(comment.id);
   return sanitizeComment(createdComment || comment);

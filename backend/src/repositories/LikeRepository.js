@@ -1,5 +1,5 @@
-import { getRepository } from "../config/db.js";
-import LikeSchema from "../entities/Like.js";
+import { getRepository } from '../config/db.js';
+import LikeSchema from '../entities/Like.js';
 
 export async function findByUserAndProject(userId, projectId) {
   const repository = await getRepository(LikeSchema);

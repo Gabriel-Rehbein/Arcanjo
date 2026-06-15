@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import styles from '../styles/components/sidebar.module.css';
+import styles from '../styles/components/Sidebar.module.css';
 import { getUser } from '../utils/auth';
 
 const menuItems = [

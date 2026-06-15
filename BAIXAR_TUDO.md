@@ -5,25 +5,26 @@ Use este arquivo para instalar todas as dependências necessárias do projeto. C
 ## Comando único para copiar e colar tudo de uma vez
 
 ```powershell
-cd C:\Users\gabri\Documents\Arcanjo
-npm install;
-cd backend;
-npm install;
-cd ..\frontend;
-npm install;
+Set-Location -LiteralPath 'C:\Users\gabri\Documents\Repositórios\Arcanjo'
+npm.cmd install
+Copy-Item backend\.env.example backend\.env -ErrorAction SilentlyContinue
+Copy-Item frontend\.env.example frontend\.env.local -ErrorAction SilentlyContinue
+npm.cmd --prefix backend install
+npm.cmd --prefix frontend install
 ```
+
+Antes de iniciar, substitua no `backend/.env` as credenciais do PostgreSQL e o
+`JWT_SECRET` por uma chave aleatória própria com pelo menos 32 caracteres.
 ## Rodar o projeto
 
 ### Backend
 ```powershell
-cd backend
-npm run dev
+npm.cmd --prefix backend run dev
 ```
 
 ### Frontend
 ```powershell
-cd frontend
-npm run dev
+npm.cmd --prefix frontend run dev
 ```
 
 ## Tecnologias usadas no projeto

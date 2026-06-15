@@ -1,5 +1,5 @@
-import { getRepository } from "../config/db.js";
-import MessageSchema from "../entities/Message.js";
+import { getRepository } from '../config/db.js';
+import MessageSchema from '../entities/Message.js';
 
 export async function create(message) {
   const repository = await getRepository(MessageSchema);

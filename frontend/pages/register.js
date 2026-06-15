@@ -30,8 +30,12 @@ export default function RegisterPage() {
       return 'O usuário precisa ter pelo menos 3 caracteres.';
     }
 
-    if (form.password.length < 6) {
-      return 'A senha precisa ter pelo menos 6 caracteres.';
+    if (
+      form.password.length < 8 ||
+      !/[a-zA-Z]/.test(form.password) ||
+      !/[0-9]/.test(form.password)
+    ) {
+      return 'A senha precisa ter pelo menos 8 caracteres, uma letra e um numero.';
     }
 
     if (form.password !== form.confirmPassword) {

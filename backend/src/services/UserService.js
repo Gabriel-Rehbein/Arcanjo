@@ -1,5 +1,5 @@
-import * as userRepo from "../repositories/UserRepository.js";
-import * as projectRepo from "../repositories/ProjectRepository.js";
+import * as userRepo from '../repositories/UserRepository.js';
+import * as projectRepo from '../repositories/ProjectRepository.js';
 
 export async function getUserProjects(username) {
   const user = await userRepo.findByUsername(username);

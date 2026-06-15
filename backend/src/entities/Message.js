@@ -1,8 +1,8 @@
-import { EntitySchema } from "typeorm";
+import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Message",
-  tableName: "messages",
+  name: 'Message',
+  tableName: 'messages',
   columns: {
     id: {
       type: Number,
@@ -23,15 +23,15 @@ export default new EntitySchema({
       default: false,
     },
     created_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
     edited_at: {
-      type: "timestamp",
+      type: 'timestamp',
       nullable: true,
     },
     deleted_at: {
-      type: "timestamp",
+      type: 'timestamp',
       nullable: true,
     },
     is_deleted: {

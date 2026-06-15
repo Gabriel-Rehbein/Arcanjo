@@ -1,0 +1,53 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: arcanjo
+      POSTGRES_USER: arcanjo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arcanjo_local_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arcanjo -d arcanjo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://arcanjo:${POSTGRES_PASSWORD:-arcanjo_local_password}@database:5432/arcanjo
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 caracteres}
+      FRONTEND_URL: http://localhost:3001
+      DB_SSL: "false"
+      RUN_SEED: "false"
+      TRUST_PROXY: "1"
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000
+    environment:
+      API_INTERNAL_URL: http://backend:3000
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+volumes:
+  postgres_data:

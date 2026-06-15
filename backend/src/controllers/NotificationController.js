@@ -1,40 +1,36 @@
-import { getNotifications, markAsRead, markAllAsRead } from "../services/NotificationService.js";
+import { getNotifications, markAsRead, markAllAsRead } from '../services/NotificationService.js';
 
-export async function getUserNotifications(req, res) {
+export async function getUserNotifications(req, res, next) {
   try {
-    const userId = 1; // fixo para teste
+    const userId = req.user.id;
     const type = req.query.type;
 
     const notifications = await getNotifications(userId, type);
     res.json(notifications);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 }
 
-export async function markNotificationAsRead(req, res) {
+export async function markNotificationAsRead(req, res, next) {
   try {
     const notificationId = parseInt(req.params.id);
-    const userId = 1; // fixo
+    const userId = req.user.id;
 
     const notification = await markAsRead(notificationId, userId);
     res.json(notification);
   } catch (error) {
-    if (error.status) {
-      res.status(error.status).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: error.message });
-    }
+    next(error);
   }
 }
 
-export async function markAllNotificationsAsRead(req, res) {
+export async function markAllNotificationsAsRead(req, res, next) {
   try {
-    const userId = 1; // fixo
+    const userId = req.user.id;
 
     const notifications = await markAllAsRead(userId);
     res.json(notifications);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 }

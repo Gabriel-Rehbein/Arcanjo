@@ -1,8 +1,8 @@
-import { EntitySchema } from "typeorm";
+import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Comment",
-  tableName: "comments",
+  name: 'Comment',
+  tableName: 'comments',
   columns: {
     id: {
       type: Number,
@@ -19,21 +19,21 @@ export default new EntitySchema({
       type: Number,
     },
     created_at: {
-      type: "timestamp",
+      type: 'timestamp',
       createDate: true,
     },
   },
   relations: {
     user: {
-      type: "many-to-one",
-      target: "User",
-      joinColumn: { name: "user_id" },
+      type: 'many-to-one',
+      target: 'User',
+      joinColumn: { name: 'user_id' },
       eager: true,
     },
     project: {
-      type: "many-to-one",
-      target: "Project",
-      joinColumn: { name: "project_id" },
+      type: 'many-to-one',
+      target: 'Project',
+      joinColumn: { name: 'project_id' },
       eager: false,
     },
   },

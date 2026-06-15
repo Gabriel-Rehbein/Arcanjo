@@ -1,9 +1,10 @@
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
 export async function hashPassword(password) {
-  return await bcrypt.hash(password, 10);
+  const rounds = Number(process.env.BCRYPT_ROUNDS || 12);
+  return bcrypt.hash(password, rounds);
 }
 
 export async function comparePassword(password, hash) {
-  return await bcrypt.compare(password, hash);
+  return bcrypt.compare(password, hash);
 }

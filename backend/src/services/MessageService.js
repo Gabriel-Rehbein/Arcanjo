@@ -1,5 +1,5 @@
-import * as repo from "../repositories/MessageRepository.js";
-import * as notificationService from "./NotificationService.js";
+import * as repo from '../repositories/MessageRepository.js';
+import * as notificationService from './NotificationService.js';
 
 export async function getConversations(userId) {
   const conversations = await repo.findConversations(userId);
@@ -74,11 +74,11 @@ export async function deleteMessage(userId, messageId) {
 
 export async function sendMessage(senderId, receiverId, content) {
   if (!senderId) {
-    throw { status: 401, message: "Sem token" };
+    throw { status: 401, message: 'Sem token' };
   }
 
   if (!receiverId || !content) {
-    throw { status: 400, message: "Dados de mensagem inválidos" };
+    throw { status: 400, message: 'Dados de mensagem inválidos' };
   }
 
   const message = await repo.create({
@@ -90,8 +90,8 @@ export async function sendMessage(senderId, receiverId, content) {
   await notificationService.createNotification({
     user_id: receiverId,
     from_user_id: senderId,
-    type: "message",
-    message: "Enviou uma nova mensagem",
+    type: 'message',
+    message: 'Enviou uma nova mensagem',
   });
 
   return message;

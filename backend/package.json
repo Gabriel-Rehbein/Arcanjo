@@ -2,29 +2,36 @@
   "name": "arcanjo-backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
     "seed": "node src/seed.js",
     "lint": "eslint . --ext .js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "^5.2.1",
     "express-rate-limit": "^6.10.0",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.14",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
     "nodemon": "^3.0.1",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.9"
   }
 }

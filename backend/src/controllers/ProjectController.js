@@ -1,4 +1,4 @@
-import * as service from "../services/ProjectService.js";
+import * as service from '../services/ProjectService.js';
 
 export async function getAll(req, res, next) {
   try {
@@ -12,7 +12,7 @@ export async function getAll(req, res, next) {
 export async function create(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const data = await service.create(req.body, userId);
     res.status(201).json(data);
@@ -21,9 +21,21 @@ export async function create(req, res, next) {
   }
 }
 
+export async function updateScheduled(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
+
+    const data = await service.updateScheduledProject(req.params.id, req.body, userId);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function search(req, res, next) {
   try {
-    const query = String(req.query.q || "").trim();
+    const query = String(req.query.q || '').trim();
 
     if (!query) return res.json([]);
 
@@ -37,7 +49,7 @@ export async function search(req, res, next) {
 export async function getFeed(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const data = await service.getFeed(userId);
     res.json(data);
@@ -77,9 +89,7 @@ export async function getTrending(req, res, next) {
   try {
     const projects = await service.getAll();
 
-    const sorted = projects.sort(
-      (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
-    );
+    const sorted = projects.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
 
     res.json(sorted.slice(0, 20));
   } catch (err) {
@@ -90,7 +100,7 @@ export async function getTrending(req, res, next) {
 export async function getSaved(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const projects = await service.getSaved(userId, req.query.category);
     res.json(projects);
@@ -102,7 +112,7 @@ export async function getSaved(req, res, next) {
 export async function getScheduled(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const projects = await service.getScheduledByUserId(userId);
     res.json(projects);
@@ -114,7 +124,7 @@ export async function getScheduled(req, res, next) {
 export async function getProfileStats(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const stats = await service.getProfileStats(userId);
     res.json(stats);
@@ -126,7 +136,7 @@ export async function getProfileStats(req, res, next) {
 export async function likeProject(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const result = await service.likeProject(req.params.id, userId);
     res.json(result);
@@ -138,7 +148,7 @@ export async function likeProject(req, res, next) {
 export async function saveProject(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const result = await service.saveProject(req.params.id, userId);
     res.json(result);
@@ -150,7 +160,7 @@ export async function saveProject(req, res, next) {
 export async function deleteProject(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const result = await service.deleteProject(req.params.id, userId);
     res.json(result);
@@ -171,7 +181,7 @@ export async function getProjectComments(req, res, next) {
 export async function createProjectComment(req, res, next) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Autenticacao necessaria" });
+    if (!userId) return res.status(401).json({ error: 'Autenticacao necessaria' });
 
     const comment = await service.createProjectComment(req.params.id, req.body, userId);
     res.status(201).json(comment);

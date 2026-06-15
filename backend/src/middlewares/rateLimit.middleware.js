@@ -1,7 +1,7 @@
-import "dotenv/config";
-import rateLimit from "express-rate-limit";
+import 'dotenv/config';
+import rateLimit from 'express-rate-limit';
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const apiRateLimit = rateLimit({
   windowMs: 60 * 1000,
@@ -9,7 +9,7 @@ export const apiRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    error: "Muitas requisições. Aguarde um momento e tente novamente.",
+    error: 'Muitas requisições. Aguarde um momento e tente novamente.',
   },
 });
 
@@ -20,6 +20,6 @@ export const authRateLimit = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true,
   message: {
-    error: "Muitas tentativas de autenticacao. Aguarde e tente novamente.",
+    error: 'Muitas tentativas de autenticacao. Aguarde e tente novamente.',
   },
 });

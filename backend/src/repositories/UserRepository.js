@@ -1,5 +1,5 @@
-﻿import { getRepository } from "../config/db.js";
-import UserSchema from "../entities/User.js";
+﻿import { getRepository } from '../config/db.js';
+import UserSchema from '../entities/User.js';
 
 export async function findByUsername(username) {
   const repository = await getRepository(UserSchema);
@@ -9,9 +9,9 @@ export async function findByUsername(username) {
 export async function searchUsers(query) {
   const repository = await getRepository(UserSchema);
   return repository
-    .createQueryBuilder("user")
-    .where("user.username ILIKE :q", { q: `%${query}%` })
-    .orWhere("user.full_name ILIKE :q", { q: `%${query}%` })
+    .createQueryBuilder('user')
+    .where('user.username ILIKE :q', { q: `%${query}%` })
+    .orWhere('user.full_name ILIKE :q', { q: `%${query}%` })
     .getMany();
 }
 
@@ -42,7 +42,7 @@ export async function findBots(limit = 50) {
   return repository.find({
     where: { is_bot: true },
     take: Number(limit),
-    order: { created_at: "DESC" },
+    order: { created_at: 'DESC' },
   });
 }
 
@@ -53,7 +53,7 @@ export async function markArcanjoSeedUsersAsBots() {
     .createQueryBuilder()
     .update()
     .set({ is_bot: true })
-    .where("email ILIKE :email", { email: "%@arcanjo.com" })
+    .where('email ILIKE :email', { email: '%@arcanjo.com' })
     .execute();
 }
 

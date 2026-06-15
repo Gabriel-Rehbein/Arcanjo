@@ -1,8 +1,8 @@
-import { EntitySchema } from "typeorm";
+import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Story",
-  tableName: "stories",
+  name: 'Story',
+  tableName: 'stories',
   columns: {
     id: {
       type: Number,
@@ -20,19 +20,19 @@ export default new EntitySchema({
       nullable: true,
     },
     expires_at: {
-      type: "timestamp",
+      type: 'timestamp',
     },
     created_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
   },
   relations: {
     user: {
-      type: "many-to-one",
-      target: "User",
+      type: 'many-to-one',
+      target: 'User',
       joinColumn: {
-        name: "user_id",
+        name: 'user_id',
       },
       nullable: false,
     },

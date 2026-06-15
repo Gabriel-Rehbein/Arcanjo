@@ -1,7 +1,5 @@
 const API_BASE_URL =
-  process.env.API_INTERNAL_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:3000';
+  process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 function parseCookies(cookieHeader = '') {
   return cookieHeader.split(';').reduce((cookies, item) => {
@@ -44,7 +42,10 @@ export async function serverApiFetch(endpoint, { token } = {}) {
 
     if (!response.ok) {
       const error = new Error(
-        body?.message || body?.error || `Erro na requisicao (${response.status})`
+        body?.error?.message ||
+          body?.message ||
+          body?.error ||
+          `Erro na requisicao (${response.status})`
       );
       error.status = response.status;
       throw error;

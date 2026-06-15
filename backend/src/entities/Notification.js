@@ -1,8 +1,8 @@
-import { EntitySchema } from "typeorm";
+import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Notification",
-  tableName: "notifications",
+  name: 'Notification',
+  tableName: 'notifications',
   columns: {
     id: {
       type: Number,
@@ -30,8 +30,8 @@ export default new EntitySchema({
       default: false,
     },
     created_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
   },
 });

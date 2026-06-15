@@ -1,33 +1,43 @@
-import "reflect-metadata";
-import { DataSource } from "typeorm";
-import dotenv from "dotenv";
-import UserSchema from "../entities/User.js";
-import ProjectSchema from "../entities/Project.js";
-import LikeSchema from "../entities/Like.js";
-import CommentSchema from "../entities/Comment.js";
-import FollowSchema from "../entities/Follow.js";
-import NotificationSchema from "../entities/Notification.js";
-import StorySchema from "../entities/Story.js";
-import SaveSchema from "../entities/Save.js";
-import MessageSchema from "../entities/Message.js";
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import dotenv from 'dotenv';
+import UserSchema from '../entities/User.js';
+import ProjectSchema from '../entities/Project.js';
+import LikeSchema from '../entities/Like.js';
+import CommentSchema from '../entities/Comment.js';
+import FollowSchema from '../entities/Follow.js';
+import NotificationSchema from '../entities/Notification.js';
+import StorySchema from '../entities/Story.js';
+import SaveSchema from '../entities/Save.js';
+import MessageSchema from '../entities/Message.js';
 
 dotenv.config();
 
 const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
-const sslEnabled = process.env.DB_SSL === "true" || process.env.NODE_ENV === "production";
+const sslEnabled = process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production';
 
 export const AppDataSource = new DataSource({
-  type: "postgres",
+  type: 'postgres',
   url: databaseUrl || undefined,
-  host: databaseUrl ? undefined : process.env.DB_HOST || "localhost",
+  host: databaseUrl ? undefined : process.env.DB_HOST || 'localhost',
   port: databaseUrl ? undefined : Number(process.env.DB_PORT || 5432),
-  username: databaseUrl ? undefined : process.env.DB_USER || "postgres",
-  password: databaseUrl ? undefined : process.env.DB_PASSWORD || "senacrs",
-  database: databaseUrl ? undefined : process.env.DB_NAME || "arcanjo",
+  username: databaseUrl ? undefined : process.env.DB_USER || 'postgres',
+  password: databaseUrl ? undefined : process.env.DB_PASSWORD,
+  database: databaseUrl ? undefined : process.env.DB_NAME || 'arcanjo',
   ssl: sslEnabled ? { rejectUnauthorized: false } : false,
   synchronize: false, // Desabilitado para evitar queries simultâneas
   logging: false,
-  entities: [UserSchema, ProjectSchema, LikeSchema, CommentSchema, FollowSchema, NotificationSchema, StorySchema, SaveSchema, MessageSchema],
+  entities: [
+    UserSchema,
+    ProjectSchema,
+    LikeSchema,
+    CommentSchema,
+    FollowSchema,
+    NotificationSchema,
+    StorySchema,
+    SaveSchema,
+    MessageSchema,
+  ],
   extra: {
     max: 10, // Permite conexões concorrentes em carga moderada
   },
@@ -43,7 +53,7 @@ export async function initializeDatabase() {
 
 export async function testConnection() {
   await initializeDatabase();
-  await AppDataSource.query("SELECT 1");
+  await AppDataSource.query('SELECT 1');
 }
 
 export async function createTablesIfNotExist() {
@@ -123,6 +133,22 @@ export async function createTablesIfNotExist() {
     await AppDataSource.query(`
       ALTER TABLE projects
       ALTER COLUMN user_id DROP NOT NULL
+    `);
+
+    await AppDataSource.query(`
+      CREATE INDEX IF NOT EXISTS idx_projects_public_created
+        ON projects (is_public, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_projects_user_created
+        ON projects (user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_projects_scheduled
+        ON projects (user_id, scheduled_at)
+        WHERE scheduled_at IS NOT NULL;
+      CREATE INDEX IF NOT EXISTS idx_notifications_user_created
+        ON notifications (user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_messages_participants_created
+        ON messages (sender_id, receiver_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_comments_project_created
+        ON comments (project_id, created_at DESC);
     `);
 
     // Criar tabela likes
@@ -233,9 +259,9 @@ export async function createTablesIfNotExist() {
       ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     `);
 
-    console.log("✅ Tabelas criadas/verficadas com sucesso");
+    console.log('✅ Tabelas criadas/verficadas com sucesso');
   } catch (error) {
-    console.error("❌ Erro ao criar tabelas:", error.message);
+    console.error('❌ Erro ao criar tabelas:', error.message);
   }
 }
 

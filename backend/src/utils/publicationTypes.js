@@ -1,18 +1,18 @@
-export const DEFAULT_PUBLICATION_TYPE = "projeto";
+export const DEFAULT_PUBLICATION_TYPE = 'projeto';
 
 export const PUBLICATION_TYPES = [
-  { value: "projeto", label: "Projeto" },
-  { value: "ideia", label: "Ideia" },
-  { value: "prototipo", label: "Prototipo" },
-  { value: "design", label: "Design" },
-  { value: "codigo", label: "Codigo" },
-  { value: "print", label: "Print" },
-  { value: "video-curto", label: "Video curto" },
-  { value: "atualizacao", label: "Atualizacao" },
-  { value: "bug-corrigido", label: "Bug corrigido" },
-  { value: "antes-e-depois", label: "Antes e depois" },
-  { value: "pedido-feedback", label: "Pedido de feedback" },
-  { value: "vaga-freela", label: "Vaga/freela" },
+  { value: 'projeto', label: 'Projeto' },
+  { value: 'ideia', label: 'Ideia' },
+  { value: 'prototipo', label: 'Prototipo' },
+  { value: 'design', label: 'Design' },
+  { value: 'codigo', label: 'Codigo' },
+  { value: 'print', label: 'Print' },
+  { value: 'video-curto', label: 'Video curto' },
+  { value: 'atualizacao', label: 'Atualizacao' },
+  { value: 'bug-corrigido', label: 'Bug corrigido' },
+  { value: 'antes-e-depois', label: 'Antes e depois' },
+  { value: 'pedido-feedback', label: 'Pedido de feedback' },
+  { value: 'vaga-freela', label: 'Vaga/freela' },
 ];
 
 const aliases = new Map(
@@ -23,14 +23,14 @@ const aliases = new Map(
 );
 
 function normalizeType(value) {
-  return String(value || "")
+  return String(value || '')
     .trim()
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/&/g, " e ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' e ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function normalizePublicationType(value) {
@@ -40,5 +40,5 @@ export function normalizePublicationType(value) {
 
 export function getPublicationTypeLabel(value) {
   const normalized = normalizePublicationType(value);
-  return PUBLICATION_TYPES.find((type) => type.value === normalized)?.label || "Projeto";
+  return PUBLICATION_TYPES.find((type) => type.value === normalized)?.label || 'Projeto';
 }

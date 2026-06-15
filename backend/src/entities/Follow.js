@@ -1,8 +1,8 @@
-import { EntitySchema } from "typeorm";
+import { EntitySchema } from 'typeorm';
 
 export default new EntitySchema({
-  name: "Follow",
-  tableName: "follows",
+  name: 'Follow',
+  tableName: 'follows',
   columns: {
     id: {
       type: Number,
@@ -16,13 +16,13 @@ export default new EntitySchema({
       type: Number,
     },
     created_at: {
-      type: "timestamp",
-      default: () => "CURRENT_TIMESTAMP",
+      type: 'timestamp',
+      default: () => 'CURRENT_TIMESTAMP',
     },
   },
   uniques: [
     {
-      columns: ["follower_id", "following_id"],
+      columns: ['follower_id', 'following_id'],
     },
   ],
 });

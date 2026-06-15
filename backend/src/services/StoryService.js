@@ -1,5 +1,5 @@
-import * as repo from "../repositories/StoryRepository.js";
-import { assertSafeImageUrl } from "../utils/contentSafety.js";
+import * as repo from '../repositories/StoryRepository.js';
+import { assertSafeImageUrl } from '../utils/contentSafety.js';
 
 const STORY_TTL_HOURS = 20;
 
@@ -13,10 +13,10 @@ export async function getByUserId(userId) {
 
 export async function create(data, userId) {
   if (!data.image_url) {
-    throw { status: 400, message: "Imagem obrigatoria" };
+    throw { status: 400, message: 'Imagem obrigatoria' };
   }
 
-  const imageUrl = assertSafeImageUrl(data.image_url, "Imagem da story");
+  const imageUrl = assertSafeImageUrl(data.image_url, 'Imagem da story');
 
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + STORY_TTL_HOURS);

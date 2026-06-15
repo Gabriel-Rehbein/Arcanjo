@@ -61,7 +61,10 @@ async function fetchWithAuth(
 
       if (!response.ok) {
         const errMessage =
-          body?.message || body?.error || `Erro na requisição (${response.status})`;
+          body?.error?.message ||
+          body?.message ||
+          body?.error ||
+          `Erro na requisição (${response.status})`;
         const err = new Error(errMessage);
         err.status = response.status;
         throw err;

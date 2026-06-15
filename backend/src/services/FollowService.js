@@ -1,5 +1,5 @@
-import * as repo from "../repositories/FollowRepository.js";
-import * as notificationService from "./NotificationService.js";
+import * as repo from '../repositories/FollowRepository.js';
+import * as notificationService from './NotificationService.js';
 
 export async function isFollowing(followerId, followingId) {
   if (!followerId || !followingId) return false;
@@ -9,7 +9,7 @@ export async function isFollowing(followerId, followingId) {
 
 export async function follow(followerId, followingId) {
   if (followerId === followingId) {
-    throw { status: 400, message: "Você não pode seguir a si mesmo." };
+    throw { status: 400, message: 'Você não pode seguir a si mesmo.' };
   }
 
   const existing = await repo.find(followerId, followingId);
@@ -21,15 +21,15 @@ export async function follow(followerId, followingId) {
   await notificationService.createNotification({
     user_id: followingId,
     from_user_id: followerId,
-    type: "follow",
-    message: "Começou a seguir você",
+    type: 'follow',
+    message: 'Começou a seguir você',
   });
   return follow;
 }
 
 export async function unfollow(followerId, followingId) {
   if (followerId === followingId) {
-    throw { status: 400, message: "Operação inválida." };
+    throw { status: 400, message: 'Operação inválida.' };
   }
 
   return await repo.remove(followerId, followingId);
