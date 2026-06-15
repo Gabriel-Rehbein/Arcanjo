@@ -1,0 +1,214 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(14, 165, 233, 0.14), transparent 30%),
+    radial-gradient(circle at 76% 24%, rgba(109, 40, 217, 0.16), transparent 35%),
+    linear-gradient(145deg, #020b14 0%, #071525 47%, #160d2e 100%);
+  animation: splashExit 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  isolation: isolate;
+}
+
+.splash::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: contentPulse 2.05s ease-out both;
+}
+
+.mark {
+  position: relative;
+  width: min(68vw, 300px);
+}
+
+.wings {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: url(#arcanjo-wing-gradient);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 9px rgba(34, 211, 238, 0.42));
+}
+
+.wings circle {
+  fill: #7dd3fc;
+  stroke: #e2e8f0;
+  stroke-width: 1.2;
+}
+
+.leftWing,
+.rightWing {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.leftWing {
+  animation: revealLeft 0.78s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.rightWing {
+  animation: revealRight 0.78s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.leftWing path,
+.rightWing path,
+.core path {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawLine 0.72s ease-out 0.18s forwards;
+}
+
+.leftWing circle,
+.rightWing circle {
+  opacity: 0;
+  animation: nodeAppear 0.28s ease-out 0.62s forwards;
+}
+
+.core {
+  opacity: 0;
+  animation: coreAppear 0.42s ease-out 0.28s forwards;
+}
+
+.core > circle:first-child {
+  fill: rgba(56, 189, 248, 0.12);
+  stroke: #e2e8f0;
+}
+
+.coreDot {
+  fill: #67e8f9 !important;
+  stroke: none !important;
+}
+
+.aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.28);
+  filter: blur(28px);
+  transform: translate(-50%, -50%);
+  animation: auraPulse 1.2s ease-in-out 0.45s both;
+}
+
+.shine {
+  position: absolute;
+  inset: 12% 4%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.8) 50%, transparent 65%);
+  filter: blur(4px);
+  mix-blend-mode: screen;
+  transform: translateX(-130%) skewX(-14deg);
+  animation: shinePass 0.7s ease-in-out 0.72s forwards;
+}
+
+.copy {
+  margin-top: -8px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(9px);
+  animation: copyAppear 0.48s ease-out 0.74s forwards;
+}
+
+.copy h1 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(2.25rem, 8vw, 3.4rem);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-shadow: 0 0 25px rgba(125, 211, 252, 0.32);
+}
+
+.copy p {
+  margin: 0.65rem 0 0;
+  color: #cbd5e1;
+  font-size: clamp(0.78rem, 2.8vw, 0.98rem);
+  font-weight: 300;
+  letter-spacing: 0.11em;
+}
+
+.network i {
+  position: absolute;
+  width: 42vw;
+  max-width: 620px;
+  height: 1px;
+  opacity: 0.18;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  transform-origin: left center;
+}
+
+.network i::before,
+.network i::after {
+  position: absolute;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  content: '';
+  border-radius: 50%;
+  background: #67e8f9;
+  box-shadow: 0 0 12px #22d3ee;
+}
+
+.network i::before { left: 24%; }
+.network i::after { right: 17%; }
+.connectionOne { top: 21%; left: -4%; transform: rotate(17deg); }
+.connectionTwo { top: 70%; left: 4%; transform: rotate(-13deg); }
+.connectionThree { top: 18%; right: -11%; transform: rotate(158deg); }
+.connectionFour { top: 76%; right: -8%; transform: rotate(194deg); }
+
+@keyframes revealLeft {
+  from { opacity: 0; transform: translateX(35px) scaleX(0.25) rotate(7deg); }
+  to { opacity: 1; transform: translateX(0) scaleX(1) rotate(0); }
+}
+
+@keyframes revealRight {
+  from { opacity: 0; transform: translateX(-35px) scaleX(0.25) rotate(-7deg); }
+  to { opacity: 1; transform: translateX(0) scaleX(1) rotate(0); }
+}
+
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+@keyframes nodeAppear { to { opacity: 1; } }
+@keyframes coreAppear { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+@keyframes shinePass { to { transform: translateX(130%) skewX(-14deg); } }
+@keyframes copyAppear { to { opacity: 1; transform: translateY(0); } }
+@keyframes auraPulse { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 55% { opacity: 1; } 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1.45); } }
+@keyframes contentPulse { 0%, 12% { filter: brightness(0.8); } 58% { filter: brightness(1.14); } 100% { filter: brightness(1); } }
+
+@keyframes splashExit {
+  0%, 78% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash { animation-duration: 0.7s; }
+  .content, .leftWing, .rightWing, .leftWing path, .rightWing path, .core path,
+  .leftWing circle, .rightWing circle, .core, .aura, .shine, .copy {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
+}

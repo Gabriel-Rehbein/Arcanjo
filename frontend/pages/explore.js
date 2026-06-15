@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -10,29 +10,34 @@ import { useAuthGuard } from '../utils/useAuthGuard';
 import { getUser } from '../utils/auth';
 import { PUBLICATION_TYPES } from '../utils/publicationTypes';
 
-export default function Explore() {
+export default function Explore({ initialProjects = [], initialUsers = [], initialUser = null, initialError = '' }) {
   useAuthGuard();
 
   const router = useRouter();
   const { search } = router.query;
 
-  const [projects, setProjects] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [projects, setProjects] = useState(initialProjects);
+  const [users, setUsers] = useState(initialUsers);
   const [filter, setFilter] = useState('projects');
   const [recentSearches, setRecentSearches] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [orderBy, setOrderBy] = useState('recent');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(initialError);
+  const [currentUser, setCurrentUser] = useState(initialUser);
+  const hasServerData = useRef(true);
   const api = useApiFetch();
 
   const categories = ['all', 'design', 'desenvolvimento', 'marketing', 'fotografia', 'arte'];
   const publicationTypes = [{ value: 'all', label: 'Tudo' }, ...PUBLICATION_TYPES];
 
   useEffect(() => {
-    setCurrentUser(getUser());
+    setCurrentUser((current) => current || getUser());
+    if (hasServerData.current) {
+      hasServerData.current = false;
+      return;
+    }
     loadExplore();
   }, [search, selectedCategory, selectedType, filter]);
 
@@ -256,4 +261,44 @@ export default function Explore() {
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps({ req, query }) {
+  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
+  const auth = getServerAuth(req);
+
+  if (!auth.token) return redirectToLogin();
+
+  try {
+    let projects = [];
+    let users = [];
+
+    if (query.search) {
+      const search = encodeURIComponent(String(query.search));
+      [projects, users] = await Promise.all([
+        serverApiFetch(`/projects/search?q=${search}`, auth),
+        serverApiFetch(`/users/search?q=${search}`, auth),
+      ]);
+    } else {
+      projects = await serverApiFetch('/projects/explore', auth);
+    }
+
+    return {
+      props: {
+        initialProjects: Array.isArray(projects) ? projects : [],
+        initialUsers: Array.isArray(users) ? users : [],
+        initialUser: auth.username,
+      },
+    };
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) return redirectToLogin();
+    return {
+      props: {
+        initialProjects: [],
+        initialUsers: [],
+        initialUser: auth.username,
+        initialError: error.message || 'Erro ao carregar exploracao.',
+      },
+    };
+  }
 }

@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ProjectCard from "../components/ProjectCard";
@@ -7,21 +8,22 @@ import styles from "../styles/pages/profile.module.css";
 import { useApiFetch } from "../utils/api";
 import { getUser } from "../utils/auth";
 
-export default function Profile() {
+export default function Profile({ initialProfile = null, initialProjects = [], initialUsername = null, initialViewer = null, initialError = "" }) {
   const router = useRouter();
   const { username } = router.query;
 
-  const [profileUsername, setProfileUsername] = useState(null);
-  const [user, setUserData] = useState(null);
-  const [projects, setProjects] = useState([]);
+  const [profileUsername, setProfileUsername] = useState(initialUsername);
+  const [user, setUserData] = useState(initialProfile);
+  const [projects, setProjects] = useState(initialProjects);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(Boolean(initialProfile?.is_following));
+  const [isOwnProfile, setIsOwnProfile] = useState(initialUsername === initialViewer);
   const [activeTab, setActiveTab] = useState("projects");
   const [socialLoading, setSocialLoading] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(initialError);
+  const serverUsername = useRef(initialUsername);
   const api = useApiFetch();
 
   const galleryProjects = useMemo(() => {
@@ -62,6 +64,10 @@ export default function Profile() {
 
   useEffect(() => {
     if (profileUsername) {
+      if (serverUsername.current === profileUsername) {
+        serverUsername.current = null;
+        return;
+      }
       loadProfile(profileUsername);
     }
   }, [profileUsername]);
@@ -170,6 +176,13 @@ export default function Profile() {
 
   return (
     <div className={styles.container}>
+      <Head>
+        <title>{`${user.full_name || user.username} - Arcanjo`}</title>
+        <meta
+          name="description"
+          content={user.bio || `Conheca os projetos de ${user.username} no Arcanjo.`}
+        />
+      </Head>
       <Header />
 
       <div className={styles.main}>
@@ -478,6 +491,47 @@ export default function Profile() {
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps({ req, query }) {
+  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
+  const auth = getServerAuth(req);
+  const targetUsername = query.username ? String(query.username) : auth.username;
+
+  if (!targetUsername) {
+    return auth.token
+      ? { redirect: { destination: '/feed', permanent: false } }
+      : redirectToLogin();
+  }
+
+  try {
+    const [profile, projects] = await Promise.all([
+      serverApiFetch(`/users/${encodeURIComponent(targetUsername)}`, auth),
+      serverApiFetch(`/users/${encodeURIComponent(targetUsername)}/projects`, auth),
+    ]);
+
+    return {
+      props: {
+        initialProfile: profile || null,
+        initialProjects: Array.isArray(projects) ? projects : [],
+        initialUsername: targetUsername,
+        initialViewer: auth.username,
+      },
+    };
+  } catch (error) {
+    if ((error.status === 401 || error.status === 403) && !query.username) {
+      return redirectToLogin();
+    }
+    return {
+      props: {
+        initialProfile: null,
+        initialProjects: [],
+        initialUsername: targetUsername,
+        initialViewer: auth.username,
+        initialError: error.message || 'Erro ao carregar perfil.',
+      },
+    };
+  }
 }
 
 function SocialList({ users, loading, emptyTitle, emptyText, onOpenProfile }) {

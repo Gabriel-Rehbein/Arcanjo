@@ -7,18 +7,17 @@ import styles from '../styles/pages/feed.module.css';
 import { useApiFetch } from '../utils/api';
 import { getUser } from '../utils/auth';
 
-export default function Feed() {
+export default function Feed({ initialProjects = [], initialStories = [], initialUser = null, initialError = '' }) {
 
-  const [projects, setProjects] = useState([]);
-  const [stories, setStories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
+  const [projects, setProjects] = useState(initialProjects);
+  const [stories, setStories] = useState(initialStories);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(initialError);
+  const [currentUser, setCurrentUser] = useState(initialUser);
   const api = useApiFetch();
 
   useEffect(() => {
-    loadFeed();
-    setCurrentUser(getUser());
+    setCurrentUser((current) => current || getUser());
   }, []);
 
   async function loadFeed() {
@@ -137,4 +136,37 @@ export default function Feed() {
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps({ req }) {
+  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
+  const auth = getServerAuth(req);
+
+  if (!auth.token) return redirectToLogin();
+
+  try {
+    const [projects, stories] = await Promise.all([
+      serverApiFetch('/projects/feed', auth),
+      serverApiFetch('/stories/feed', auth),
+    ]);
+
+    return {
+      props: {
+        initialProjects: Array.isArray(projects) ? projects : [],
+        initialStories: Array.isArray(stories) ? stories : [],
+        initialUser: auth.username,
+      },
+    };
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) return redirectToLogin();
+
+    return {
+      props: {
+        initialProjects: [],
+        initialStories: [],
+        initialUser: auth.username,
+        initialError: error.message || 'Erro ao carregar o feed.',
+      },
+    };
+  }
 }

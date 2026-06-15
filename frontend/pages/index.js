@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useApiFetch } from '../utils/api';
-import { setToken, setUser, getToken } from '../utils/auth';
+import { setToken, setUser, getToken, getUser } from '../utils/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +13,11 @@ export default function LoginPage() {
   const api = useApiFetch();
 
   useEffect(() => {
-    if (getToken()) {
+    const storedToken = getToken();
+    if (storedToken) {
+      setToken(storedToken);
+      const storedUser = getUser();
+      if (storedUser) setUser(storedUser);
       router.push('/feed');
     }
   }, [router]);

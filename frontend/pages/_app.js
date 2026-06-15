@@ -3,6 +3,7 @@ import "../styles/responsive.css";
 import { useEffect } from "react";
 import { LoadingProvider } from '../contexts/LoadingContext';
 import LoadingOverlay from '../components/LoadingOverlay';
+import SplashScreen from '../components/SplashScreen';
 import { applyTheme, getStoredTheme } from "../utils/theme";
 
 export default function App({ Component, pageProps }) {
@@ -12,6 +13,7 @@ export default function App({ Component, pageProps }) {
 
   return (
     <LoadingProvider>
+      <SplashScreen />
       <LoadingOverlay />
       <Component {...pageProps} />
     </LoadingProvider>

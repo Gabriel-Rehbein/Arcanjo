@@ -10,7 +10,7 @@ import messageRoutes from "./routes/message.routes.js";
 import storyRoutes from "./routes/story.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
-import rateLimit from "./middlewares/rateLimit.middleware.js";
+import { apiRateLimit, authRateLimit } from "./middlewares/rateLimit.middleware.js";
 import { testConnection } from "./config/db.js";
 import { seedDatabase } from "./seed.js";
 import { startBotSimulation, stopBotSimulation } from "./services/BotService.js";
@@ -25,7 +25,8 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(express.json());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.use(rateLimit);
+app.use("/auth", authRateLimit);
+app.use(apiRateLimit);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use("/auth", authRoutes);
