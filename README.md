@@ -222,7 +222,7 @@ Para deixar o sistema online completo:
 1. Hospede o backend separadamente em uma plataforma para Node.js, como Render, Railway, Fly.io, VPS ou outro servico equivalente.
 2. Configure as variaveis do backend nesse servico, incluindo banco PostgreSQL, `JWT_SECRET`, `FRONTEND_URL` e demais valores do `backend/.env.example`.
 3. No GitHub, va em `Settings > Secrets and variables > Actions > Variables`.
-4. Crie a variavel `NEXT_PUBLIC_API_URL` com a URL publica do backend, por exemplo `https://arcanjo-api.onrender.com`.
+4. Crie a variavel `NEXT_PUBLIC_API_URL` com a URL publica do backend: `https://arcanjo-yayx.onrender.com`.
 5. Va em `Settings > Pages`.
 6. Em `Build and deployment`, selecione `GitHub Actions`.
 7. Faca push na branch `main`.
@@ -246,8 +246,8 @@ npm run build
 Para desenvolvimento local, mantenha `frontend/.env.local` apontando para o backend local:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-API_INTERNAL_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=https://arcanjo-yayx.onrender.com
+API_INTERNAL_URL=https://arcanjo-yayx.onrender.com
 NEXT_PUBLIC_BASE_PATH=/Arcanjo
 ```
 

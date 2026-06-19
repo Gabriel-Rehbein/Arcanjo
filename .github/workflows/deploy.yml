@@ -24,7 +24,7 @@ jobs:
     env:
       GITHUB_PAGES_REPO: ${{ github.event.repository.name }}
       NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-      NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL || 'https://arcanjo-yayx.onrender.com' }}
     steps:
       - name: Baixar codigo
         uses: actions/checkout@v4
