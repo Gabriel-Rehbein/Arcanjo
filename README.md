@@ -213,27 +213,60 @@ Novas funcionalidades, melhorias visuais e recursos estão sendo implementados c
 
 ---
 
-## Deploy no GitHub Pages
+## Deploy: Render + GitHub Pages
 
-O GitHub Pages hospeda apenas sites estaticos. Neste projeto, o frontend em `frontend/` usa Next.js com `output: 'export'`, entao ele pode ser publicado no GitHub Pages. O backend em `backend/` usa Node.js/Express e PostgreSQL, por isso nao roda diretamente no GitHub Pages.
+O deploy completo usa dois destinos:
 
-Para deixar o sistema online completo:
+- `backend/`: Render, porque a API Node.js/Express precisa ficar online com PostgreSQL.
+- `frontend/`: GitHub Pages, porque o Next.js esta configurado com `output: 'export'` e gera arquivos estaticos em `frontend/out`.
 
-1. Hospede o backend separadamente em uma plataforma para Node.js, como Render, Railway, Fly.io, VPS ou outro servico equivalente.
-2. Configure as variaveis do backend nesse servico, incluindo banco PostgreSQL, `JWT_SECRET`, `FRONTEND_URL` e demais valores do `backend/.env.example`.
-3. No GitHub, va em `Settings > Secrets and variables > Actions > Variables`.
-4. Crie a variavel `NEXT_PUBLIC_API_URL` com a URL publica do backend: `https://arcanjo-yayx.onrender.com`.
-5. Va em `Settings > Pages`.
-6. Em `Build and deployment`, selecione `GitHub Actions`.
-7. Faca push na branch `main`.
+### Backend no Render
 
-O workflow `.github/workflows/deploy.yml` instala as dependencias do frontend, executa `npm run build` dentro de `frontend/` e publica a pasta `frontend/out` no GitHub Pages.
+1. No Render, escolha `New > Blueprint`.
+2. Conecte este repositorio do GitHub.
+3. Use o arquivo `render.yaml` da raiz.
+4. Na criacao do Blueprint, preencha `FRONTEND_URL` com a URL do GitHub Pages, por exemplo:
 
-Se o repositorio se chamar `Arcanjo`, a URL esperada sera:
+```env
+https://SEU_USUARIO.github.io/Arcanjo
+```
 
-`https://SEU_USUARIO.github.io/Arcanjo/`
+O Blueprint cria:
 
-Se o repositorio tiver outro nome, o workflow usa automaticamente o nome real do repositorio como base path.
+- web service `arcanjo-yayx`
+- banco PostgreSQL `arcanjo-db`
+- `DATABASE_URL` ligado automaticamente ao banco
+- `JWT_SECRET` gerado automaticamente
+- health check em `/health`
+
+A URL esperada do backend e:
+
+```text
+https://arcanjo-yayx.onrender.com
+```
+
+### Frontend no GitHub Pages
+
+1. No GitHub, va em `Settings > Secrets and variables > Actions > Variables`.
+2. Crie a variavel `NEXT_PUBLIC_API_URL` com a URL publica do backend:
+
+```env
+https://arcanjo-yayx.onrender.com
+```
+
+3. Va em `Settings > Pages`.
+4. Em `Build and deployment`, selecione `GitHub Actions`.
+5. Faca push na branch `main`.
+
+O workflow `.github/workflows/deploy.yml` instala as dependencias do frontend, executa `npm run build` dentro de `frontend/` e publica `frontend/out` no GitHub Pages.
+
+Se o repositorio se chamar `Arcanjo`, a URL esperada do frontend sera:
+
+```text
+https://SEU_USUARIO.github.io/Arcanjo/
+```
+
+Se o repositorio tiver outro nome, o workflow usa automaticamente o nome real do repositorio como `basePath`.
 
 ### Comandos uteis
 
@@ -246,8 +279,8 @@ npm run build
 Para desenvolvimento local, mantenha `frontend/.env.local` apontando para o backend local:
 
 ```env
-NEXT_PUBLIC_API_URL=https://arcanjo-yayx.onrender.com
-API_INTERNAL_URL=https://arcanjo-yayx.onrender.com
+NEXT_PUBLIC_API_URL=http://localhost:3000
+API_INTERNAL_URL=http://localhost:3000
 NEXT_PUBLIC_BASE_PATH=/Arcanjo
 ```
 
