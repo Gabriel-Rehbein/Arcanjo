@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import FooterNav from '../components/FooterNav';
 import { getUser, getToken } from '../utils/auth';
 import { useRouter } from 'next/router';
 import { useApiFetch } from '../utils/api';
@@ -231,7 +230,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <FooterNav />
     </Layout>
   );
 }

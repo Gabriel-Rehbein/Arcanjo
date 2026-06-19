@@ -1,45 +1,49 @@
-/* ESCONDIDO NO DESKTOP */
 .footerNav {
   display: none;
 }
 
-/* MOBILE INSTAGRAM */
 @media (max-width: 768px) {
   .footerNav {
-    display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
+    right: 0;
+    z-index: 1200;
     width: 100%;
-    height: 60px;
-
-    background: #000;
-    border-top: 1px solid #222;
-
-    justify-content: space-around;
+    height: calc(56px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     align-items: center;
-
-    z-index: 999;
+    gap: 4px;
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid rgba(148, 163, 184, 0.24);
+    box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px);
   }
 
   .item {
-    flex: 1;
-    height: 100%;
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
     display: grid;
     place-items: center;
-
     background: none;
     border: none;
-
-    color: #888;
+    border-radius: 14px;
+    color: var(--color-muted);
     cursor: pointer;
+    padding: 0;
+    transform: none;
   }
 
   .item span {
-    font-size: 1.6rem;
+    font-size: 1.25rem;
+    line-height: 1;
   }
 
   .active {
-    color: #fff;
+    background: var(--color-surface-strong);
+    color: var(--color-primary);
   }
 }

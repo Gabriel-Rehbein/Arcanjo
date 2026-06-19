@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import FooterNav from "../components/FooterNav";
 import { getUser, getToken } from "../utils/auth";
 import { useRouter } from "next/router";
 import { useApiFetch } from "../utils/api";
@@ -232,7 +231,6 @@ export default function EditProfile() {
         </form>
       </div>
 
-      <FooterNav />
     </Layout>
   );
 }

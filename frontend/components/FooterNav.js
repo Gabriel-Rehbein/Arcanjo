@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/components/footerNav.module.css";
+import { getUser } from "../utils/auth";
 
 const items = [
   { href: "/feed", icon: "🏠" },
@@ -12,6 +13,20 @@ const items = [
 
 export default function FooterNav() {
   const router = useRouter();
+  const currentUser = getUser();
+
+  function resolveHref(href) {
+    if (href === "/profile" && currentUser) {
+      return `/profile?username=${currentUser}`;
+    }
+
+    return href;
+  }
+
+  function isActive(href) {
+    if (href === "/profile") return router.pathname === "/profile";
+    return router.pathname === href;
+  }
 
   return (
     <nav className={styles.footerNav}>
@@ -19,10 +34,9 @@ export default function FooterNav() {
         <button
           key={item.href}
           type="button"
-          className={`${styles.item} ${
-            router.pathname === item.href ? styles.active : ""
-          }`}
-          onClick={() => router.push(item.href)}
+          className={`${styles.item} ${isActive(item.href) ? styles.active : ""}`}
+          onClick={() => router.push(resolveHref(item.href))}
+          aria-label={item.href.replace("/", "") || "inicio"}
         >
           <span>{item.icon}</span>
         </button>
