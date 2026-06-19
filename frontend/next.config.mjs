@@ -1,37 +1,28 @@
-
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
+const repo = 'Arcanjo';
+
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+
+  output: 'export',
+
+  images: {
+    unoptimized: true,
+  },
+
+  basePath: `/${repo}`,
+  assetPrefix: `/${repo}/`,
+
+  trailingSlash: true,
+
   poweredByHeader: false,
+
   turbopack: {
     root: projectRoot,
-  },
-  async redirects() {
-    return [
-      {
-        source: '/favicon.ico',
-        destination: '/img/logoaba.png',
-        permanent: false,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      {
-        source: '/((?!_next/).*)',
-        headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-        ],
-      },
-    ];
   },
 };
 
