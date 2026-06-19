@@ -44,6 +44,19 @@ describe('API security baseline', () => {
     expect(response.body.error.code).toBe('CORS_ORIGIN_DENIED');
   });
 
+  it('accepts the GitHub Pages frontend origin', async () => {
+    const response = await request(app)
+      .options('/auth/register')
+      .set('Origin', 'https://gabriel-rehbein.github.io')
+      .set('Access-Control-Request-Method', 'POST')
+      .set('Access-Control-Request-Headers', 'content-type')
+      .expect(204);
+
+    expect(response.headers['access-control-allow-origin']).toBe(
+      'https://gabriel-rehbein.github.io'
+    );
+  });
+
   it('validates registration payloads before database access', async () => {
     const response = await request(app)
       .post('/auth/register')

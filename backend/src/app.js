@@ -15,9 +15,30 @@ import errorMiddleware, { notFoundMiddleware } from './middlewares/error.middlew
 import { apiRateLimit, authRateLimit } from './middlewares/rateLimit.middleware.js';
 
 const app = express();
-const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(',').map((origin) => origin.trim())
-  : ['http://localhost:3001'];
+const defaultAllowedOrigins = [
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'https://gabriel-rehbein.github.io',
+];
+
+function normalizeOrigin(origin) {
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin.replace(/\/$/, '');
+  }
+}
+
+const configuredAllowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+      .map(normalizeOrigin)
+  : [];
+
+const allowedOrigins = Array.from(
+  new Set([...defaultAllowedOrigins, ...configuredAllowedOrigins])
+);
 
 app.disable('x-powered-by');
 if (process.env.TRUST_PROXY) {
@@ -56,7 +77,7 @@ app.get('/', (req, res) => {
   res.json({
     service: 'arcanjo-api',
     status: 'online',
-    frontend: process.env.FRONTEND_URL || 'http://localhost:3001',
+    frontend: allowedOrigins,
     health: '/health',
   });
 });

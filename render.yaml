@@ -24,7 +24,7 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: FRONTEND_URL
-        sync: false
+        value: https://gabriel-rehbein.github.io
       - key: RUN_SEED
         value: "false"
       - key: TRUST_PROXY
