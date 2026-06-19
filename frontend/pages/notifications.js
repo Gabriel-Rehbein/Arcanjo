@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import styles from '../styles/pages/notifications.module.css';
 import { useApiFetch } from '../utils/api';
 import { useAuthGuard } from '../utils/useAuthGuard';
+import { assetPath } from '../utils/paths';
 
 export default function Notifications() {
   useAuthGuard();
@@ -146,9 +147,9 @@ export default function Notifications() {
                   onClick={() => markAsRead(notif.id)}
                 >
                   <img
-                    src={notif.from_user?.avatar_url || '/img/logoaba.png'}
+                    src={notif.from_user?.avatar_url || assetPath('/img/logoaba.png')}
                     alt={notif.from_user?.full_name || notif.from_user?.username || 'Usuário'}
-                    onError={(e) => (e.currentTarget.src = '/img/logoaba.png')}
+                    onError={(e) => (e.currentTarget.src = assetPath('/img/logoaba.png'))}
                   />
 
                   <div className={styles.content}>

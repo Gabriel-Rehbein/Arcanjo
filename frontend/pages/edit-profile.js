@@ -5,6 +5,7 @@ import { getUser, getToken } from "../utils/auth";
 import { useRouter } from "next/router";
 import { useApiFetch } from "../utils/api";
 import styles from "../styles/pages/edit-profile.module.css";
+import { assetPath } from "../utils/paths";
 
 function readFileAsDataURL(file) {
   return new Promise((resolve, reject) => {
@@ -149,10 +150,10 @@ export default function EditProfile() {
         <h2 className={styles.title}>Editar perfil</h2>
 
         <div className={styles.previewArea}>
-          <div className={styles.bannerPreview} style={{ backgroundImage: `url(${bannerPreview || '/img/logoaba.png'})` }} />
+          <div className={styles.bannerPreview} style={{ backgroundImage: `url(${bannerPreview || assetPath('/img/logoaba.png')})` }} />
 
           <div className={styles.avatarWrap}>
-            <img className={styles.avatarPreview} src={avatarPreview || '/img/logoaba.png'} alt="Avatar preview" onError={(e) => (e.target.src = '/img/logoaba.png')} />
+            <img className={styles.avatarPreview} src={avatarPreview || assetPath('/img/logoaba.png')} alt="Avatar preview" onError={(e) => (e.target.src = assetPath('/img/logoaba.png'))} />
           </div>
         </div>
 

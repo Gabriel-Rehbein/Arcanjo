@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
-const repo = 'Arcanjo';
+const repo = process.env.GITHUB_PAGES_REPO || 'Arcanjo';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || `/${repo}`;
 
 const nextConfig = {
   reactStrictMode: true,
@@ -14,8 +15,8 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  basePath: `/${repo}`,
-  assetPrefix: `/${repo}/`,
+  basePath,
+  assetPrefix: `${basePath}/`,
 
   trailingSlash: true,
 

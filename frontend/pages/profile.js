@@ -7,6 +7,7 @@ import ProjectCard from "../components/ProjectCard";
 import styles from "../styles/pages/profile.module.css";
 import { useApiFetch } from "../utils/api";
 import { getUser } from "../utils/auth";
+import { assetPath } from "../utils/paths";
 
 export default function Profile({ initialProfile = null, initialProjects = [], initialUsername = null, initialViewer = null, initialError = "" }) {
   const router = useRouter();
@@ -192,17 +193,17 @@ export default function Profile({ initialProfile = null, initialProjects = [], i
           <section className={styles.hero}>
             <div className={styles.banner}>
               <img
-                src={user.banner_url || "/img/logoaba.png"}
+                src={user.banner_url || assetPath("/img/logoaba.png")}
                 alt="Banner do perfil"
               />
             </div>
 
             <div className={styles.info}>
               <img
-                src={user.avatar_url || "/img/logoaba.png"}
+                src={user.avatar_url || assetPath("/img/logoaba.png")}
                 alt={user.username}
                 className={styles.avatar}
-                onError={(e) => (e.target.src = "/img/logoaba.png")}
+                onError={(e) => (e.target.src = assetPath("/img/logoaba.png"))}
               />
 
               <div className={styles.userInfo}>
@@ -493,47 +494,6 @@ export default function Profile({ initialProfile = null, initialProjects = [], i
   );
 }
 
-export async function getServerSideProps({ req, query }) {
-  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
-  const auth = getServerAuth(req);
-  const targetUsername = query.username ? String(query.username) : auth.username;
-
-  if (!targetUsername) {
-    return auth.token
-      ? { redirect: { destination: '/feed', permanent: false } }
-      : redirectToLogin();
-  }
-
-  try {
-    const [profile, projects] = await Promise.all([
-      serverApiFetch(`/users/${encodeURIComponent(targetUsername)}`, auth),
-      serverApiFetch(`/users/${encodeURIComponent(targetUsername)}/projects`, auth),
-    ]);
-
-    return {
-      props: {
-        initialProfile: profile || null,
-        initialProjects: Array.isArray(projects) ? projects : [],
-        initialUsername: targetUsername,
-        initialViewer: auth.username,
-      },
-    };
-  } catch (error) {
-    if ((error.status === 401 || error.status === 403) && !query.username) {
-      return redirectToLogin();
-    }
-    return {
-      props: {
-        initialProfile: null,
-        initialProjects: [],
-        initialUsername: targetUsername,
-        initialViewer: auth.username,
-        initialError: error.message || 'Erro ao carregar perfil.',
-      },
-    };
-  }
-}
-
 function SocialList({ users, loading, emptyTitle, emptyText, onOpenProfile }) {
   if (loading) {
     return <div className={styles.empty}>Carregando lista...</div>;
@@ -558,9 +518,9 @@ function SocialList({ users, loading, emptyTitle, emptyText, onOpenProfile }) {
           onClick={() => onOpenProfile(profileUser.username)}
         >
           <img
-            src={profileUser.avatar_url || "/img/logoaba.png"}
+            src={profileUser.avatar_url || assetPath("/img/logoaba.png")}
             alt={profileUser.username}
-            onError={(e) => (e.target.src = "/img/logoaba.png")}
+            onError={(e) => (e.target.src = assetPath("/img/logoaba.png"))}
           />
 
           <div>

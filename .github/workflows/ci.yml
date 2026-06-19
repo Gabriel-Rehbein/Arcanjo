@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   quality:
@@ -24,17 +22,17 @@ jobs:
         working-directory: ${{ matrix.app }}
 
     steps:
-      - name: Baixar código
-        uses: actions/checkout@v6
+      - name: Baixar codigo
+        uses: actions/checkout@v4
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - name: Instalar dependências
+      - name: Instalar dependencias
         run: npm ci
 
       - name: Verificar vulnerabilidades
@@ -50,46 +48,3 @@ jobs:
       - name: Gerar build do frontend
         if: matrix.app == 'frontend'
         run: npm run build
-
-  deploy:
-    needs: quality
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    defaults:
-      run:
-        working-directory: frontend
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Baixar código
-        uses: actions/checkout@v6
-
-      - name: Configurar Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Instalar dependências
-        run: npm ci
-
-      - name: Gerar build
-        run: npm run build
-
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Enviar build para o GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/dist
-
-      - name: Fazer deploy
-        id: deployment
-        uses: actions/deploy-pages@v4

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from '../styles/components/UserCard.module.css';
 import { useApiFetch } from '../utils/api';
+import { assetPath } from '../utils/paths';
 
 export default function UserCard({ user, onFollow }) {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function UserCard({ user, onFollow }) {
 
   const username = user?.username || 'Usuário';
   const fullName = user?.full_name || username;
-  const avatar = user?.avatar_url || '/img/logoaba.png';
+  const avatar = user?.avatar_url || assetPath('/img/logoaba.png');
   const bio = user?.bio || 'Usuário da rede Arcanjo.';
 
   async function handleFollow(e) {

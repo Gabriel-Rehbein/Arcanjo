@@ -5,6 +5,7 @@ import styles from "../styles/components/ProjectCard.module.css";
 import { useApiFetch } from "../utils/api";
 import { getToken, getUser } from "../utils/auth";
 import { getPublicationTypeLabel } from "../utils/publicationTypes";
+import { assetPath } from "../utils/paths";
 
 export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const router = useRouter();
@@ -26,11 +27,12 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
   const hasOwnerActions = isOwnProject && onDelete;
   const hasVisitorActions = !isOwnProject;
 
-  const image = project?.image_url || "/img/logoaba.png";
+  const fallbackImage = assetPath("/img/logoaba.png");
+  const image = project?.image_url || fallbackImage;
   const avatar =
     project?.user?.avatar_url ||
     project?.author?.avatar_url ||
-    "/img/logoaba.png";
+    fallbackImage;
 
   const username =
     project?.user?.username ||
@@ -153,7 +155,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
                   className={styles.avatar}
                   src={avatar}
                   alt={username}
-                  onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+                  onError={(e) => (e.currentTarget.src = fallbackImage)}
                 />
             </Link>
 
@@ -232,7 +234,7 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
           <img
             src={image}
             alt={project?.title || "Projeto"}
-            onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+            onError={(e) => (e.currentTarget.src = fallbackImage)}
           />
 
           {likedAnimation && (
@@ -338,9 +340,9 @@ export default function ProjectCard({ project, onLike, onSave, onDelete }) {
               {comments.map((comment) => (
                 <div key={comment.id} className={styles.commentItem}>
                   <img
-                    src={comment?.user?.avatar_url || "/img/logoaba.png"}
+                    src={comment?.user?.avatar_url || fallbackImage}
                     alt="avatar"
-                    onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+                    onError={(e) => (e.currentTarget.src = fallbackImage)}
                   />
 
                   <div>

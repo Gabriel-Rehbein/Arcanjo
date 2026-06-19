@@ -3,7 +3,10 @@ import { useContext } from 'react';
 import LoadingContext from '../contexts/LoadingContext';
 import { startLoading, stopLoading } from './loadingService';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+export const API_BASE_URL =
+  configuredApiUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
 const pendingGetRequests = new Map();
 
 async function fetchWithAuth(
@@ -49,6 +52,12 @@ async function fetchWithAuth(
     }
 
     try {
+      if (!API_BASE_URL) {
+        throw new Error(
+          'API externa nao configurada. Defina NEXT_PUBLIC_API_URL com a URL do backend hospedado.'
+        );
+      }
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers,
         ...options,

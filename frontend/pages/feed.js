@@ -6,8 +6,10 @@ import ProjectCard from '../components/ProjectCard';
 import styles from '../styles/pages/feed.module.css';
 import { useApiFetch } from '../utils/api';
 import { getUser } from '../utils/auth';
+import { useAuthGuard } from '../utils/useAuthGuard';
 
 export default function Feed({ initialProjects = [], initialStories = [], initialUser = null, initialError = '' }) {
+  useAuthGuard();
 
   const [projects, setProjects] = useState(initialProjects);
   const [stories, setStories] = useState(initialStories);
@@ -18,6 +20,7 @@ export default function Feed({ initialProjects = [], initialStories = [], initia
 
   useEffect(() => {
     setCurrentUser((current) => current || getUser());
+    loadFeed();
   }, []);
 
   async function loadFeed() {
@@ -136,37 +139,4 @@ export default function Feed({ initialProjects = [], initialStories = [], initia
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps({ req }) {
-  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
-  const auth = getServerAuth(req);
-
-  if (!auth.token) return redirectToLogin();
-
-  try {
-    const [projects, stories] = await Promise.all([
-      serverApiFetch('/projects/feed', auth),
-      serverApiFetch('/stories/feed', auth),
-    ]);
-
-    return {
-      props: {
-        initialProjects: Array.isArray(projects) ? projects : [],
-        initialStories: Array.isArray(stories) ? stories : [],
-        initialUser: auth.username,
-      },
-    };
-  } catch (error) {
-    if (error.status === 401 || error.status === 403) return redirectToLogin();
-
-    return {
-      props: {
-        initialProjects: [],
-        initialStories: [],
-        initialUser: auth.username,
-        initialError: error.message || 'Erro ao carregar o feed.',
-      },
-    };
-  }
 }

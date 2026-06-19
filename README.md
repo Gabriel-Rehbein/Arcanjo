@@ -213,6 +213,48 @@ Novas funcionalidades, melhorias visuais e recursos estão sendo implementados c
 
 ---
 
+## Deploy no GitHub Pages
+
+O GitHub Pages hospeda apenas sites estaticos. Neste projeto, o frontend em `frontend/` usa Next.js com `output: 'export'`, entao ele pode ser publicado no GitHub Pages. O backend em `backend/` usa Node.js/Express e PostgreSQL, por isso nao roda diretamente no GitHub Pages.
+
+Para deixar o sistema online completo:
+
+1. Hospede o backend separadamente em uma plataforma para Node.js, como Render, Railway, Fly.io, VPS ou outro servico equivalente.
+2. Configure as variaveis do backend nesse servico, incluindo banco PostgreSQL, `JWT_SECRET`, `FRONTEND_URL` e demais valores do `backend/.env.example`.
+3. No GitHub, va em `Settings > Secrets and variables > Actions > Variables`.
+4. Crie a variavel `NEXT_PUBLIC_API_URL` com a URL publica do backend, por exemplo `https://arcanjo-api.onrender.com`.
+5. Va em `Settings > Pages`.
+6. Em `Build and deployment`, selecione `GitHub Actions`.
+7. Faca push na branch `main`.
+
+O workflow `.github/workflows/deploy.yml` instala as dependencias do frontend, executa `npm run build` dentro de `frontend/` e publica a pasta `frontend/out` no GitHub Pages.
+
+Se o repositorio se chamar `Arcanjo`, a URL esperada sera:
+
+`https://SEU_USUARIO.github.io/Arcanjo/`
+
+Se o repositorio tiver outro nome, o workflow usa automaticamente o nome real do repositorio como base path.
+
+### Comandos uteis
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+Para desenvolvimento local, mantenha `frontend/.env.local` apontando para o backend local:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+API_INTERNAL_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_PATH=/Arcanjo
+```
+
+Em producao no GitHub Pages, o frontend deve consumir o backend externo usando `NEXT_PUBLIC_API_URL`.
+
+---
+
 ## ✨ Melhorias aplicadas
 
 - CORS restrito ao frontend configurado via `FRONTEND_URL`

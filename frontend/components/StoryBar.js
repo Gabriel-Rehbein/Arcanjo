@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from '../styles/components/StoryBar.module.css';
 import { useApiFetch } from '../utils/api';
+import { assetPath } from '../utils/paths';
 
 const STORY_TTL_MS = 20 * 60 * 60 * 1000;
 
@@ -99,7 +100,7 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
     {
       id: 'create',
       username: 'Criar',
-      avatar_url: '/img/logoaba.png',
+      avatar_url: assetPath('/img/logoaba.png'),
       isCreate: true,
     },
   ];
@@ -179,10 +180,10 @@ export default function StoryBar({ stories = [], onOpenStory, onStoryCreated }) 
           >
             <div className={styles.avatarRing}>
               <img
-                src={story.avatar_url || story.user?.avatar_url || '/img/logoaba.png'}
+                src={story.avatar_url || story.user?.avatar_url || assetPath('/img/logoaba.png')}
                 alt={story.username || story.user?.full_name || story.user?.username || 'Story'}
                 onError={(e) => {
-                  e.currentTarget.src = '/img/logoaba.png';
+                  e.currentTarget.src = assetPath('/img/logoaba.png');
                 }}
               />
             </div>

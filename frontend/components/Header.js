@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/components/Header.module.css';
 import { getUser } from '../utils/auth';
+import { assetPath } from '../utils/paths';
 
 export default function Header() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function Header() {
         className={styles.logo}
         onClick={() => router.push('/feed')}
       >
-        <img src="/img/logoaba.png" alt="Arcanjo" />
+        <img src={assetPath('/img/logoaba.png')} alt="Arcanjo" />
         <span>Arcanjo</span>
       </button>
 
@@ -78,9 +79,9 @@ export default function Header() {
           onClick={() => router.push(username ? `/profile?username=${username}` : '/profile')}
         >
           <img
-            src="/img/logoaba.png"
+            src={assetPath('/img/logoaba.png')}
             alt={username || 'Perfil'}
-            onError={(e) => (e.currentTarget.src = "/img/logoaba.png")}
+            onError={(e) => (e.currentTarget.src = assetPath('/img/logoaba.png'))}
           />
           <span>{username || 'Perfil'}</span>
         </button>

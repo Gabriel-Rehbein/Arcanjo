@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import ProjectCard from '../components/ProjectCard';
@@ -15,7 +15,6 @@ export default function Trending({ initialProjects = [], initialUser = null, ini
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(initialError);
   const [currentUser, setCurrentUser] = useState(initialUser);
-  const hasServerData = useRef(true);
   const api = useApiFetch();
 
   const filters = [
@@ -27,10 +26,6 @@ export default function Trending({ initialProjects = [], initialUser = null, ini
 
   useEffect(() => {
     setCurrentUser((current) => current || getUser());
-    if (hasServerData.current) {
-      hasServerData.current = false;
-      return;
-    }
     loadTrending();
   }, [filter]);
 
@@ -122,30 +117,4 @@ export default function Trending({ initialProjects = [], initialUser = null, ini
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps({ req }) {
-  const { getServerAuth, redirectToLogin, serverApiFetch } = await import('../utils/ssr');
-  const auth = getServerAuth(req);
-
-  if (!auth.token) return redirectToLogin();
-
-  try {
-    const projects = await serverApiFetch('/projects/trending?period=today', auth);
-    return {
-      props: {
-        initialProjects: Array.isArray(projects) ? projects : [],
-        initialUser: auth.username,
-      },
-    };
-  } catch (error) {
-    if (error.status === 401 || error.status === 403) return redirectToLogin();
-    return {
-      props: {
-        initialProjects: [],
-        initialUser: auth.username,
-        initialError: error.message || 'Erro ao carregar tendencias.',
-      },
-    };
-  }
 }
